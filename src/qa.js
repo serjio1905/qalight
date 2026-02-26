@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
-import { DEFAULT_WAIT_TIME } from "./settings";
+
+const DEFAULT_WAIT_TIME = 1000;
 
 export class QAError extends Error {
     constructor(message) {
