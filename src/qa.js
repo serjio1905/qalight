@@ -2,14 +2,14 @@ import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
 import { DEFAULT_WAIT_TIME } from "./settings";
 
-class QAError extends Error {
+export class QAError extends Error {
     constructor(message) {
         super(message);
         this.name = "QAError";
     }
 }
 
-class QA {
+export class QA {
     DEFAULT_WAIT_TIME = DEFAULT_WAIT_TIME;
     DEFAULT_MATCHING_WEIGHT = 0.5;
     DEFAULT_PARTIAL_MATCHING_WEIGHT = 0.1;
@@ -1138,5 +1138,3 @@ class QA {
         return lastElement ? `${lastElement.tag} (${details})` : "";
     }
 }
-
-export default QA;
