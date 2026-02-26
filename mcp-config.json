@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp",
+        "--port",
+        "8931",
+        "--headless",
+        "--browser",
+        "chromium"
+      ],
+      "description": "Playwright MCP server for automated testing and browser automation"
+    }
+  }
+}

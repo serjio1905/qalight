@@ -3,13 +3,36 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:headed:chromium": "playwright test --headed --project=chromium",
+    "test:headed:firefox": "playwright test --headed --project=firefox",
+    "test:headed:webkit": "playwright test --headed --project=webkit",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:chrome": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "test:report": "playwright show-report",
+    "test:codegen": "playwright codegen --browser=chromium",
+    "verify": "node verify-installation.js",
+    "mcp": "npx @playwright/mcp --port 8931",
+    "mcp:headless": "npx @playwright/mcp --port 8931 --headless --browser chromium"
   },
-  "keywords": [],
+  "keywords": [
+    "playwright",
+    "testing",
+    "automation",
+    "qa",
+    "chai"
+  ],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@playwright/mcp": "^0.0.42",
+    "@playwright/test": "^1.48.0",
+    "chai": "^4.3.7",
     "eslint": "^9.39.3"
   }
 }

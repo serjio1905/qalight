@@ -1,0 +1,318 @@
+{
+  "config": {
+    "configFile": "/Users/olgarubanova/Projects/olha/qalight/playwright.config.js",
+    "rootDir": "/Users/olgarubanova/Projects/olha/qalight/src/demo",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/olgarubanova/Projects/olha/qalight/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/olgarubanova/Projects/olha/qalight/src/demo",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 100000
+      },
+      {
+        "outputDir": "/Users/olgarubanova/Projects/olha/qalight/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/olgarubanova/Projects/olha/qalight/src/demo",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 100000
+      },
+      {
+        "outputDir": "/Users/olgarubanova/Projects/olha/qalight/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/olgarubanova/Projects/olha/qalight/src/demo",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 100000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "google.spec.js",
+      "file": "google.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "google search",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 100000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 17780,
+                  "error": {
+                    "message": "QAError: No element was found a (https://playwright.dev)",
+                    "stack": "QAError: No element was found a (https://playwright.dev)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:696:23)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA.click (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:204:9)\n    at /Users/olgarubanova/Projects/olha/qalight/src/demo/google.spec.js:9:3",
+                    "location": {
+                      "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                      "column": 23,
+                      "line": 696
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39m../qa.js:696\n\n\u001b[0m \u001b[90m 694 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitFor(\u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m \u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 695 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39m_hideHint()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 696 |\u001b[39m                 \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mQAError\u001b[39m(\u001b[32m`No element was found ${this._describeLastElementInQueue()}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 697 |\u001b[39m             }\n \u001b[90m 698 |\u001b[39m             \u001b[36mif\u001b[39m (checking \u001b[33m&&\u001b[39m tries \u001b[33m>\u001b[39m \u001b[35m1\u001b[39m) {\n \u001b[90m 699 |\u001b[39m                 \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue \u001b[33m=\u001b[39m []\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                        "column": 23,
+                        "line": 696
+                      },
+                      "message": "QAError: No element was found a (https://playwright.dev)\n\n\u001b[90m   at \u001b[39m../qa.js:696\n\n\u001b[0m \u001b[90m 694 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitFor(\u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m \u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 695 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39m_hideHint()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 696 |\u001b[39m                 \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mQAError\u001b[39m(\u001b[32m`No element was found ${this._describeLastElementInQueue()}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 697 |\u001b[39m             }\n \u001b[90m 698 |\u001b[39m             \u001b[36mif\u001b[39m (checking \u001b[33m&&\u001b[39m tries \u001b[33m>\u001b[39m \u001b[35m1\u001b[39m) {\n \u001b[90m 699 |\u001b[39m                 \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue \u001b[33m=\u001b[39m []\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:696:23)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA.click (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:204:9)\u001b[22m\n\u001b[2m    at /Users/olgarubanova/Projects/olha/qalight/src/demo/google.spec.js:9:3\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-26T11:56:13.823Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/olgarubanova/Projects/olha/qalight/test-results/google-google-search-chromium/video.webm"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                    "column": 23,
+                    "line": 696
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1c0dbff95e63c5913ac5-0b97061b463b0494b52b",
+          "file": "google.spec.js",
+          "line": 4,
+          "column": 5
+        },
+        {
+          "title": "google search",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 100000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 19937,
+                  "error": {
+                    "message": "QAError: No element was found textarea (search)",
+                    "stack": "QAError: No element was found textarea (search)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:696:23)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA.fill (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:236:9)\n    at /Users/olgarubanova/Projects/olha/qalight/src/demo/google.spec.js:7:3",
+                    "location": {
+                      "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                      "column": 23,
+                      "line": 696
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39m../qa.js:696\n\n\u001b[0m \u001b[90m 694 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitFor(\u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m \u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 695 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39m_hideHint()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 696 |\u001b[39m                 \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mQAError\u001b[39m(\u001b[32m`No element was found ${this._describeLastElementInQueue()}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 697 |\u001b[39m             }\n \u001b[90m 698 |\u001b[39m             \u001b[36mif\u001b[39m (checking \u001b[33m&&\u001b[39m tries \u001b[33m>\u001b[39m \u001b[35m1\u001b[39m) {\n \u001b[90m 699 |\u001b[39m                 \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue \u001b[33m=\u001b[39m []\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                        "column": 23,
+                        "line": 696
+                      },
+                      "message": "QAError: No element was found textarea (search)\n\n\u001b[90m   at \u001b[39m../qa.js:696\n\n\u001b[0m \u001b[90m 694 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitFor(\u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m \u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 695 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39m_hideHint()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 696 |\u001b[39m                 \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mQAError\u001b[39m(\u001b[32m`No element was found ${this._describeLastElementInQueue()}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 697 |\u001b[39m             }\n \u001b[90m 698 |\u001b[39m             \u001b[36mif\u001b[39m (checking \u001b[33m&&\u001b[39m tries \u001b[33m>\u001b[39m \u001b[35m1\u001b[39m) {\n \u001b[90m 699 |\u001b[39m                 \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue \u001b[33m=\u001b[39m []\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:696:23)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA.fill (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:236:9)\u001b[22m\n\u001b[2m    at /Users/olgarubanova/Projects/olha/qalight/src/demo/google.spec.js:7:3\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-26T11:56:13.821Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/olgarubanova/Projects/olha/qalight/test-results/google-google-search-firefox/video.webm"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                    "column": 23,
+                    "line": 696
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1c0dbff95e63c5913ac5-ac094d8bd1ed51401025",
+          "file": "google.spec.js",
+          "line": 4,
+          "column": 5
+        },
+        {
+          "title": "google search",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 100000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "failed",
+                  "duration": 25159,
+                  "error": {
+                    "message": "QAError: No element was found textarea (search)",
+                    "stack": "QAError: No element was found textarea (search)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:696:23)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\n    at QA.fill (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:236:9)\n    at /Users/olgarubanova/Projects/olha/qalight/src/demo/google.spec.js:7:3",
+                    "location": {
+                      "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                      "column": 23,
+                      "line": 696
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39m../qa.js:696\n\n\u001b[0m \u001b[90m 694 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitFor(\u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m \u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 695 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39m_hideHint()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 696 |\u001b[39m                 \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mQAError\u001b[39m(\u001b[32m`No element was found ${this._describeLastElementInQueue()}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 697 |\u001b[39m             }\n \u001b[90m 698 |\u001b[39m             \u001b[36mif\u001b[39m (checking \u001b[33m&&\u001b[39m tries \u001b[33m>\u001b[39m \u001b[35m1\u001b[39m) {\n \u001b[90m 699 |\u001b[39m                 \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue \u001b[33m=\u001b[39m []\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                        "column": 23,
+                        "line": 696
+                      },
+                      "message": "QAError: No element was found textarea (search)\n\n\u001b[90m   at \u001b[39m../qa.js:696\n\n\u001b[0m \u001b[90m 694 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitFor(\u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m \u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 695 |\u001b[39m                 \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39m_hideHint()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 696 |\u001b[39m                 \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mQAError\u001b[39m(\u001b[32m`No element was found ${this._describeLastElementInQueue()}`\u001b[39m\u001b[33m,\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 697 |\u001b[39m             }\n \u001b[90m 698 |\u001b[39m             \u001b[36mif\u001b[39m (checking \u001b[33m&&\u001b[39m tries \u001b[33m>\u001b[39m \u001b[35m1\u001b[39m) {\n \u001b[90m 699 |\u001b[39m                 \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mqueue \u001b[33m=\u001b[39m []\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:696:23)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA._executeQueue (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:707:20)\u001b[22m\n\u001b[2m    at QA.fill (/Users/olgarubanova/Projects/olha/qalight/src/qa.js:236:9)\u001b[22m\n\u001b[2m    at /Users/olgarubanova/Projects/olha/qalight/src/demo/google.spec.js:7:3\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-26T11:56:13.820Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/olgarubanova/Projects/olha/qalight/test-results/google-google-search-webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/olgarubanova/Projects/olha/qalight/test-results/google-google-search-webkit/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/olgarubanova/Projects/olha/qalight/test-results/google-google-search-webkit/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/olgarubanova/Projects/olha/qalight/src/qa.js",
+                    "column": 23,
+                    "line": 696
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1c0dbff95e63c5913ac5-e9f787b4afd53e782649",
+          "file": "google.spec.js",
+          "line": 4,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-26T11:56:13.163Z",
+    "duration": 26030.882,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

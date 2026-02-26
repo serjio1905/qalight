@@ -1,0 +1,59 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - navigation [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Gmail" [ref=e8]:
+          - /url: https://mail.google.com/mail/&ogbl
+        - link "חיפוש תמונות" [ref=e10]:
+          - /url: https://www.google.com/imghp?hl=iw&ogbl
+      - button "אפליקציות Google" [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+      - link "כניסה" [ref=e18]:
+        - /url: https://accounts.google.com/ServiceLogin?hl=iw&passive=true&continue=https://www.google.com/&ec=futura_exp_og_so_72776762_e
+  - img "Google" [ref=e21]
+  - search [ref=e29]:
+    - generic [ref=e31]:
+      - generic [ref=e33]:
+        - img [ref=e37]
+        - combobox "חיפוש" [active] [ref=e40]
+        - generic [ref=e42]:
+          - button "כלי הזנה" [ref=e43] [cursor=pointer]:
+            - img [ref=e45]
+          - button "חיפוש קולי" [ref=e47] [cursor=pointer]:
+            - img [ref=e48]
+          - button "חיפוש לפי תמונה" [ref=e50] [cursor=pointer]:
+            - img [ref=e51]
+      - generic [ref=e54]:
+        - button "חיפוש ב-Google" [ref=e55] [cursor=pointer]
+        - button "יותר מזל משכל" [ref=e56] [cursor=pointer]
+  - generic [ref=e59]:
+    - text: "אפשר לחפש ב-Google גם ב:"
+    - link "العربية" [ref=e60]:
+      - /url: https://www.google.com/setprefs?sig=0_I09ZwilspxJFoLZR9HuWD-Zrzeo%3D&hl=ar&source=homepage&sa=X&ved=0ahUKEwjsnu31jPeSAxVcywIHHcM4PDYQ2ZgBCBU
+    - link "English" [ref=e61]:
+      - /url: https://www.google.com/setprefs?sig=0_I09ZwilspxJFoLZR9HuWD-Zrzeo%3D&hl=en&source=homepage&sa=X&ved=0ahUKEwjsnu31jPeSAxVcywIHHcM4PDYQ2ZgBCBY
+  - contentinfo [ref=e63]:
+    - generic [ref=e64]: ישראל
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - link "מידע כללי" [ref=e67]:
+          - /url: https://about.google/?utm_source=google-IL&utm_medium=referral&utm_campaign=hp-footer&fg=1
+        - link "פרסום" [ref=e68]:
+          - /url: https://www.google.com/intl/iw_il/ads/?subid=ww-ww-et-g-awa-a-g_hpafoot1_1!o2&utm_source=google.com&utm_medium=referral&utm_campaign=google_hpafooter&fg=1
+        - link "עסקים" [ref=e69]:
+          - /url: https://www.google.com/services/?subid=ww-ww-et-g-awa-a-g_hpbfoot1_1!o2&utm_source=google.com&utm_medium=referral&utm_campaign=google_hpbfooter&fg=1
+        - link "כיצד פועל החיפוש" [ref=e70]:
+          - /url: https://google.com/search/howsearchworks/?fg=1
+      - 'link "עשור שלישי לפעילות שלנו בתחום האקלים: למידע נוסף" [ref=e72]':
+        - /url: https://sustainability.google/intl/he/carbon-free/?utm_source=googlehpfooter&utm_medium=housepromos&utm_campaign=bottom-footer&utm_content=
+      - generic [ref=e73]:
+        - link "פרטיות" [ref=e74]:
+          - /url: https://policies.google.com/privacy?hl=iw&fg=1
+        - link "תנאים" [ref=e75]:
+          - /url: https://policies.google.com/terms?hl=iw&fg=1
+        - button "הגדרות" [ref=e79] [cursor=pointer]:
+          - generic [ref=e80]: הגדרות
+```
