@@ -850,9 +850,9 @@ export class QA {
             if (this.currentElement?.locator) {
                 await this._highlight(this.currentElement.locator, { ms: this.timeout });
             }
-            if (QA.reporter) {
-                await QA.reporter.log(text, type);
-            }
+            // if (QA.reporter) {
+            //     await QA.reporter.log(text, type);
+            // }
         } catch (error) {}
     }
 
