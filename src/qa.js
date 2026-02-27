@@ -221,8 +221,8 @@ export class QA {
         return this;
     }
 
-    static setReporter(reporter, testInfo) {
-        this.reporter = new QAReporter(reporter, testInfo);
+    static setReporter(page, testInfo) {
+        this.reporter = new QAReporter(page, testInfo);
     }
 
     setRestrictionMapping(mapping) {
