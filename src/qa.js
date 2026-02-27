@@ -18,23 +18,10 @@ export class QAReporter {
         error: "error",
     };
 
-    static instance = null;
-
-    static getInstance(page, testInfo) {
-        if (!QAReporter.instance) {
-            QAReporter.instance = new QAReporter(page, testInfo);
-        }
-        return QAReporter.instance;
-    }
-
     constructor(page, testInfo) {
-        if (QAReporter.instance) {
-            return QAReporter.instance;
-        }
         this.logs = [];
         this.page = page;
         this.testInfo = testInfo;
-        QAReporter.instance = this;
         return this;
     }
 
@@ -182,11 +169,10 @@ export class QA {
         strong: "strong",
     };
 
-    static instance = null;
+    static reporter = null;
 
     constructor(
         page,
-        testInfo,
         options = {
             timeout: this.DEFAULT_WAIT_TIME,
             waiter: null,
@@ -195,9 +181,6 @@ export class QA {
             restrictionMapping: {},
         }
     ) {
-        if (QA.instance) {
-            return QA.instance;
-        }
         this.page = page;
         this.parentElement = null;
         this.currentElement = null;
@@ -208,9 +191,11 @@ export class QA {
         this.withHint = options.withHint;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
-        this.reporter = new QAReporter(page, testInfo);
-        QA.instance = this;
         return this;
+    }
+
+    static setReporter(reporter, testInfo) {
+        this.reporter = new QAReporter(reporter, testInfo);
     }
 
     setRestrictionMapping(mapping) {
