@@ -10,6 +10,7 @@ export class QAError extends Error {
     }
 }
 
+// QAReporter.js
 export class QAReporter {
     static TYPES = {
         info: "info",
@@ -19,40 +20,66 @@ export class QAReporter {
     };
 
     constructor(page, testInfo) {
-        this.logs = [];
         this.page = page;
         this.testInfo = testInfo;
-        return this;
+        this.logs = [];
+    }
+
+    _icon(type) {
+        return (
+            {
+                [QAReporter.TYPES.info]: "ℹ️",
+                [QAReporter.TYPES.success]: "✅",
+                [QAReporter.TYPES.warning]: "⚠️",
+                [QAReporter.TYPES.error]: "❌",
+            }[type] || "ℹ️"
+        );
     }
 
     async log(message, type = QAReporter.TYPES.info) {
-        const icon = {
-            [QAReporter.TYPES.info]: "ℹ️",
-            [QAReporter.TYPES.success]: "✅",
-            [QAReporter.TYPES.warning]: "⚠️",
-            [QAReporter.TYPES.error]: "❌",
-        };
-        const log = `[${new Date().toISOString()}] ${icon[type]} ${message}`;
-        this.logs.push(log);
-        console.log(log);
-        await this.testInfo.attach(message, { body: Buffer.from(this.logs.join("\n")), contentType: "text/plain" });
+        const line = `[${new Date().toISOString()}] ${this._icon(type)} ${message}`;
+        this.logs.push(line);
+
+        // Optional: keep terminal output; remove if you want silent CLI
+        console.log(line);
+
+        // Optional: quick "last line" attachment (small, useful)
+        await this.testInfo.attach("QA last log line", {
+            body: Buffer.from(line, "utf-8"),
+            contentType: "text/plain",
+        });
+    }
+
+    async info(message) {
+        return await this.log(message, QAReporter.TYPES.info);
     }
 
     async success(message) {
-        this.log(message, QAReporter.TYPES.success);
+        return await this.log(message, QAReporter.TYPES.success);
     }
 
     async warning(message) {
-        this.log(message, QAReporter.TYPES.warning);
+        return await this.log(message, QAReporter.TYPES.warning);
     }
 
     async error(message) {
-        this.log(message, QAReporter.TYPES.error);
+        return await this.log(message, QAReporter.TYPES.error);
     }
 
-    async snapshot() {
-        const img = await this.page.screenshot();
-        await this.testInfo.attach("snapshot", { body: img, contentType: "image/png" });
+    async snapshot(name = "snapshot", opts = {}) {
+        const img = await this.page.screenshot({ fullPage: !!opts.fullPage });
+        await this.testInfo.attach(`📸 ${name}`, {
+            body: img,
+            contentType: "image/png",
+        });
+    }
+
+    // Call once at end of test (best via fixture teardown)
+    async flush() {
+        await this.testInfo.attach("QA Log", {
+            body: Buffer.from(this.logs.join("\n"), "utf-8"),
+            contentType: "text/plain",
+        });
     }
 }
 
@@ -850,9 +877,9 @@ export class QA {
             // if (this.currentElement?.locator) {
             //     await this._highlight(this.currentElement.locator, { ms: this.timeout });
             // }
-            // if (QA.reporter) {
-            //     await QA.reporter.log(text, type);
-            // }
+            if (QA.reporter) {
+                await QA.reporter.log(text, type);
+            }
         } catch (error) {}
     }
 
