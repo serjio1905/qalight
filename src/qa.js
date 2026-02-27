@@ -12,6 +12,7 @@ export class QAError extends Error {
 
 // QAReporter.js
 export class QAReporter {
+    screenshots = true;
     static TYPES = {
         info: "info",
         success: "success",
@@ -37,8 +38,12 @@ export class QAReporter {
     }
 
     async log(message, type = QAReporter.TYPES.info) {
-        const line = `[${new Date().toISOString()}] ${this._icon(type)} ${message}`;
+        const log = `${this._icon(type)} ${message}`;
+        const line = `[${new Date().toISOString()}] ${log}`;
         this.logs.push(line);
+        if (this.screenshots) {
+            await this.snapshot(log);
+        }
 
         // IMPORTANT: remove console.log to avoid "STDOUT" in HTML report
         // if (!this.silent) console.log(line);
@@ -275,9 +280,9 @@ export class QA {
     }
 
     async click(double = false) {
-        await this._showHint(`Clicking on ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
+            await this._showHint(`Clicking on ${this._describeLastElementInQueue()}`, "info");
             if (double) {
                 await this.currentElement.locator.dblclick();
             } else {
@@ -293,9 +298,9 @@ export class QA {
     }
 
     async check(value = true) {
-        await this._showHint(`Checking ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
+            await this._showHint(`Checking ${this._describeLastElementInQueue()}`, "info");
             if (value) {
                 await this.currentElement.locator.check({ force: true });
             } else {
@@ -311,12 +316,12 @@ export class QA {
     }
 
     async fill(text) {
-        await this._showHint(`Filling ${text} in ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         // In rare cases (e.g. password fields) Playwright's .fill() may only fill the first character.
         // Workaround: clear first, then type char-by-char if .fill() fails.
         // await this.currentElement.locator.fill(""); // Always clear before filling
         try {
+            await this._showHint(`Filling ${text} in ${this._describeLastElementInQueue()}`, "info");
             if (typeof text === "number") text = String(text);
             await this.currentElement.locator.fill(text);
             // Check if the fill was successful (compare value)
@@ -341,9 +346,9 @@ export class QA {
     }
 
     async blur() {
-        await this._showHint(`Blurring ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
+            await this._showHint(`Blurring ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.focus();
             await this.page.evaluate(() => {
                 document.activeElement && document.activeElement.blur();
@@ -358,9 +363,9 @@ export class QA {
     }
 
     async focus() {
-        await this._showHint(`Focusing ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
+            await this._showHint(`Focusing ${this._describeLastElementInQueue()}`, "info");
             await this.page.evaluate(() => {
                 document.activeElement && document.activeElement.focus();
             });
@@ -374,9 +379,9 @@ export class QA {
     }
 
     async select(value) {
-        await this._showHint(`Selecting in ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
+            await this._showHint(`Selecting in ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.selectOption(value);
         } catch (error) {
             await this._showHint(`Error selecting in ${this._describeLastElementInQueue()}`, "error");
@@ -388,9 +393,9 @@ export class QA {
     }
 
     async setDateTime(yyyy, MM, dd, HH, mm) {
-        await this._showHint(`Setting date and time to ${yyyy}-${MM}-${dd} ${HH}:${mm}`, "info");
         await this._executeQueue();
         try {
+            await this._showHint(`Setting date and time to ${yyyy}-${MM}-${dd} ${HH}:${mm}`, "info");
             let value = `${yyyy}-${MM < 10 ? `0${MM}` : MM}-${dd < 10 ? `0${dd}` : dd}`;
             if (HH >= 0 && HH < 24 && mm >= 0 && mm < 60) {
                 value += `T${HH < 10 ? `0${HH}` : HH}:${mm < 10 ? `0${mm}` : mm}`;
@@ -415,9 +420,9 @@ export class QA {
     }
 
     async scroll() {
-        await this._showHint(`Scrolling to ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
+            await this._showHint(`Scrolling to ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.scrollIntoViewIfNeeded();
         } catch (error) {
             await this._showHint(`Error scrolling to ${this._describeLastElementInQueue()}`, "error");
@@ -754,7 +759,7 @@ export class QA {
         }
         if (this.currentElement?.locator) {
             this.queue = [];
-            await this._highlight(this.currentElement.locator, { ms: this.timeout });
+            // await this._highlight(this.currentElement.locator, { ms: this.timeout });
         } else {
             if (tries > 4 && !checking) {
                 await this._showHint(`No element was found ${this._describeLastElementInQueue()}`, "error");
@@ -860,12 +865,11 @@ export class QA {
                     { text, color }
                 );
             }
-            // if (this.currentElement?.locator) {
-            //     await this._highlight(this.currentElement.locator, { ms: this.timeout });
-            // }
+            if (this.currentElement?.locator) {
+                await this._highlight(this.currentElement.locator, { ms: this.timeout });
+            }
             if (QA.reporter) {
                 await QA.reporter.log(text, type);
-                await QA.reporter.snapshot();
             }
         } catch (error) {}
     }
