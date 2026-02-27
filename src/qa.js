@@ -41,7 +41,7 @@ export class QAReporter {
         this.logs.push(line);
 
         // IMPORTANT: remove console.log to avoid "STDOUT" in HTML report
-        if (!this.silent) console.log(line);
+        // if (!this.silent) console.log(line);
     }
 
     async info(message) {
@@ -275,7 +275,7 @@ export class QA {
     }
 
     async click(double = false) {
-        await this._showHint(`Clicking on ${this._describeLastElementInQueue()}`, "success");
+        await this._showHint(`Clicking on ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
             if (double) {
@@ -293,7 +293,7 @@ export class QA {
     }
 
     async check(value = true) {
-        await this._showHint(`Checking ${this._describeLastElementInQueue()}`, "success");
+        await this._showHint(`Checking ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
             if (value) {
@@ -301,13 +301,17 @@ export class QA {
             } else {
                 await this.currentElement.locator.uncheck({ force: true });
             }
-        } catch (error) {}
+        } catch (error) {
+            await this._showHint(`Error checking ${this._describeLastElementInQueue()}`, "error");
+            await this.waitFor(3000, false);
+            throw error;
+        }
         await this._hideHint();
         return this;
     }
 
     async fill(text) {
-        await this._showHint(`Filling ${text} in ${this._describeLastElementInQueue()}`, "success");
+        await this._showHint(`Filling ${text} in ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         // In rare cases (e.g. password fields) Playwright's .fill() may only fill the first character.
         // Workaround: clear first, then type char-by-char if .fill() fails.
@@ -337,7 +341,7 @@ export class QA {
     }
 
     async blur() {
-        await this._showHint(`Blurring ${this._describeLastElementInQueue()}`, "success");
+        await this._showHint(`Blurring ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
             await this.currentElement.locator.focus();
@@ -354,7 +358,7 @@ export class QA {
     }
 
     async focus() {
-        await this._showHint(`Focusing ${this._describeLastElementInQueue()}`, "success");
+        await this._showHint(`Focusing ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
             await this.page.evaluate(() => {
@@ -370,7 +374,7 @@ export class QA {
     }
 
     async select(value) {
-        await this._showHint(`Selecting in ${this._describeLastElementInQueue()}`, "success");
+        await this._showHint(`Selecting in ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
             await this.currentElement.locator.selectOption(value);
@@ -384,7 +388,7 @@ export class QA {
     }
 
     async setDateTime(yyyy, MM, dd, HH, mm) {
-        await this._showHint(`Setting date and time to ${yyyy}-${MM}-${dd} ${HH}:${mm}`, "success");
+        await this._showHint(`Setting date and time to ${yyyy}-${MM}-${dd} ${HH}:${mm}`, "info");
         await this._executeQueue();
         try {
             let value = `${yyyy}-${MM < 10 ? `0${MM}` : MM}-${dd < 10 ? `0${dd}` : dd}`;
@@ -402,17 +406,16 @@ export class QA {
     }
 
     async waitFor(timeout = this.DEFAULT_WAIT_TIME, hint) {
-        // await this._executeQueue();
-        if (typeof hint === "string" && hint) this._showHint(hint, "info");
-        if (typeof hint === true) hint = "Waiting for " + timeout + "ms";
+        // if (typeof hint === "string" && hint) this._showHint(hint, "info");
+        // if (typeof hint === true) hint = "Waiting for " + timeout + "ms";
         try {
             await this.page.waitForTimeout(timeout);
         } catch (error) {}
-        if (hint) await this._hideHint();
+        // if (hint) await this._hideHint();
     }
 
     async scroll() {
-        await this._showHint(`Scrolling to ${this._describeLastElementInQueue()}`, "success");
+        await this._showHint(`Scrolling to ${this._describeLastElementInQueue()}`, "info");
         await this._executeQueue();
         try {
             await this.currentElement.locator.scrollIntoViewIfNeeded();
@@ -451,6 +454,7 @@ export class QA {
     async pressEnter() {
         await this._executeQueue();
         try {
+            await this._showHint(`Pressing Enter on ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.press("Enter");
         } catch (error) {
             await this._showHint(`Error pressing Enter on ${this._describeLastElementInQueue()}`, "error");
@@ -462,12 +466,12 @@ export class QA {
     }
 
     async shouldContainText(text, throwError = true) {
-        await this._showHint(`Checking if ${this._describeLastElementInQueue()} contains ${text}`, "warning");
         await this._executeQueue();
         try {
             chaiExpect(
                 this.currentElement.data.text || this.currentElement.data.value || this.currentElement.data.html
             ).to.contain(text);
+            await this._showHint(`${this._describeLastElementInQueue()} contains ${text}`, "success");
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -484,12 +488,12 @@ export class QA {
     }
 
     async shouldNotContainText(text, throwError = true) {
-        await this._showHint(`Checking if ${this._describeLastElementInQueue()} does not contain ${text}`, "warning");
         await this._executeQueue();
         try {
             chaiExpect(
                 this.currentElement.data.text || this.currentElement.data.value || this.currentElement.data.html
             ).to.not.contain(text);
+            await this._showHint(`${this._describeLastElementInQueue()} does not contain ${text}`, "success");
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -506,12 +510,12 @@ export class QA {
     }
 
     async shouldHaveText(text, throwError = true) {
-        await this._showHint(`Checking if ${this._describeLastElementInQueue()} has text ${text}`, "warning");
         await this._executeQueue();
         const actualText = this._cleanText(this.currentElement.data.text);
         const expectedText = this._cleanText(text);
         try {
             chaiExpect(actualText).to.equal(expectedText);
+            await this._showHint(`${this._describeLastElementInQueue()} has text ${text}`, "success");
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -528,10 +532,10 @@ export class QA {
     }
 
     async shouldContainHtml(html, throwError = true) {
-        await this._showHint(`Checking if ${this._describeLastElementInQueue()} contains HTML ${html}`, "warning");
         await this._executeQueue();
         try {
             chaiExpect(this.currentElement.data.html).to.contain(html);
+            await this._showHint(`${this._describeLastElementInQueue()} contains HTML ${html}`, "success");
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -548,13 +552,10 @@ export class QA {
     }
 
     async shouldNotContainHtml(html, throwError = true) {
-        await this._showHint(
-            `Checking if ${this._describeLastElementInQueue()} does not contain HTML ${html}`,
-            "warning"
-        );
         await this._executeQueue();
         try {
             chaiExpect(this.currentElement.data.html).to.not.contain(html);
+            await this._showHint(`${this._describeLastElementInQueue()} does not contain HTML ${html}`, "success");
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -571,13 +572,13 @@ export class QA {
     }
 
     async shouldHaveValue(value, throwError = true) {
-        await this._showHint(`Checking if ${this._describeLastElementInQueue()} has value ${value}`, "warning");
         await this._executeQueue();
         // Clean up any HTML entities like &nbsp; by replacing them with spaces before comparison
         const actualValue = this._cleanText(this.currentElement.data.value);
         const expectedValue = this._cleanText(value);
         try {
             chaiExpect(actualValue).to.equal(expectedValue);
+            await this._showHint(`${this._describeLastElementInQueue()} has value ${value}`, "success");
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -594,7 +595,6 @@ export class QA {
     }
 
     async shouldExist(throwError = true) {
-        await this._showHint(`Checking if ${this._describeLastElementInQueue()} exists`, "warning");
         await this._executeQueue(0, true);
         try {
             const count = await this.currentElement.locator.count();
@@ -602,6 +602,7 @@ export class QA {
                 throw new Error(`Element does not exist: ${this._describeLastElementInQueue()}`);
             }
             await expect(this.currentElement.locator.first()).toBeVisible();
+            await this._showHint(`${this._describeLastElementInQueue()} exists`, "success");
         } catch (error) {
             if (throwError) {
                 await this._showHint(`Error checking if ${this._describeLastElementInQueue()} exists`, "error");
@@ -615,7 +616,6 @@ export class QA {
     }
 
     async shouldNotExist(throwError = true) {
-        await this._showHint(`Checking if ${this._describeLastElementInQueue()} does not exist`, "warning");
         await this._executeQueue(0, true);
         if (!this.currentElement?.locator) return true;
         const count = await this.currentElement.locator.count();
@@ -627,20 +627,21 @@ export class QA {
             }
             return false;
         }
+        await this._showHint(`${this._describeLastElementInQueue()} does not exist`, "success");
         await this._hideHint();
         return true;
     }
 
     async shouldBeChecked(value = true, throwError = true) {
-        await this._showHint(
-            `Checking if ${this._describeLastElementInQueue()} is ${value ? "checked" : "unchecked"}`,
-            "warning"
-        );
         await this._executeQueue();
         try {
             chaiExpect(
                 this.currentElement.data.checked === "" || this.currentElement.data.checked ? true : false
             ).to.equal(value);
+            await this._showHint(
+                `${this._describeLastElementInQueue()} is ${value ? "checked" : "unchecked"}`,
+                "success"
+            );
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -657,13 +658,10 @@ export class QA {
     }
 
     async shouldContainClass(className, throwError = true) {
-        await this._showHint(
-            `Checking if ${this._describeLastElementInQueue()} contains class ${className}`,
-            "warning"
-        );
         await this._executeQueue();
         try {
             chaiExpect(this.currentElement.data.class).to.contain(className);
+            await this._showHint(`${this._describeLastElementInQueue()} contains class ${className}`, "success");
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -680,13 +678,13 @@ export class QA {
     }
 
     async shouldNotContainClass(className, throwError = true) {
-        await this._showHint(
-            `Checking if ${this._describeLastElementInQueue()} does not contain class ${className}`,
-            "warning"
-        );
         await this._executeQueue();
         try {
             chaiExpect(this.currentElement.data.class).to.not.contain(className);
+            await this._showHint(
+                `${this._describeLastElementInQueue()} does not contain class ${className}`,
+                "success"
+            );
         } catch (error) {
             if (throwError) {
                 await this._showHint(
@@ -704,20 +702,14 @@ export class QA {
 
     expect = {
         equal: async (actualValue, expectedValue, hint) => {
-            await this._showHint(
-                `Checking if ${actualValue} ${hint ? `(${hint})` : ""} is equal to ${expectedValue}`,
-                "warning"
-            );
             chaiExpect(actualValue).to.equal(expectedValue);
+            await this._showHint(`${this._describeLastElementInQueue()} is equal to ${expectedValue}`, "success");
             await this.waitFor(Math.max(this.timeout, 500), false);
             await this._hideHint();
         },
         notEqual: async (actualValue, expectedValue, hint) => {
-            await this._showHint(
-                `Checking if ${actualValue} ${hint ? `(${hint})` : ""} is not equal to ${expectedValue}`,
-                "warning"
-            );
             chaiExpect(actualValue).to.not.equal(expectedValue);
+            await this._showHint(`${this._describeLastElementInQueue()} is not equal to ${expectedValue}`, "success");
             await this.waitFor(Math.max(this.timeout, 500), false);
             await this._hideHint();
         },
@@ -873,6 +865,7 @@ export class QA {
             // }
             if (QA.reporter) {
                 await QA.reporter.log(text, type);
+                await QA.reporter.snapshot();
             }
         } catch (error) {}
     }
