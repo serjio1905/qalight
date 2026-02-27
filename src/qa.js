@@ -222,7 +222,7 @@ export class QA {
     }
 
     static setReporter(page, testInfo) {
-        this.reporter = new QAReporter(page, testInfo);
+        QA.reporter = new QAReporter(page, testInfo);
     }
 
     setRestrictionMapping(mapping) {
