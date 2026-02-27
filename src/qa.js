@@ -847,9 +847,9 @@ export class QA {
                     { text, color }
                 );
             }
-            // if (this.currentElement?.locator) {
-            //     await this._highlight(this.currentElement.locator, { ms: this.timeout });
-            // }
+            if (this.currentElement?.locator) {
+                await this._highlight(this.currentElement.locator, { ms: this.timeout });
+            }
             // if (QA.reporter) {
             //     await QA.reporter.log(text, type);
             // }
