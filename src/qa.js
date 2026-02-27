@@ -741,7 +741,7 @@ export class QA {
         }
         if (this.currentElement?.locator) {
             this.queue = [];
-            await this._highlight(this.currentElement.locator, { ms: this.timeout });
+            // await this._highlight(this.currentElement.locator, { ms: this.timeout });
         } else {
             if (tries > 4 && !checking) {
                 await this._showHint(`No element was found ${this._describeLastElementInQueue()}`, "error");
@@ -846,6 +846,12 @@ export class QA {
                     },
                     { text, color }
                 );
+            }
+            if (this.currentElement?.locator) {
+                await this._highlight(this.currentElement.locator, { ms: this.timeout });
+            }
+            if (QA.reporter) {
+                await QA.reporter.log(text, type);
             }
         } catch (error) {}
     }
