@@ -10,6 +10,65 @@ export class QAError extends Error {
     }
 }
 
+export class QAReporter {
+    static TYPES = {
+        info: "info",
+        success: "success",
+        warning: "warning",
+        error: "error",
+    };
+
+    static instance = null;
+
+    static getInstance(page, testInfo) {
+        if (!QAReporter.instance) {
+            QAReporter.instance = new QAReporter(page, testInfo);
+        }
+        return QAReporter.instance;
+    }
+
+    constructor(page, testInfo) {
+        if (QAReporter.instance) {
+            return QAReporter.instance;
+        }
+        this.logs = [];
+        this.page = page;
+        this.testInfo = testInfo;
+        QAReporter.instance = this;
+        return this;
+    }
+
+    async log(message, type = QAReporter.TYPES.info) {
+        const icon = {
+            [QAReporter.TYPES.info]: "ℹ️",
+            [QAReporter.TYPES.success]: "✅",
+            [QAReporter.TYPES.warning]: "⚠️",
+            [QAReporter.TYPES.error]: "❌",
+        };
+        const log = `[${new Date().toISOString()}] ${icon[type]} ${message}`;
+        this.logs.push(log);
+        console.log(log);
+        await this.testInfo.attach(message, { body: Buffer.from(this.logs.join("\n")), contentType: "text/plain" });
+    }
+
+    async success(message) {
+        this.log(message, QAReporter.TYPES.success);
+    }
+
+    async warning(message) {
+        this.log(message, QAReporter.TYPES.warning);
+    }
+
+    async error(message) {
+        this.log(message, QAReporter.TYPES.error);
+    }
+
+    async snapshot() {
+        const img = await this.page.screenshot();
+        await this.testInfo.attach("snapshot", { body: img, contentType: "image/png" });
+    }
+}
+
 export class QA {
     DEFAULT_WAIT_TIME = DEFAULT_WAIT_TIME;
     DEFAULT_MATCHING_WEIGHT = 0.5;
@@ -123,8 +182,11 @@ export class QA {
         strong: "strong",
     };
 
+    static instance = null;
+
     constructor(
         page,
+        testInfo,
         options = {
             timeout: this.DEFAULT_WAIT_TIME,
             waiter: null,
@@ -133,6 +195,9 @@ export class QA {
             restrictionMapping: {},
         }
     ) {
+        if (QA.instance) {
+            return QA.instance;
+        }
         this.page = page;
         this.parentElement = null;
         this.currentElement = null;
@@ -143,6 +208,9 @@ export class QA {
         this.withHint = options.withHint;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
+        this.reporter = new QAReporter(page, testInfo);
+        QA.instance = this;
+        return this;
     }
 
     setRestrictionMapping(mapping) {
