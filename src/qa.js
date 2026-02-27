@@ -40,14 +40,8 @@ export class QAReporter {
         const line = `[${new Date().toISOString()}] ${this._icon(type)} ${message}`;
         this.logs.push(line);
 
-        // Optional: keep terminal output; remove if you want silent CLI
-        console.log(line);
-
-        // Optional: quick "last line" attachment (small, useful)
-        await this.testInfo.attach("QA last log line", {
-            body: Buffer.from(line, "utf-8"),
-            contentType: "text/plain",
-        });
+        // IMPORTANT: remove console.log to avoid "STDOUT" in HTML report
+        if (!this.silent) console.log(line);
     }
 
     async info(message) {
@@ -75,8 +69,8 @@ export class QAReporter {
     }
 
     // Call once at end of test (best via fixture teardown)
-    async flush() {
-        await this.testInfo.attach("QA Log", {
+    async flush(name = "QA Log") {
+        await this.testInfo.attach(name, {
             body: Buffer.from(this.logs.join("\n"), "utf-8"),
             contentType: "text/plain",
         });
