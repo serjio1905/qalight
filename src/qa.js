@@ -203,7 +203,7 @@ export class QA {
             waiter: null,
             withHighlight: true,
             withHint: false,
-            withSnapshot: false,
+            withSnapshots: false,
             restrictionMapping: {},
         }
     ) {
@@ -215,7 +215,7 @@ export class QA {
         this.waiter = options.waiter;
         this.withHighlight = options.withHighlight;
         this.withHint = options.withHint;
-        this.withSnapshot = options.withSnapshot;
+        this.withSnapshots = options.withSnapshots;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
         return this;
@@ -894,7 +894,7 @@ export class QA {
                 await this._highlight(this.currentElement.locator, { ms: this.timeout });
             }
             if (QA.reporter) {
-                await QA.reporter.log(text, type, this.withSnapshot);
+                await QA.reporter.log(text, type, this.withSnapshots);
             }
         } catch (error) {}
     }
