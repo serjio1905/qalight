@@ -758,6 +758,7 @@ export class QA {
             }
         }
         if (this.currentElement?.locator) {
+            this._describeLastElementInQueue();
             this.queue = [];
             // await this._highlight(this.currentElement.locator, { ms: this.timeout });
         } else {
@@ -768,6 +769,7 @@ export class QA {
                 throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
             }
             if (checking && tries > 1) {
+                this._describeLastElementInQueue();
                 this.queue = [];
                 return this;
             }
@@ -1170,49 +1172,54 @@ export class QA {
 
     _describeLastElementInQueue() {
         // const lastElement = this.queue[this.queue.length - 1];
-        let details = "";
-        const lastElement = this.queue[this.queue.length - 1];
-        for (const elem of this.queue) {
-            let addSpecialSymbol = false;
-            if (details.length > 0) addSpecialSymbol = true;
-            if (typeof elem === "object") {
-                if (Array.isArray(elem.identifiers)) {
-                    for (const identifier of elem.identifiers) {
-                        if (typeof identifier === "string") {
-                            if (addSpecialSymbol && identifier) {
-                                details += " > ";
-                                addSpecialSymbol = false;
+        let description = null;
+        if (this.queue.length > 0) {
+            let details = "";
+            const lastElement = this.queue[this.queue.length - 1];
+            for (const elem of this.queue) {
+                let addSpecialSymbol = false;
+                if (details.length > 0) addSpecialSymbol = true;
+                if (typeof elem === "object") {
+                    if (Array.isArray(elem.identifiers)) {
+                        for (const identifier of elem.identifiers) {
+                            if (typeof identifier === "string") {
+                                if (addSpecialSymbol && identifier) {
+                                    details += " > ";
+                                    addSpecialSymbol = false;
+                                }
+                                details += `${identifier}`;
+                            } else if (Array.isArray(identifier)) {
+                                if (addSpecialSymbol && identifier) {
+                                    details += " > ";
+                                    addSpecialSymbol = false;
+                                }
+                                details += `${JSON.stringify(
+                                    identifier.map((item) => {
+                                        if (typeof item === "string") {
+                                            return item;
+                                        } else if (typeof item === "object") {
+                                            return `${Object.entries(item)
+                                                .map(([key, value]) => `${key}=${value}`)
+                                                .join(", ")}`;
+                                        }
+                                    })
+                                )}`;
+                            } else if (typeof identifier === "object") {
+                                if (addSpecialSymbol && identifier) {
+                                    details += " > ";
+                                    addSpecialSymbol = false;
+                                }
+                                details += `${Object.entries(identifier)
+                                    .map(([key, value]) => `${key}=${value}`)
+                                    .join(", ")}`;
                             }
-                            details += `${identifier}`;
-                        } else if (Array.isArray(identifier)) {
-                            if (addSpecialSymbol && identifier) {
-                                details += " > ";
-                                addSpecialSymbol = false;
-                            }
-                            details += `${JSON.stringify(
-                                identifier.map((item) => {
-                                    if (typeof item === "string") {
-                                        return item;
-                                    } else if (typeof item === "object") {
-                                        return `${Object.entries(item)
-                                            .map(([key, value]) => `${key}=${value}`)
-                                            .join(", ")}`;
-                                    }
-                                })
-                            )}`;
-                        } else if (typeof identifier === "object") {
-                            if (addSpecialSymbol && identifier) {
-                                details += " > ";
-                                addSpecialSymbol = false;
-                            }
-                            details += `${Object.entries(identifier)
-                                .map(([key, value]) => `${key}=${value}`)
-                                .join(", ")}`;
                         }
                     }
                 }
             }
+            description = lastElement ? `${lastElement.tag} (${details})` : "";
+            this._shadowDescription = description;
         }
-        return lastElement ? `${lastElement.tag} (${details})` : "";
+        return description || this._shadowDescription;
     }
 }
