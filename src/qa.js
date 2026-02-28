@@ -599,6 +599,26 @@ export class QA {
         return true;
     }
 
+    async shouldContainValue(value, throwError = true) {
+        await this._executeQueue();
+        try {
+            chaiExpect(this.currentElement.data.value).to.contain(value);
+            await this._showHint(`${this._describeLastElementInQueue()} contains value ${value}`, "success");
+        } catch (error) {
+            if (throwError) {
+                await this._showHint(
+                    `Error checking if ${this._describeLastElementInQueue()} contains value ${value}`,
+                    "error"
+                );
+                await this.waitFor(3000, false);
+                throw error;
+            }
+            return false;
+        }
+        await this._hideHint();
+        return true;
+    }
+
     async shouldExist(throwError = true) {
         await this._executeQueue(0, true);
         try {
@@ -967,20 +987,6 @@ export class QA {
         // const opts = { timeout };
         const [dom, isVisible, isEnabled] = await Promise.all([
             locator.evaluate((el) => {
-                const e = el;
-
-                // all attributes on the element
-                const attrs = {};
-                for (const a of Array.from(el.attributes)) attrs[a.name] = a.value;
-
-                // tag-level inline style (style="...")
-                const inlineStyle = el.getAttribute("style") ?? "";
-
-                // common “value/checked” for form elements
-                const input = el;
-                const value = "value" in input ? input.value : null;
-                const checked = el.checked === "";
-
                 function getTdColumnName(el) {
                     const tag = el.tagName.toLowerCase();
                     if (tag !== "td") return null;
@@ -1060,6 +1066,26 @@ export class QA {
                     }
                     return label;
                 }
+
+                function getValuesOfAllInnerElements(el) {
+                    return Array.from(el.querySelectorAll("input, textarea, select"))
+                        .map((el) => el.value)
+                        .join(" ");
+                }
+
+                const e = el;
+
+                // all attributes on the element
+                const attrs = {};
+                for (const a of Array.from(el.attributes)) attrs[a.name] = a.value;
+
+                // tag-level inline style (style="...")
+                const inlineStyle = el.getAttribute("style") ?? "";
+
+                // common “value/checked” for form elements
+                const input = el;
+                const value = "value" in input ? input.value : getValuesOfAllInnerElements(el);
+                const checked = el.checked === "";
 
                 const dom = {
                     tagName: el.tagName.toLowerCase(),
