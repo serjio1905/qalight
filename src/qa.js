@@ -12,7 +12,6 @@ export class QAError extends Error {
 
 // QAReporter.js
 export class QAReporter {
-    screenshots = true;
     static TYPES = {
         info: "info",
         success: "success",
@@ -37,11 +36,11 @@ export class QAReporter {
         );
     }
 
-    async log(message, type = QAReporter.TYPES.info) {
+    async log(message, type = QAReporter.TYPES.info, withSnapshot = false) {
         const log = `${this._icon(type)} ${message}`;
         const line = `[${new Date().toISOString()}] ${log}`;
         this.logs.push(line);
-        if (this.screenshots) {
+        if (withSnapshot) {
             await this.snapshot(log);
         }
 
@@ -204,6 +203,7 @@ export class QA {
             waiter: null,
             withHighlight: true,
             withHint: false,
+            withSnapshot: false,
             restrictionMapping: {},
         }
     ) {
@@ -215,6 +215,7 @@ export class QA {
         this.waiter = options.waiter;
         this.withHighlight = options.withHighlight;
         this.withHint = options.withHint;
+        this.withSnapshot = options.withSnapshot;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
         return this;
@@ -893,7 +894,7 @@ export class QA {
                 await this._highlight(this.currentElement.locator, { ms: this.timeout });
             }
             if (QA.reporter) {
-                await QA.reporter.log(text, type);
+                await QA.reporter.log(text, type, this.withSnapshot);
             }
         } catch (error) {}
     }
