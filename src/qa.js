@@ -307,9 +307,11 @@ export class QA {
                 await this.currentElement.locator.uncheck({ force: true });
             }
         } catch (error) {
-            await this._showHint(`Error checking ${this._describeLastElementInQueue()}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (!error.message?.includes("did not change its state")) {
+                await this._showHint(`Error checking ${this._describeLastElementInQueue()}`, "error");
+                await this.waitFor(3000, false);
+                throw error;
+            }
         }
         await this._hideHint();
         return this;
