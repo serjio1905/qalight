@@ -491,7 +491,7 @@ export class QA {
                 identifiersString += `, ${key}*="${value}"`;
             }
             identifiersString += `]`;
-            const targetElement = this.currentElement.locator.locator(tag, { hasText: text });
+            const targetElement = this.page.locator(tag, { hasText: text });
             await this._scrollContairnerUntilTargetVisible(this.currentElement.locator, targetElement, { direction });
         } catch (error) {
             await this._showHint(`Error scrolling to ${text}`, "error");
