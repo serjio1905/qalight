@@ -507,7 +507,7 @@ export class QA {
         await this._executeQueue();
         try {
             await this._showHint(`Scrolling to ${text}`, "info");
-            let identifiersString = `[${tag}`;
+            let identifiersString = `${tag}[`;
             for (const [key, value] of Object.entries(attrs)) {
                 identifiersString += `, ${key}*="${value}"`;
             }
