@@ -460,8 +460,10 @@ export class QA {
                 (el, { direction, step }) => {
                     if (direction === "vertical") {
                         el.scrollTop += step;
-                    } else {
+                    } else if (direction === "horizontal") {
                         el.scrollLeft += step;
+                    } else {
+                        throw new Error(`Invalid direction: ${direction}`);
                     }
                 },
                 { direction, step }
@@ -476,6 +478,7 @@ export class QA {
      *
      * @param {string} tag
      * @param {string} text
+     * @param {Record<string, string>} attrs
      * @param {("vertical" | "horizontal")} direction
      * @returns {Promise<QA>}
      */
@@ -488,7 +491,7 @@ export class QA {
                 identifiersString += `, ${key}*="${value}"`;
             }
             identifiersString += `]`;
-            const targetElement = this.currentElement.locator.locator(identifiersString, { hasText: text });
+            const targetElement = this.currentElement.locator.locator(tag, { hasText: text });
             await this._scrollContairnerUntilTargetVisible(this.currentElement.locator, targetElement, { direction });
         } catch (error) {
             await this._showHint(`Error scrolling to ${text}`, "error");
