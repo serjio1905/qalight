@@ -230,12 +230,18 @@ export class QA {
         return this;
     }
 
-    async open(url) {
+    async open(url, ...args) {
         this.parentElement = null;
         this.currentElement = null;
         this.matchedElements = [];
         this.queue = [];
-        return await this.page.goto(url);
+        let fullUrl = url;
+        for (const arg of args) {
+            if (typeof arg === "string") {
+                fullUrl = `${fullUrl}/${arg}`;
+            }
+        }
+        return await this.page.goto(fullUrl);
     }
 
     async refreshPage() {
