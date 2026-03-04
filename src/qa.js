@@ -475,8 +475,12 @@ export class QA {
             el.scrollLeft = 0;
         });
 
+        let found = false;
         for (let i = 0; i < maxTries; i++) {
-            if (await this._checkIfVisible(target)) return;
+            if (await this._checkIfVisible(target)) {
+                found = true;
+                step = 50;
+            }
             await container.evaluate(
                 (el, { direction, step }) => {
                     if (direction === "vertical") {
@@ -489,7 +493,7 @@ export class QA {
                 },
                 { direction, step }
             );
-
+            if (found) return;
             await this.page.waitForTimeout(delayMs);
         }
         await expect(target).toBeVisible();
