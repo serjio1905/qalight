@@ -444,8 +444,20 @@ export class QA {
 
     async _checkIfVisible(target) {
         try {
-            await target.first().isVisible();
-            return true;
+            const isVisible = await target.first().isVisible();
+            if (isVisible) {
+                const isInViewport = await target.first().evaluate((el) => {
+                    const rect = el.getBoundingClientRect();
+                    return (
+                        rect.top >= 0 &&
+                        rect.left >= 0 &&
+                        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                    );
+                });
+                if (isInViewport) return true;
+            }
+            return false;
         } catch (error) {
             return false;
         }
