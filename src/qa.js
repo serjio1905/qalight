@@ -479,11 +479,16 @@ export class QA {
      * @param {("vertical" | "horizontal")} direction
      * @returns {Promise<QA>}
      */
-    async scrollTo(tag, text, direction = "vertical") {
+    async scrollTo(tag, text, attrs = {}, direction = "vertical") {
         await this._executeQueue();
         try {
             await this._showHint(`Scrolling to ${text}`, "info");
-            const targetElement = this.currentElement.locator.locator(tag, { hasText: text });
+            let identifiersString = `[${tag}:visible`;
+            for (const [key, value] of Object.entries(attrs)) {
+                identifiersString += `, ${key}*="${value}"`;
+            }
+            identifiersString += `]`;
+            const targetElement = this.currentElement.locator.locator(identifiersString, { hasText: text });
             await this._scrollContairnerUntilTargetVisible(this.currentElement.locator, targetElement, { direction });
         } catch (error) {
             await this._showHint(`Error scrolling to ${text}`, "error");
