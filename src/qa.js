@@ -442,44 +442,45 @@ export class QA {
         return this;
     }
 
+    async _checkIfVisible(target) {
+        try {
+            await target.first().isVisible();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     async _scrollContairnerUntilTargetVisible(
         container,
         target,
         { direction = "vertical", step = 400, maxTries = 50, delayMs = 50 }
     ) {
+        if (await this._checkIfVisible(target)) return;
+
         await container.evaluate((el) => {
             el.scrollTop = 0;
             el.scrollLeft = 0;
         });
 
         for (let i = 0; i < maxTries; i++) {
-            if (
-                (await target.count()) &&
-                (await target
-                    .first()
-                    .isVisible()
-                    .catch(() => false))
-            )
-                return;
-
-            // try to let browser do the correct scroll
-            await target
-                .first()
-                .scrollIntoViewIfNeeded()
-                .catch(() => {});
-
+            if (await this._checkIfVisible(target)) return;
             await container.evaluate(
                 (el, { direction, step }) => {
-                    if (direction === "vertical") el.scrollTop += step;
-                    else el.scrollLeft += step;
+                    if (direction === "vertical") {
+                        el.scrollTop += step;
+                    } else if (direction === "horizontal") {
+                        el.scrollLeft += step;
+                    } else {
+                        throw new Error(`Invalid direction: ${direction}`);
+                    }
                 },
                 { direction, step }
             );
 
             await this.page.waitForTimeout(delayMs);
         }
-
-        await expect(target.first()).toBeVisible();
+        await expect(target).toBeVisible();
     }
 
     /**
