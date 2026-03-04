@@ -442,8 +442,54 @@ export class QA {
         return this;
     }
 
-    async scrollTo() {
+    async _scrollContairnerUntilTargetVisible(
+        container,
+        target,
+        { direction = "vertical", step = 400, maxTries = 50, delayMs = 50 }
+    ) {
+        if (await target.isVisible().catch(() => false)) return;
+
+        await container.evaluate((el) => {
+            el.scrollTop = 0;
+            el.scrollLeft = 0;
+        });
+
+        for (let i = 0; i < maxTries; i++) {
+            if (await target.isVisible().catch(() => false)) return;
+            await container.evaluate(
+                (el, { direction, step }) => {
+                    if (direction === "vertical") {
+                        el.scrollTop += step;
+                    } else {
+                        el.scrollLeft += step;
+                    }
+                },
+                { direction, step }
+            );
+
+            await this.page.waitForTimeout(delayMs);
+        }
+        await expect(target).toBeVisible();
+    }
+
+    /**
+     *
+     * @param {string} tag
+     * @param {string} text
+     * @param {("vertical" | "horizontal")} direction
+     * @returns {Promise<QA>}
+     */
+    async scrollTo(tag, text, direction = "vertical") {
         await this._executeQueue();
+        try {
+            await this._showHint(`Scrolling to ${text}`, "info");
+            const targetElement = this.currentElement.locator.locator(tag, { hasText: text });
+            await this._scrollContairnerUntilTargetVisible(this.currentElement.locator, targetElement, { direction });
+        } catch (error) {
+            await this._showHint(`Error scrolling to ${text}`, "error");
+            await this.waitFor(3000, false);
+            throw error;
+        }
         return this;
     }
 
