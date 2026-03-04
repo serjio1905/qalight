@@ -9,6 +9,10 @@ export class API {
             cookies: [],
         }
     ) {
+        const httpsAgent = new https.Agent({
+            rejectUnauthorized: false,
+        });
+        this._httpsAgent = httpsAgent;
         this.page = page;
         this.config = config;
     }
