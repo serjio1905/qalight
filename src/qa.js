@@ -507,11 +507,20 @@ export class QA {
         await this._executeQueue();
         try {
             await this._showHint(`Scrolling to ${text}`, "info");
-            let identifiersString = `${tag}[`;
-            for (const [key, value] of Object.entries(attrs)) {
-                identifiersString += `, ${key}*="${value}"`;
+            let identifiersString = `${tag}`;
+            if (Object.keys(attrs).length > 0) {
+                identifiersString += `[`;
+                let isFirst = true;
+                for (const [key, value] of Object.entries(attrs)) {
+                    if (isFirst) {
+                        identifiersString += `${key}*="${value}"`;
+                        isFirst = false;
+                    } else {
+                        identifiersString += `, ${key}*="${value}"`;
+                    }
+                }
+                identifiersString += `]`;
             }
-            identifiersString += `]`;
             const targetElement = this.page.locator(identifiersString, { hasText: text });
             await this._scrollContairnerUntilTargetVisible(this.currentElement.locator, targetElement, { direction });
         } catch (error) {
