@@ -515,6 +515,12 @@ export class QA {
         return await this.currentElement.locator.getAttribute(attribute);
     }
 
+    async highlight() {
+        if (!this.currentElement) return this;
+        await this._highlight(this.currentElement.locator);
+        return this;
+    }
+
     async shouldContainText(text, throwError = true) {
         await this._executeQueue();
         try {
