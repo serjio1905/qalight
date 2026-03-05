@@ -442,63 +442,6 @@ export class QA {
         return this;
     }
 
-    async _checkIfVisible(target) {
-        try {
-            const isVisible = await target.first().isVisible();
-            if (isVisible) {
-                const isInViewport = await target.first().evaluate((el) => {
-                    const rect = el.getBoundingClientRect();
-                    return (
-                        rect.top >= 0 &&
-                        rect.left >= 0 &&
-                        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-                    );
-                });
-                if (isInViewport) return true;
-            }
-            return false;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    async _scrollContairnerUntilTargetVisible(
-        container,
-        target,
-        { direction = "vertical", step = 400, maxTries = 50, delayMs = 50 }
-    ) {
-        if (await this._checkIfVisible(target)) return;
-
-        await container.evaluate((el) => {
-            el.scrollTop = 0;
-            el.scrollLeft = 0;
-        });
-
-        let found = false;
-        for (let i = 0; i < maxTries; i++) {
-            if (await this._checkIfVisible(target)) {
-                found = true;
-                step = 50;
-            }
-            await container.evaluate(
-                (el, { direction, step }) => {
-                    if (direction === "vertical") {
-                        el.scrollTop += step;
-                    } else if (direction === "horizontal") {
-                        el.scrollLeft += step;
-                    } else {
-                        throw new Error(`Invalid direction: ${direction}`);
-                    }
-                },
-                { direction, step }
-            );
-            if (found) return;
-            await this.page.waitForTimeout(delayMs);
-        }
-        await expect(target).toBeVisible();
-    }
-
     /**
      *
      * @param {string} tag
@@ -565,6 +508,11 @@ export class QA {
         }
         await this._hideHint();
         return this;
+    }
+
+    async getAttribute(attribute) {
+        await this._executeQueue();
+        return await this.currentElement.locator.getAttribute(attribute);
     }
 
     async shouldContainText(text, throwError = true) {
@@ -1344,5 +1292,62 @@ export class QA {
             this._shadowDescription = description;
         }
         return description || this._shadowDescription;
+    }
+
+    async _checkIfVisible(target) {
+        try {
+            const isVisible = await target.first().isVisible();
+            if (isVisible) {
+                const isInViewport = await target.first().evaluate((el) => {
+                    const rect = el.getBoundingClientRect();
+                    return (
+                        rect.top >= 0 &&
+                        rect.left >= 0 &&
+                        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                    );
+                });
+                if (isInViewport) return true;
+            }
+            return false;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async _scrollContairnerUntilTargetVisible(
+        container,
+        target,
+        { direction = "vertical", step = 400, maxTries = 50, delayMs = 50 }
+    ) {
+        if (await this._checkIfVisible(target)) return;
+
+        await container.evaluate((el) => {
+            el.scrollTop = 0;
+            el.scrollLeft = 0;
+        });
+
+        let found = false;
+        for (let i = 0; i < maxTries; i++) {
+            if (await this._checkIfVisible(target)) {
+                found = true;
+                step = 50;
+            }
+            await container.evaluate(
+                (el, { direction, step }) => {
+                    if (direction === "vertical") {
+                        el.scrollTop += step;
+                    } else if (direction === "horizontal") {
+                        el.scrollLeft += step;
+                    } else {
+                        throw new Error(`Invalid direction: ${direction}`);
+                    }
+                },
+                { direction, step }
+            );
+            if (found) return;
+            await this.page.waitForTimeout(delayMs);
+        }
+        await expect(target).toBeVisible();
     }
 }
