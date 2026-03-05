@@ -516,6 +516,7 @@ export class QA {
     }
 
     async highlight() {
+        await this._executeQueue();
         if (!this.currentElement) return this;
         await this._highlight(this.currentElement.locator);
         return this;
