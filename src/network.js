@@ -61,9 +61,7 @@ export class NetworkTracker {
             if (this.responseCallback) {
                 this.responseCallback?.(log);
             }
-        } catch (e) {
-            this.errors.push(e);
-        }
+        } catch (e) {}
     }
 
     async waitForIdle({ timeout = 10000, idleMs = 300, pollMs = 50 } = {}) {
