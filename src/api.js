@@ -9,12 +9,15 @@ export class API {
             cookies: [],
         }
     ) {
-        // const httpsAgent = new https.Agent({
-        //     rejectUnauthorized: false,
-        // });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         this.page = page;
         this.config = config;
+        this._requests = [];
+        if (page) {
+            this.network = new NetworkTracker(page, (log) => {
+                this._requests.push(log);
+            });
+        }
     }
 
     async _request(method, url, params = {}, headers = {}, data = {}) {
@@ -49,5 +52,11 @@ export class API {
 
     async delete(url, data = {}, headers = {}) {
         return await this._request("delete", url, {}, headers, data);
+    }
+
+    async waitForIdle(timeout = 10000) {
+        if (this.network) {
+            await this.network.waitForIdle({ timeout });
+        }
     }
 }

@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
+import { API } from "./api";
 
 const DEFAULT_WAIT_TIME = 1000;
 
@@ -218,6 +219,7 @@ export class QA {
         this.withSnapshots = options.withSnapshots;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
+        this.api = new API(page);
         return this;
     }
 
@@ -795,6 +797,7 @@ export class QA {
     async _executeQueue(tries = 0, checking = false) {
         if (this.queue.length === 0) return this;
         await this.waitFor(this.timeout, false);
+        await this.api.waitForIdle();
         this.currentElement = null;
         this.matchedElements = [];
         if (typeof this.waiter === "function") await this.waiter();
