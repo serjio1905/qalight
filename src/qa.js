@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
-import { API } from "./api";
+import { API } from "./api.js";
 
 const DEFAULT_WAIT_TIME = 1000;
 
@@ -219,8 +219,12 @@ export class QA {
         this.withSnapshots = options.withSnapshots;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
-        this.api = new API(page);
+        this.api = new API(page, apiResponseCallback);
         return this;
+    }
+
+    _defaultApiResponseCallback(log) {
+        QA.reporter.log(`API Response: ${log.url} ${log.status} ${log.time}ms`, "info");
     }
 
     static setReporter(page, testInfo) {

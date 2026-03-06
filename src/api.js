@@ -1,5 +1,5 @@
 import axios from "axios";
-import { NetworkTracker } from "./network";
+import { NetworkTracker } from "./network.js";
 
 export class API {
     constructor(
@@ -8,16 +8,15 @@ export class API {
             baseURL: null,
             headers: {},
             cookies: [],
-        }
+        },
+        apiResponseCallback = null
     ) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         this.page = page;
         this.config = config;
         this._requests = [];
         if (page) {
-            this.network = new NetworkTracker(page, (log) => {
-                this._requests.push(log);
-            });
+            this.network = new NetworkTracker(page, apiResponseCallback);
         }
     }
 
