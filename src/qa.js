@@ -206,6 +206,7 @@ export class QA {
             withHint: false,
             withSnapshots: false,
             restrictionMapping: {},
+            apiResponseCallback: null,
         }
     ) {
         this.page = page;
@@ -219,7 +220,7 @@ export class QA {
         this.withSnapshots = options.withSnapshots;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
-        this.api = new API(page, apiResponseCallback);
+        this.api = new API(page, options.apiResponseCallback || this._defaultApiResponseCallback);
         return this;
     }
 
