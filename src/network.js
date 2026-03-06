@@ -1,4 +1,4 @@
-class NetworkTracker {
+export class NetworkTracker {
     constructor(page, responseCallback = null) {
         this.page = page;
         this.pending = new Set();

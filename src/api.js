@@ -1,4 +1,5 @@
 import axios from "axios";
+import { NetworkTracker } from "./network";
 
 export class API {
     constructor(
