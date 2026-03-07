@@ -220,7 +220,7 @@ export class QA {
         this.withSnapshots = options.withSnapshots;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
-        this.api = new API(page, options.apiResponseCallback);
+        this.api = new API(page, {}, options.apiResponseCallback);
         return this;
     }
 

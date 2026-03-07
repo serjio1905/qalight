@@ -10,10 +10,10 @@ export class NetworkTracker {
         this.onRequestFailed = this.onRequestFailed.bind(this);
         this.onResponse = this.onResponse.bind(this);
 
-        page.on("request", this.onRequest);
-        page.on("requestfinished", this.onRequestFinished);
-        page.on("requestfailed", this.onRequestFailed);
-        page.on("response", this.onResponse);
+        this.page.on("request", this.onRequest);
+        this.page.on("requestfinished", this.onRequestFinished);
+        this.page.on("requestfailed", this.onRequestFailed);
+        this.page.on("response", this.onResponse);
     }
 
     isRequestJson(request) {
@@ -40,22 +40,22 @@ export class NetworkTracker {
     }
 
     async onResponse(response) {
-        if (!this.isRequestJson(response)) return;
+        // if (!this.isRequestJson(response)) return;
         try {
-            const data = await response.json();
+            // const data = await response.json();
             const log = {
                 url: response.url(),
-                status: response.status(),
-                method: response.request().method(),
-                response: data,
-                headers: response.headers(),
-                cookies: response.request().cookies(),
-                params: response.request().params(),
-                query: response.request().query(),
-                path: response.request().path(),
-                body: response.request().body(),
-                time: Date.now() - response.request().startTime(),
-                duration: Date.now() - response.request().startTime(),
+                // status: response.status(),
+                // method: response.request().method(),
+                // response: data,
+                // headers: response.headers(),
+                // cookies: response.request().cookies(),
+                // params: response.request().params(),
+                // query: response.request().query(),
+                // path: response.request().path(),
+                // body: response.request().body(),
+                // time: Date.now() - response.request().startTime(),
+                // duration: Date.now() - response.request().startTime(),
             };
             // this.responses.push(log);
             if (this.responseCallback) {
