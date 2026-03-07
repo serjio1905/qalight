@@ -55,7 +55,7 @@ export class NetworkTracker {
             };
             // this.responses.push(log);
             if (this.responseCallback) {
-                QA.reporter.log(`RESPONSE: ${JSON.stringify(log)}`, "info");
+                // QA.reporter.log(`RESPONSE: ${JSON.stringify(log)}`, "info");
                 this.responseCallback?.(log);
             }
         } catch (e) {
