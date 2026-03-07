@@ -53,13 +53,13 @@ export class NetworkTracker {
                 body: response.request().postData(),
                 headers: response.headers(),
             };
-            QA.reporter.log(`RESPONSE: ${JSON.stringify(log)}`, "info");
             // this.responses.push(log);
             if (this.responseCallback) {
+                QA.reporter.log(`RESPONSE: ${JSON.stringify(log)}`, "info");
                 this.responseCallback?.(log);
             }
         } catch (e) {
-            QA.reporter.log(`ERROR RESPONSE: ${e.message}`, "error");
+            // QA.reporter.log(`ERROR RESPONSE: ${e.message}`, "error");
         }
     }
 
