@@ -207,7 +207,7 @@ export class QA {
             withSnapshots: false,
             restrictionMapping: {},
             testInfo: null,
-            apiResponseCallback: this._defaultApiResponseCallback,
+            apiResponseCallback: (log) => this._defaultApiResponseCallback(log),
         }
     ) {
         if (options.testInfo) {
@@ -225,6 +225,7 @@ export class QA {
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
         this.api = new API(page, {}, options.apiResponseCallback);
+        QA.reporter.log(`CREATED API INSTANCE ${options.apiResponseCallback}`, "info");
         return this;
     }
 
