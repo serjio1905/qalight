@@ -55,7 +55,7 @@ export class NetworkTracker {
                 // params: response.request().params(),
                 // query: response.request().query(),
                 // path: response.request().path(),
-                body: response.request().body(),
+                body: response.request().postData(),
                 time: Date.now() - response.request().startTime(),
                 duration: Date.now() - response.request().startTime(),
             };
