@@ -236,7 +236,9 @@ export class QA {
     }
 
     _defaultApiResponseCallback(log) {
-        QA.reporter.log(`API Response: ${log.url} ${log.status}`, "info");
+        if (log.status === 201) {
+            QA.reporter.log(`API Response: ${log.url} ${log.status}`, "info");
+        }
     }
 
     static setReporter(page, testInfo) {
