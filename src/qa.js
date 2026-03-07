@@ -357,7 +357,7 @@ export class QA {
         // Workaround: clear first, then type char-by-char if .fill() fails.
         // await this.currentElement.locator.fill(""); // Always clear before filling
         try {
-            await this._showHint(`Filling ${text} in ${this._describeLastElementInQueue()}`, "info");
+            await this._showHint(`Filling "${text}" in ${this._describeLastElementInQueue()}`, "info");
             if (typeof text === "number") text = String(text);
             await this.currentElement.locator.fill(text);
             // Check if the fill was successful (compare value)
@@ -373,7 +373,7 @@ export class QA {
                 }
             }
         } catch (error) {
-            await this._showHint(`Error filling ${text} in ${this._describeLastElementInQueue()}`, "error");
+            await this._showHint(`Error filling "${text}" in ${this._describeLastElementInQueue()}`, "error");
             await this.waitFor(3000, false);
             throw error;
         }
@@ -431,14 +431,14 @@ export class QA {
     async setDateTime(yyyy, MM, dd, HH, mm) {
         await this._executeQueue();
         try {
-            await this._showHint(`Setting date and time to ${yyyy}-${MM}-${dd} ${HH}:${mm}`, "info");
+            await this._showHint(`Setting date and time to "${yyyy}-${MM}-${dd} ${HH}:${mm}"`, "info");
             let value = `${yyyy}-${MM < 10 ? `0${MM}` : MM}-${dd < 10 ? `0${dd}` : dd}`;
             if (HH >= 0 && HH < 24 && mm >= 0 && mm < 60) {
                 value += `T${HH < 10 ? `0${HH}` : HH}:${mm < 10 ? `0${mm}` : mm}`;
             }
             await this.currentElement.locator.fill(value);
         } catch (error) {
-            await this._showHint(`Error setting date and time to ${yyyy}-${MM}-${dd} ${HH}:${mm}`, "error");
+            await this._showHint(`Error setting date and time to "${yyyy}-${MM}-${dd} ${HH}:${mm}"`, "error");
             await this.waitFor(3000, false);
             throw error;
         }
