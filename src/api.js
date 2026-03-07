@@ -1,5 +1,6 @@
 import axios from "axios";
 import { NetworkTracker } from "./network.js";
+import { QA } from "./qa.js";
 
 export class API {
     constructor(

@@ -206,9 +206,13 @@ export class QA {
             withHint: false,
             withSnapshots: false,
             restrictionMapping: {},
+            testInfo: null,
             apiResponseCallback: this._defaultApiResponseCallback,
         }
     ) {
+        if (options.testInfo) {
+            QA.reporter = new QAReporter(page, options.testInfo);
+        }
         this.page = page;
         this.parentElement = null;
         this.currentElement = null;
