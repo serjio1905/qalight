@@ -236,8 +236,16 @@ export class QA {
     }
 
     _defaultApiResponseCallback(log) {
-        if (log.status === 201) {
-            QA.reporter.log(`API Response: ${log.url} ${log.status}`, "info");
+        if (log.status >= 200 && log.status < 500) {
+            QA.reporter.log(
+                `API Response: ${log.url} ${log.status} ${log.method}\nBody: ${JSON.stringify(log.body)}\nResponse: ${JSON.stringify(log.response)}`,
+                "warning"
+            );
+        } else if (log.status >= 500) {
+            QA.reporter.log(
+                `API Response: ${log.url} ${log.status} ${log.method}\nBody: ${JSON.stringify(log.body)}\nResponse: ${JSON.stringify(log.response)}`,
+                "error"
+            );
         }
     }
 
