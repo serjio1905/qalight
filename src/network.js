@@ -40,6 +40,7 @@ export class NetworkTracker {
     }
 
     async onResponse(response) {
+        QA.reporter.log(`RESPONSE`, "info");
         // if (!this.isRequestJson(response)) return;
         try {
             // const data = await response.json();

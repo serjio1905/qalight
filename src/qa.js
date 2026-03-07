@@ -221,6 +221,7 @@ export class QA {
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
         this.api = new API(page, {}, options.apiResponseCallback);
+        QA.reporter.log(`CREATED API INSTANCE`, "info");
         return this;
     }
 
