@@ -53,14 +53,10 @@ export class NetworkTracker {
                 body: response.request().postData(),
                 headers: response.headers(),
             };
-            // this.responses.push(log);
             if (this.responseCallback) {
-                // QA.reporter.log(`RESPONSE: ${JSON.stringify(log)}`, "info");
                 this.responseCallback?.(log);
             }
-        } catch (e) {
-            // QA.reporter.log(`ERROR RESPONSE: ${e.message}`, "error");
-        }
+        } catch (e) {}
     }
 
     async waitForIdle({ timeout = 10000, idleMs = 300, pollMs = 50 } = {}) {

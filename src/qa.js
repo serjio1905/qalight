@@ -231,12 +231,11 @@ export class QA {
                 ? options.apiResponseCallback
                 : (log) => this._defaultApiResponseCallback(log)
         );
-        QA.reporter.log(`CREATED API INSTANCE ${options.apiResponseCallback}`, "info");
         return this;
     }
 
     _defaultApiResponseCallback(log) {
-        if (log.status >= 200 && log.status < 500) {
+        if (log.status >= 400 && log.status < 500) {
             QA.reporter.log(
                 `API Response: ${log.url} ${log.status} ${log.method}\nBody: ${JSON.stringify(log.body)}\nResponse: ${JSON.stringify(log.response)}`,
                 "warning"
