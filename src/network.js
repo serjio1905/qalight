@@ -1,4 +1,4 @@
-import { QA } from "./qa";
+import { QA } from "./qa.js";
 
 export class NetworkTracker {
     constructor(page, responseCallback = null) {
