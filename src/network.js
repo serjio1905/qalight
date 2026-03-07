@@ -51,7 +51,7 @@ export class NetworkTracker {
                 method: response.request().method(),
                 response: data,
                 headers: response.headers(),
-                cookies: response.request().cookies(),
+                // cookies: response.request().cookies(),
                 // params: response.request().params(),
                 // query: response.request().query(),
                 // path: response.request().path(),
