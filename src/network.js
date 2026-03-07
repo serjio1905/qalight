@@ -42,17 +42,16 @@ export class NetworkTracker {
     }
 
     async onResponse(response) {
-        QA.reporter.log(`RESPONSE`, "info");
-        // if (!this.isRequestJson(response)) return;
+        if (!this.isRequestJson(response)) return;
         try {
             // const data = await response.json();
             const log = {
                 url: response.url(),
-                // status: response.status(),
-                // method: response.request().method(),
-                // response: data,
-                // headers: response.headers(),
-                // cookies: response.request().cookies(),
+                status: response.status(),
+                method: response.request().method(),
+                response: data,
+                headers: response.headers(),
+                cookies: response.request().cookies(),
                 // params: response.request().params(),
                 // query: response.request().query(),
                 // path: response.request().path(),
@@ -60,11 +59,14 @@ export class NetworkTracker {
                 // time: Date.now() - response.request().startTime(),
                 // duration: Date.now() - response.request().startTime(),
             };
+            QA.reporter.log(`RESPONSE: ${JSON.stringify(log)}`, "info");
             // this.responses.push(log);
             if (this.responseCallback) {
                 this.responseCallback?.(log);
             }
-        } catch (e) {}
+        } catch (e) {
+            QA.reporter.log(`ERROR RESPONSE: ${e.message}`, "error");
+        }
     }
 
     async waitForIdle({ timeout = 10000, idleMs = 300, pollMs = 50 } = {}) {

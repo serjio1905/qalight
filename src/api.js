@@ -18,7 +18,6 @@ export class API {
         this._requests = [];
         if (this.page) {
             this.network = new NetworkTracker(this.page, apiResponseCallback);
-            QA.reporter.log(`CREATED NETWORK TRACKER INSTANCE`, "info");
         }
     }
 
