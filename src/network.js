@@ -55,9 +55,9 @@ export class NetworkTracker {
                 // params: response.request().params(),
                 // query: response.request().query(),
                 // path: response.request().path(),
-                // body: response.request().body(),
-                // time: Date.now() - response.request().startTime(),
-                // duration: Date.now() - response.request().startTime(),
+                body: response.request().body(),
+                time: Date.now() - response.request().startTime(),
+                duration: Date.now() - response.request().startTime(),
             };
             QA.reporter.log(`RESPONSE: ${JSON.stringify(log)}`, "info");
             // this.responses.push(log);
