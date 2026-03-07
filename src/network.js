@@ -44,7 +44,7 @@ export class NetworkTracker {
     async onResponse(response) {
         if (!this.isRequestJson(response)) return;
         try {
-            // const data = await response.json();
+            const data = await response.json();
             const log = {
                 url: response.url(),
                 status: response.status(),
