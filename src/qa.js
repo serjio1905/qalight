@@ -224,13 +224,19 @@ export class QA {
         this.withSnapshots = options.withSnapshots;
         this.restrictionMapping = options.restrictionMapping || {};
         this.matchedElements = [];
-        this.api = new API(page, {}, options.apiResponseCallback);
+        this.api = new API(
+            page,
+            {},
+            options.apiResponseCallback !== undefined
+                ? options.apiResponseCallback
+                : (log) => this._defaultApiResponseCallback(log)
+        );
         QA.reporter.log(`CREATED API INSTANCE ${options.apiResponseCallback}`, "info");
         return this;
     }
 
     _defaultApiResponseCallback(log) {
-        QA.reporter.log(`API Response: ${log.url} ${log.status} ${log.time}ms`, "info");
+        QA.reporter.log(`API Response: ${log.url} ${log.status}`, "info");
     }
 
     static setReporter(page, testInfo) {
