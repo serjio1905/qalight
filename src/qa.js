@@ -542,6 +542,16 @@ export class QA {
         return await this.currentElement.locator.getAttribute(attribute);
     }
 
+    async getText() {
+        await this._executeQueue();
+        return await this.currentElement.locator.textContent();
+    }
+
+    async getValue() {
+        await this._executeQueue();
+        return await this.currentElement.locator.inputValue();
+    }
+
     async highlight() {
         await this._executeQueue();
         if (!this.currentElement) return this;
