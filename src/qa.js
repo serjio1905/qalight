@@ -193,6 +193,7 @@ export class QA {
         i: "i",
         b: "b",
         strong: "strong",
+        body: "body",
     };
 
     static reporter = null;
@@ -926,7 +927,8 @@ export class QA {
     }
 
     _validateTag(tag) {
-        if (typeof tag !== "string" || !this.TAGS.hasOwnProperty(tag)) throw new QAError("Tag must be a string");
+        if (typeof tag !== "string" || !this.TAGS.hasOwnProperty(tag))
+            throw new QAError("Tag must be a string and one of the following: " + Object.keys(this.TAGS).join(", "));
         return this.TAGS[tag];
     }
 
