@@ -63,8 +63,7 @@ export class NetworkTracker {
         const start = Date.now();
         let idleStart = null;
 
-        let tries = 20;
-        while (Date.now() - start < timeout && tries > 0) {
+        while (Date.now() - start < timeout) {
             if (this.pendingCount === 0) {
                 if (!idleStart) idleStart = Date.now();
                 if (Date.now() - idleStart >= idleMs) return;
@@ -72,8 +71,8 @@ export class NetworkTracker {
                 idleStart = null;
             }
 
-            await this.page.waitForTimeout(pollMs);
-            tries--;
+            // Instead of this.page.waitForTimeout (which fails if test ended), use a regular delay
+            await new Promise((resolve) => setTimeout(resolve, pollMs));
         }
         this.pendingCount = 0;
     }
