@@ -63,7 +63,8 @@ export class NetworkTracker {
         const start = Date.now();
         let idleStart = null;
 
-        while (Date.now() - start < timeout) {
+        let tries = 20;
+        while (Date.now() - start < timeout && tries > 0) {
             if (this.pendingCount === 0) {
                 if (!idleStart) idleStart = Date.now();
                 if (Date.now() - idleStart >= idleMs) return;
@@ -72,6 +73,7 @@ export class NetworkTracker {
             }
 
             await this.page.waitForTimeout(pollMs);
+            tries--;
         }
         this.pendingCount = 0;
     }
