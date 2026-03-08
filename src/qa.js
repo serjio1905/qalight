@@ -451,7 +451,9 @@ export class QA {
         await this._executeQueue();
         try {
             await this._showHint(`Setting month to "${yyyy}-${month}"`, "info");
-            await this.currentElement.locator.fill(`${yyyy}-${month}`);
+            // For <input type="month"> the format must be 'YYYY-MM'. Ensure leading zero in month.
+            const monthString = month < 10 ? `0${month}` : `${month}`;
+            await this.currentElement.locator.fill(`${yyyy}-${monthString}`);
         } catch (error) {
             await this._showHint(`Error setting month to "${yyyy}-${month}"`, "error");
             await this.waitFor(3000, false);
