@@ -446,6 +446,21 @@ export class QA {
         return this;
     }
 
+    async setMonth(yyyy, month) {
+        // for inputs with type="month"
+        await this._executeQueue();
+        try {
+            await this._showHint(`Setting month to "${yyyy}-${month}"`, "info");
+            await this.currentElement.locator.fill(`${yyyy}-${month}`);
+        } catch (error) {
+            await this._showHint(`Error setting month to "${yyyy}-${month}"`, "error");
+            await this.waitFor(3000, false);
+            throw error;
+        }
+        await this._hideHint();
+        return this;
+    }
+
     async waitFor(timeout = this.DEFAULT_WAIT_TIME, hint) {
         // if (typeof hint === "string" && hint) this._showHint(hint, "info");
         // if (typeof hint === true) hint = "Waiting for " + timeout + "ms";
