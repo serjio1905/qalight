@@ -9,6 +9,15 @@ export class API {
             headers: {},
             cookies: [],
         },
+        /**
+         * @param {Object} log
+         * @param {string} log.url
+         * @param {number} log.status
+         * @param {string} log.method
+         * @param {Object} log.response
+         * @param {string|null|undefined} log.body
+         * @param {Object} log.headers
+         */
         apiResponseCallback = null
     ) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -16,6 +25,7 @@ export class API {
         this.config = config;
         this._requests = [];
         if (this.page) {
+            /** @type {NetworkTracker} */
             this.network = new NetworkTracker(this.page, apiResponseCallback);
         }
     }

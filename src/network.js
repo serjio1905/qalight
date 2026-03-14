@@ -59,6 +59,13 @@ export class NetworkTracker {
         } catch (e) {}
     }
 
+    /**
+     * @param {(log: {url: string, status: number, method: string, response: any, body: string|null|undefined, headers: Record<string, string>}) => void} callback
+     */
+    setResponseCallback(callback) {
+        this.responseCallback = callback;
+    }
+
     async waitForIdle({ timeout = 10000, idleMs = 300, pollMs = 50 } = {}) {
         const start = Date.now();
         let idleStart = null;
