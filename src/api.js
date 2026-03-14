@@ -26,7 +26,7 @@ export class API {
             method,
             url: `${this.config.baseURL}/${url}`,
             params,
-            headers,
+            headers: { ...headers, ...(this.config?.headers || {}) },
             data,
             withCredentials: true,
         });
