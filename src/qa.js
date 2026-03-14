@@ -21,6 +21,7 @@ export class QAReporter {
     };
 
     constructor(page, testInfo) {
+        /** @type {import('@playwright/test').Page} */
         this.page = page;
         this.testInfo = testInfo;
         this.logs = [];
@@ -214,17 +215,25 @@ export class QA {
         if (options.testInfo) {
             QA.reporter = new QAReporter(page, options.testInfo);
         }
+        /** @type {import('@playwright/test').Page} */
         this.page = page;
         this.parentElement = null;
         this.currentElement = null;
+        /** @type {number} */
         this.timeout = options.timeout;
         this.queue = [];
+        /** @type {import('@playwright/test').Waiter} */
         this.waiter = options.waiter;
+        /** @type {boolean} */
         this.withHighlight = options.withHighlight;
+        /** @type {boolean} */
         this.withHint = options.withHint;
+        /** @type {boolean} */
         this.withSnapshots = options.withSnapshots;
         this.restrictionMapping = options.restrictionMapping || {};
+        /** @type {Array<{tag: string, identifiers: string[], exceptIdentifiers: string[], index: number}>} */
         this.matchedElements = [];
+        /** @type {API} */
         this.api = new API(
             page,
             {},
