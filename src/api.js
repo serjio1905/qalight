@@ -22,10 +22,11 @@ export class API {
 
     async _request(method, url, params = {}, headers = {}, data = {}) {
         let timeStart = Date.now();
+        const fullUrl = `${this.config.baseURL || ""}${url}`;
         const response = await axios.request({
             responseType: "json",
             method,
-            url: `${this.config.baseURL}/${url}`,
+            url: fullUrl,
             params,
             headers: { ...(this.config?.headers || {}), ...headers },
             data,
