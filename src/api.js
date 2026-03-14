@@ -14,7 +14,7 @@ export class API {
          * @param {string} log.url
          * @param {number} log.status
          * @param {string} log.method
-         * @param {Object} log.response
+         * @param {Object} log.data
          * @param {string|null|undefined} log.body
          * @param {Object} log.headers
          */

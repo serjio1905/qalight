@@ -49,7 +49,7 @@ export class NetworkTracker {
                 url: response.url(),
                 status: response.status(),
                 method: response.request().method(),
-                response: data,
+                data: data,
                 body: response.request().postData(),
                 headers: response.headers(),
             };
@@ -60,7 +60,7 @@ export class NetworkTracker {
     }
 
     /**
-     * @param {(log: {url: string, status: number, method: string, response: any, body: string|null|undefined, headers: Record<string, string>}) => void} callback
+     * @param {(log: {url: string, status: number, method: string, data: any, body: string|null|undefined, headers: Record<string, string>}) => void} callback
      */
     setResponseCallback(callback) {
         this.responseCallback = callback;
