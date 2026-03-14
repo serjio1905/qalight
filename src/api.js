@@ -23,6 +23,9 @@ export class API {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         this.page = page;
         this.config = config;
+        if (!this.config.headers) {
+            this.config.headers = {};
+        }
         this._requests = [];
         if (this.page) {
             /** @type {NetworkTracker} */
