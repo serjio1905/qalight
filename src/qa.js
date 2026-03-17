@@ -269,6 +269,12 @@ export class QA {
     }
 
     async open(url, ...args) {
+        if (!url) {
+            // Activate (open) the tab (page) if it is not activated/focused
+            if (this.page && typeof this.page.bringToFront === "function") {
+                await this.page.bringToFront();
+            }
+        }
         this.parentElement = null;
         this.currentElement = null;
         this.matchedElements = [];
