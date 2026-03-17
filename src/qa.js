@@ -274,6 +274,7 @@ export class QA {
             if (this.page && typeof this.page.bringToFront === "function") {
                 await this.page.bringToFront();
             }
+            return this;
         }
         this.parentElement = null;
         this.currentElement = null;
@@ -285,7 +286,8 @@ export class QA {
                 fullUrl = `${fullUrl}/${arg}`;
             }
         }
-        return await this.page.goto(fullUrl);
+        await this.page.goto(fullUrl);
+        return this;
     }
 
     /**
