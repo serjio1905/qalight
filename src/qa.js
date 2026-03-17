@@ -212,6 +212,7 @@ export class QA {
             apiResponseCallback: (log) => this._defaultApiResponseCallback(log),
         }
     ) {
+        this._originalOptions = { ...options };
         if (options.testInfo) {
             QA.reporter = new QAReporter(page, options.testInfo);
         }
@@ -279,6 +280,17 @@ export class QA {
             }
         }
         return await this.page.goto(fullUrl);
+    }
+
+    /**
+     * @param {string} url
+     * @param {any[]} args
+     * @returns {Promise<QA>}
+     */
+    async openTab(url, ...args) {
+        const newPage = await this.page.context().newPage();
+        await newPage.goto(url, ...args);
+        return new QA(newPage, { ...this._originalOptions });
     }
 
     async refreshPage() {
