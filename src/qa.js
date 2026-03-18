@@ -1094,11 +1094,12 @@ export class QA {
                             this.MATCHING_WEIGHTS?.[key]?.withoutKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT
                         );
                     } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
-                        bestPoint = Math.max(
-                            bestPoint,
-                            this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
-                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT
-                        );
+                        const lengthDifference = Math.abs(foundValue.length - value.length);
+                        const coefficient = 1 - (lengthDifference / foundValue.length) * 0.5;
+                        const partialPoint =
+                            (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
+                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) * coefficient;
+                        bestPoint = Math.max(bestPoint, partialPoint);
                     }
                 }
                 points += bestPoint;
@@ -1110,9 +1111,12 @@ export class QA {
                     if (foundValue === value.toLowerCase().trim()) {
                         points += this.MATCHING_WEIGHTS?.[key]?.withKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT;
                     } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
-                        points +=
-                            this.MATCHING_WEIGHTS?.[key]?.withKey?.partialMatching ||
-                            this.DEFAULT_PARTIAL_MATCHING_WEIGHT;
+                        const lengthDifference = Math.abs(foundValue.length - value.length);
+                        const coefficient = 1 - (lengthDifference / foundValue.length) * 0.5;
+                        const partialPoint =
+                            (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
+                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) * coefficient;
+                        points += partialPoint;
                     }
                 }
             }
