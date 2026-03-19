@@ -502,7 +502,9 @@ export class QA {
         // if (typeof hint === "string" && hint) this._showHint(hint, "info");
         // if (typeof hint === true) hint = "Waiting for " + timeout + "ms";
         try {
+            if (hint) await this._showHint(hint, "info");
             await this.page.waitForTimeout(timeout);
+            if (hint) await this._hideHint();
         } catch (error) {}
         // if (hint) await this._hideHint();
     }
