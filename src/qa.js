@@ -1095,7 +1095,18 @@ export class QA {
                         );
                     } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
                         const lengthDifference = Math.abs(foundValue.length - value.length);
-                        const coefficient = 1 - (lengthDifference / foundValue.length) * 0.5;
+                        let coefficient = 1;
+                        if (
+                            key === "text" ||
+                            key === "value" ||
+                            key === "html" ||
+                            key === "parentText" ||
+                            key === "label" ||
+                            key === "columnName" ||
+                            key === "columnThHtml"
+                        ) {
+                            coefficient = 1 - (lengthDifference / foundValue.length) * 0.5;
+                        }
                         const partialPoint =
                             (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
                                 this.DEFAULT_PARTIAL_MATCHING_WEIGHT) * coefficient;
@@ -1107,15 +1118,30 @@ export class QA {
             if (typeof identifier === "object") {
                 const [key, value] = Object.entries(identifier)[0];
                 if (data.hasOwnProperty(key)) {
+                    const bonusCoefficient = 0.1;
                     const foundValue = typeof data[key] === "string" ? data[key].toLowerCase().trim() : data[key];
                     if (foundValue === value.toLowerCase().trim()) {
-                        points += this.MATCHING_WEIGHTS?.[key]?.withKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT;
+                        points +=
+                            (this.MATCHING_WEIGHTS?.[key]?.withKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT) *
+                            (1 + bonusCoefficient);
                     } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
                         const lengthDifference = Math.abs(foundValue.length - value.length);
-                        const coefficient = 1 - (lengthDifference / foundValue.length) * 0.5;
+                        let coefficient = 1;
+                        if (
+                            key === "text" ||
+                            key === "value" ||
+                            key === "html" ||
+                            key === "parentText" ||
+                            key === "label" ||
+                            key === "columnName" ||
+                            key === "columnThHtml"
+                        ) {
+                            coefficient = 1 - (lengthDifference / foundValue.length) * 0.5;
+                        }
                         const partialPoint =
                             (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
-                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) * coefficient;
+                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) *
+                            (coefficient + bonusCoefficient);
                         points += partialPoint;
                     }
                 }
