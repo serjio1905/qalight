@@ -881,6 +881,114 @@ export class QA {
             await this.waitFor(Math.max(this.timeout, 500), false);
             await this._hideHint();
         },
+        contain: async (actualValue, expectedValue, hint) => {
+            chaiExpect(actualValue).to.contain(expectedValue);
+            await this._showHint(`${this._describeLastElementInQueue()} contains ${expectedValue}`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        notContain: async (actualValue, expectedValue, hint) => {
+            chaiExpect(actualValue).to.not.contain(expectedValue);
+            await this._showHint(`${this._describeLastElementInQueue()} does not contain ${expectedValue}`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        greaterThan: async (actualValue, expectedValue, hint) => {
+            chaiExpect(actualValue).to.be.greaterThan(expectedValue);
+            await this._showHint(`${this._describeLastElementInQueue()} is greater than ${expectedValue}`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        lessThan: async (actualValue, expectedValue, hint) => {
+            chaiExpect(actualValue).to.be.lessThan(expectedValue);
+            await this._showHint(`${this._describeLastElementInQueue()} is less than ${expectedValue}`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        greaterThanOrEqual: async (actualValue, expectedValue, hint) => {
+            chaiExpect(actualValue).to.be.greaterThanOrEqual(expectedValue);
+            await this._showHint(
+                `${this._describeLastElementInQueue()} is greater than or equal to ${expectedValue}`,
+                "success"
+            );
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        lessThanOrEqual: async (actualValue, expectedValue, hint) => {
+            chaiExpect(actualValue).to.be.lessThanOrEqual(expectedValue);
+            await this._showHint(
+                `${this._describeLastElementInQueue()} is less than or equal to ${expectedValue}`,
+                "success"
+            );
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        between: async (actualValue, expectedValue, hint) => {
+            chaiExpect(actualValue).to.be.between(expectedValue[0], expectedValue[1]);
+            await this._showHint(
+                `${this._describeLastElementInQueue()} is between ${expectedValue[0]} and ${expectedValue[1]}`,
+                "success"
+            );
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        notBetween: async (actualValue, expectedValue, hint) => {
+            chaiExpect(actualValue).to.not.be.between(expectedValue[0], expectedValue[1]);
+            await this._showHint(
+                `${this._describeLastElementInQueue()} is not between ${expectedValue[0]} and ${expectedValue[1]}`,
+                "success"
+            );
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        notEmpty: async (actualValue, hint) => {
+            chaiExpect(actualValue).to.not.be.empty;
+            await this._showHint(`${this._describeLastElementInQueue()} is not empty`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        empty: async (actualValue, hint) => {
+            chaiExpect(actualValue).to.be.empty;
+            await this._showHint(`${this._describeLastElementInQueue()} is empty`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        notNull: async (actualValue, hint) => {
+            chaiExpect(actualValue).to.not.be.null;
+            await this._showHint(`${this._describeLastElementInQueue()} is not null`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        null: async (actualValue, hint) => {
+            chaiExpect(actualValue).to.be.null;
+            await this._showHint(`${this._describeLastElementInQueue()} is null`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        notUndefined: async (actualValue, hint) => {
+            chaiExpect(actualValue).to.not.be.undefined;
+            await this._showHint(`${this._describeLastElementInQueue()} is not undefined`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        undefined: async (actualValue, hint) => {
+            chaiExpect(actualValue).to.be.undefined;
+            await this._showHint(`${this._describeLastElementInQueue()} is undefined`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        notNullOrEmpty: async (actualValue, hint) => {
+            chaiExpect(actualValue).to.not.be.null;
+            await this._showHint(`${this._describeLastElementInQueue()} is not null or empty`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
+        nullOrEmpty: async (actualValue, hint) => {
+            chaiExpect(actualValue).to.be.null;
+            await this._showHint(`${this._describeLastElementInQueue()} is null or empty`, "success");
+            await this.waitFor(Math.max(this.timeout, 500), false);
+            await this._hideHint();
+        },
     };
 
     async _executeQueue(tries = 0, checking = false) {
