@@ -301,6 +301,11 @@ export class QA {
         return new QA(newPage, { ...this._originalOptions });
     }
 
+    async getTab(index = 0) {
+        const tabs = await this.page.context().pages();
+        return new QA(tabs[index], { ...this._originalOptions });
+    }
+
     async refreshPage() {
         await this.page.reload();
         this.currentElement = null;
