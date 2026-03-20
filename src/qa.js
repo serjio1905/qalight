@@ -695,7 +695,9 @@ export class QA {
     }
 
     pause() {
-        this._showHint("Paused. Call resume() to continue.", "info");
+        this._showHint("Paused. Call resume() to continue.", "info", [
+            { text: "Resume", onClick: () => this.resume() },
+        ]);
         return new Promise((resolve) => {
             this._pauseResolver = resolve;
         });
@@ -836,7 +838,7 @@ export class QA {
         return { identifiers, exceptIdentifiers };
     }
 
-    async _showHint(text = "", type = "info") {
+    async _showHint(text = "", type = "info", buttons = []) {
         if (!this.withHint) return;
         const colors = {
             info: "blue",
@@ -846,7 +848,7 @@ export class QA {
         };
         const color = colors[type] || colors.info;
         try {
-            await this._injectQaHintPopup(color);
+            await this._injectQaHintPopup(color, buttons);
             const hintPopupElement = await this.page.$("#qa-hint-popup");
             if (hintPopupElement) {
                 await hintPopupElement.evaluate(
@@ -1145,7 +1147,7 @@ export class QA {
         return { ...dom, visible: isVisible, enabled: isEnabled };
     }
 
-    async _injectQaHintPopup(color) {
+    async _injectQaHintPopup(color, buttons = []) {
         await this.page.evaluate((color) => {
             const ID = "qa-hint-popup";
 
@@ -1174,7 +1176,15 @@ export class QA {
                 el.style.textAlign = "center";
                 el.style.whiteSpace = "pre-wrap";
                 el.style.pointerEvents = "none"; // IMPORTANT: don't break UI interactions
-
+                if (buttons.length > 0) {
+                    buttons.forEach((button) => {
+                        const { text, onClick } = button;
+                        const buttonElement = document.createElement("button");
+                        buttonElement.textContent = text;
+                        buttonElement.addEventListener("click", onClick);
+                        el.appendChild(buttonElement);
+                    });
+                }
                 document.documentElement.appendChild(el);
             }
         }, color);
