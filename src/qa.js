@@ -848,7 +848,7 @@ export class QA {
         };
         const color = colors[type] || colors.info;
         try {
-            await this._injectQaHintPopup(color, buttons);
+            await this._injectQaHintPopup(color);
             const hintPopupElement = await this.page.$("#qa-hint-popup");
             if (hintPopupElement) {
                 await hintPopupElement.evaluate(
