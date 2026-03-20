@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
 import { API } from "./api.js";
+import { ExpectFramework } from "./expect.js";
 
 const DEFAULT_WAIT_TIME = 1000;
 
@@ -242,7 +243,7 @@ export class QA {
                 ? options.apiResponseCallback
                 : (log) => this._defaultApiResponseCallback(log)
         );
-        this.expect = new Expect(this);
+        this.expect = new ExpectFramework(this);
         return this;
     }
 

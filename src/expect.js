@@ -1,4 +1,4 @@
-class Expect {
+export class ExpectFramework {
     constructor(qa) {
         this.qa = qa;
     }
