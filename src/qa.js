@@ -695,10 +695,10 @@ export class QA {
     }
 
     pause() {
-        this._showHint("Paused. Call resume() to continue.", "info", [
-            { text: "Resume", onClick: () => this.resume() },
-        ]);
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
+            await this._showHint("Paused. Call resume() to continue.", "info", [
+                { text: "Resume", onClick: () => this.resume() },
+            ]);
             this._pauseResolver = resolve;
         });
     }
@@ -848,7 +848,7 @@ export class QA {
         };
         const color = colors[type] || colors.info;
         try {
-            await this._injectQaHintPopup(color);
+            await this._injectQaHintPopup(color, buttons);
             const hintPopupElement = await this.page.$("#qa-hint-popup");
             if (hintPopupElement) {
                 await hintPopupElement.evaluate(
