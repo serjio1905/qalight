@@ -620,7 +620,7 @@ export class QA {
         try {
             chaiExpect(
                 this.currentElement.data.text || this.currentElement.data.value || this.currentElement.data.html
-            ).to.include(text);
+            ).to.contain(text);
             await this._showHint(`${this._describeLastElementInQueue()} contains ${text}`, "success");
         } catch (error) {
             if (throwError) {
@@ -1166,7 +1166,8 @@ export class QA {
                         .replaceAll(/&dollar;/g, "$")
                         .replaceAll(/&cent;/g, "¢")
                         .replaceAll(/&percnt;/g, "%")
-                        .replaceAll(/&nbsp;/g, " ");
+                        .replaceAll(/&nbsp;/g, " ")
+                        .trim();
                 }
 
                 function getTdColumnName(el) {
