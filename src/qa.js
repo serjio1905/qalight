@@ -1144,31 +1144,31 @@ export class QA {
         return points;
     }
 
-    async _elumitateHtmlChars(value) {
-        if (typeof value !== "string") return value;
-        return value
-            .replaceAll(/&amp;/g, "&")
-            .replaceAll(/&lt;/g, "<")
-            .replaceAll(/&gt;/g, ">")
-            .replaceAll(/&quot;/g, '"')
-            .replaceAll(/&apos;/g, "'")
-            .replaceAll(/&copy;/g, "©")
-            .replaceAll(/&reg;/g, "®")
-            .replaceAll(/&trade;/g, "™")
-            .replaceAll(/&euro;/g, "€")
-            .replaceAll(/&pound;/g, "£")
-            .replaceAll(/&yen;/g, "¥")
-            .replaceAll(/&dollar;/g, "$")
-            .replaceAll(/&cent;/g, "¢")
-            .replaceAll(/&percnt;/g, "%")
-            .replaceAll(/&nbsp;/g, " ");
-    }
-
     async _extractDataFromLocator(locator) {
         // const timeout = this.timeout ?? 5000;
         // const opts = { timeout };
         const [dom, isVisible, isEnabled] = await Promise.all([
             locator.evaluate((el) => {
+                function elumitateHtmlChars(value) {
+                    if (typeof value !== "string") return value;
+                    return value
+                        .replaceAll(/&amp;/g, "&")
+                        .replaceAll(/&lt;/g, "<")
+                        .replaceAll(/&gt;/g, ">")
+                        .replaceAll(/&quot;/g, '"')
+                        .replaceAll(/&apos;/g, "'")
+                        .replaceAll(/&copy;/g, "©")
+                        .replaceAll(/&reg;/g, "®")
+                        .replaceAll(/&trade;/g, "™")
+                        .replaceAll(/&euro;/g, "€")
+                        .replaceAll(/&pound;/g, "£")
+                        .replaceAll(/&yen;/g, "¥")
+                        .replaceAll(/&dollar;/g, "$")
+                        .replaceAll(/&cent;/g, "¢")
+                        .replaceAll(/&percnt;/g, "%")
+                        .replaceAll(/&nbsp;/g, " ");
+                }
+
                 function getTdColumnName(el) {
                     const tag = el.tagName.toLowerCase();
                     if (tag !== "td") return null;
@@ -1286,12 +1286,12 @@ export class QA {
                     checked,
 
                     // everything else
-                    text: this._elumitateHtmlChars(el.textContent),
-                    parentText: this._elumitateHtmlChars(el.parentElement?.textContent?.trim() || null),
-                    html: this._elumitateHtmlChars(el.outerHTML),
-                    columnName: this._elumitateHtmlChars(getTdColumnName?.(el)),
-                    columnThHtml: this._elumitateHtmlChars(getTdColumnThHtml?.(el)),
-                    label: this._elumitateHtmlChars(getLabel?.(el)),
+                    text: elumitateHtmlChars(el.textContent),
+                    parentText: elumitateHtmlChars(el.parentElement?.textContent?.trim() || null),
+                    html: elumitateHtmlChars(el.outerHTML),
+                    columnName: elumitateHtmlChars(getTdColumnName?.(el)),
+                    columnThHtml: elumitateHtmlChars(getTdColumnThHtml?.(el)),
+                    label: elumitateHtmlChars(getLabel?.(el)),
                     ...attrs,
                 };
                 let identifier = dom.text || dom.name || dom.id || dom.className || dom.placeholder;
