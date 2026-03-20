@@ -697,11 +697,13 @@ export class QA {
     async pause() {
         return new Promise((resolve) => {
             const rl = readline.createInterface({ input: process.stdin });
-            this._showHint("Paused. Call resume() to continue.", "info");
-            rl.once("line", () => {
-                rl.close();
-                resolve();
-                this._hideHint();
+            this._showHint("Paused. Call resume() to continue.", "info").then(() => {
+                rl.once("line", () => {
+                    this._hideHint().then(() => {
+                        rl.close();
+                        resolve();
+                    });
+                });
             });
         });
     }
