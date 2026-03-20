@@ -695,22 +695,19 @@ export class QA {
     }
 
     pause() {
+        this._showHint("Paused. Call resume() to continue.", "info");
         return new Promise((resolve) => {
-            const rl = readline.createInterface({ input: process.stdin });
-            rl.once("line", (input) => {
-                console.log(">>>>>", input);
-                rl.close();
-                resolve();
-            });
+            this._pauseResolver = resolve;
         });
     }
 
-    // async resume() {
-    //     if (this._pauseResolver) {
-    //         this._pauseResolver();
-    //         this._pauseResolver = null;
-    //     }
-    // }
+    resume() {
+        if (this._pauseResolver) {
+            this._hideHint();
+            this._pauseResolver();
+            this._pauseResolver = null;
+        }
+    }
 
     async _executeQueue(tries = 0, checking = false) {
         if (this.queue.length === 0) return this;
