@@ -697,15 +697,15 @@ export class QA {
     async pause() {
         return new Promise((resolve) => {
             const rl = readline.createInterface({ input: process.stdin });
-            this._showHint("Paused. Call resume() to continue.", "info");
+            // this._showHint("Paused. Call resume() to continue.", "info");
             rl.once("line", (input) => {
                 console.log(">>>>>", input);
-                if (input === "" || input === "\r" || input === "\n") {
-                    // Enter key pressed
-                    rl.close();
-                    this._hideHint();
-                    resolve();
-                }
+                // if (input === "" || input === "\r" || input === "\n") {
+                // Enter key pressed
+                rl.close();
+                this._hideHint();
+                resolve();
+                // }
             });
         });
     }
