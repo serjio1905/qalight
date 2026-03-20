@@ -1,9 +1,17 @@
+import readline from "readline";
 import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
 import { API } from "./api.js";
 import { ExpectFramework } from "./expect.js";
-
-const DEFAULT_WAIT_TIME = 1000;
+import {
+    elumitateHtmlChars,
+    getLabel,
+    getTdColumnName,
+    getTdColumnThHtml,
+    getValuesOfAllInnerElements,
+} from "./data-extract.js";
+import { DEFAULT_WAIT_TIME, MATCHING_WEIGHTS, TAGS } from "./constants.js";
+import { QAReporter } from "./reporter.js";
 
 export class QAError extends Error {
     constructor(message) {
@@ -12,191 +20,12 @@ export class QAError extends Error {
     }
 }
 
-// QAReporter.js
-export class QAReporter {
-    static TYPES = {
-        info: "info",
-        success: "success",
-        warning: "warning",
-        error: "error",
-    };
-
-    constructor(page, testInfo) {
-        /** @type {import('@playwright/test').Page} */
-        this.page = page;
-        this.testInfo = testInfo;
-        this.logs = [];
-    }
-
-    _icon(type) {
-        return (
-            {
-                [QAReporter.TYPES.info]: "ℹ️",
-                [QAReporter.TYPES.success]: "✅",
-                [QAReporter.TYPES.warning]: "⚠️",
-                [QAReporter.TYPES.error]: "❌",
-            }[type] || "ℹ️"
-        );
-    }
-
-    async log(message, type = QAReporter.TYPES.info, withSnapshot = false) {
-        const log = `${this._icon(type)} ${message}`;
-        const line = `[${new Date().toISOString()}] ${log}`;
-        this.logs.push(line);
-        if (withSnapshot) {
-            await this.snapshot(log);
-        }
-
-        // IMPORTANT: remove console.log to avoid "STDOUT" in HTML report
-        // if (!this.silent) console.log(line);
-    }
-
-    async info(message) {
-        return await this.log(message, QAReporter.TYPES.info);
-    }
-
-    async success(message) {
-        return await this.log(message, QAReporter.TYPES.success);
-    }
-
-    async warning(message) {
-        return await this.log(message, QAReporter.TYPES.warning);
-    }
-
-    async error(message) {
-        return await this.log(message, QAReporter.TYPES.error);
-    }
-
-    async snapshot(name = "snapshot", opts = {}) {
-        const img = await this.page.screenshot({ fullPage: !!opts.fullPage });
-        await this.testInfo.attach(`📸 ${name}`, {
-            body: img,
-            contentType: "image/png",
-        });
-    }
-
-    // Call once at end of test (best via fixture teardown)
-    async flush(name = "QA Log") {
-        await this.testInfo.attach(name, {
-            body: Buffer.from(this.logs.join("\n"), "utf-8"),
-            contentType: "text/plain",
-        });
-    }
-}
-
 export class QA {
     DEFAULT_WAIT_TIME = DEFAULT_WAIT_TIME;
     DEFAULT_MATCHING_WEIGHT = 0.5;
     DEFAULT_PARTIAL_MATCHING_WEIGHT = 0.1;
-    MATCHING_WEIGHTS = {
-        id: {
-            withKey: { fullMatching: 1, partialMatching: 0.5 },
-            withoutKey: { fullMatching: 0.9, partialMatching: 0.45 },
-        },
-        name: {
-            withKey: { fullMatching: 1, partialMatching: 0.8 },
-            withoutKey: { fullMatching: 0.9, partialMatching: 0.45 },
-        },
-        text: {
-            withKey: { fullMatching: 1, partialMatching: 0.8 },
-            withoutKey: { fullMatching: 0.9, partialMatching: 0.45 },
-        },
-        value: {
-            withKey: { fullMatching: 1, partialMatching: 0.8 },
-            withoutKey: { fullMatching: 0.9, partialMatching: 0.45 },
-        },
-        class: {
-            withKey: { fullMatching: 0.9, partialMatching: 0.7 },
-            withoutKey: { fullMatching: 0.8, partialMatching: 0.5 },
-        },
-        placeholder: {
-            withKey: { fullMatching: 0.9, partialMatching: 0.6 },
-            withoutKey: { fullMatching: 0.8, partialMatching: 0.4 },
-        },
-        inlineStyle: {
-            withKey: { fullMatching: 0.5, partialMatching: 0.3 },
-            withoutKey: { fullMatching: 0.4, partialMatching: 0.2 },
-        },
-        checked: {
-            withKey: { fullMatching: 0.5, partialMatching: 0.3 },
-            withoutKey: { fullMatching: 0.4, partialMatching: 0.2 },
-        },
-        html: {
-            withKey: { fullMatching: 0.9, partialMatching: 0.3 },
-            withoutKey: { fullMatching: 0.8, partialMatching: 0.2 },
-        },
-        columnName: {
-            withKey: { fullMatching: 1, partialMatching: 0.7 },
-            withoutKey: { fullMatching: 1, partialMatching: 0.7 },
-        },
-        columnThHtml: {
-            withKey: { fullMatching: 0.8, partialMatching: 0.4 },
-            withoutKey: { fullMatching: 0.6, partialMatching: 0.3 },
-        },
-        parentText: {
-            withKey: { fullMatching: 0.3, partialMatching: 0.1 },
-            withoutKey: { fullMatching: 0.2, partialMatching: 0.1 },
-        },
-        label: {
-            withKey: { fullMatching: 0.3, partialMatching: 0.1 },
-            withoutKey: { fullMatching: 0.2, partialMatching: 0.1 },
-        },
-    };
-    TAGS = {
-        input: "input",
-        button: "button",
-        link: "a",
-        text: "span",
-        image: "img",
-        checkbox: "input[type='checkbox']",
-        radio: "input[type='radio']",
-        select: "select",
-        textarea: "textarea",
-        table: "table",
-        tr: "tr",
-        td: "td",
-        th: "th",
-        tbody: "tbody",
-        thead: "thead",
-        tfoot: "tfoot",
-        ul: "ul",
-        li: "li",
-        ol: "ol",
-        dl: "dl",
-        dt: "dt",
-        dd: "dd",
-        h1: "h1",
-        h2: "h2",
-        h3: "h3",
-        h4: "h4",
-        h5: "h5",
-        h6: "h6",
-        p: "p",
-        div: "div",
-        span: "span",
-        img: "img",
-        a: "a",
-        button: "button",
-        input: "input",
-        select: "select",
-        textarea: "textarea",
-        form: "form",
-        label: "label",
-        legend: "legend",
-        fieldset: "fieldset",
-        table: "table",
-        tr: "tr",
-        td: "td",
-        th: "th",
-        tbody: "tbody",
-        thead: "thead",
-        tfoot: "tfoot",
-        ul: "ul",
-        i: "i",
-        b: "b",
-        strong: "strong",
-        body: "body",
-    };
+    MATCHING_WEIGHTS = MATCHING_WEIGHTS;
+    TAGS = TAGS;
 
     static reporter = null;
 
@@ -244,6 +73,8 @@ export class QA {
                 : (log) => this._defaultApiResponseCallback(log)
         );
         this.expect = new ExpectFramework(this);
+
+        this._pauseResolver = null;
         return this;
     }
 
@@ -870,6 +701,25 @@ export class QA {
         return true;
     }
 
+    async pause() {
+        return new Promise((resolve) => {
+            const rl = readline.createInterface({ input: process.stdin });
+            this._showHint("Paused. Call resume() to continue.", "info");
+            rl.once("line", () => {
+                rl.close();
+                resolve();
+                this._hideHint();
+            });
+        });
+    }
+
+    // async resume() {
+    //     if (this._pauseResolver) {
+    //         this._pauseResolver();
+    //         this._pauseResolver = null;
+    //     }
+    // }
+
     async _executeQueue(tries = 0, checking = false) {
         if (this.queue.length === 0) return this;
         await this.waitFor(this.timeout, false);
@@ -1149,114 +999,6 @@ export class QA {
         // const opts = { timeout };
         const [dom, isVisible, isEnabled] = await Promise.all([
             locator.evaluate((el) => {
-                function elumitateHtmlChars(value) {
-                    if (typeof value !== "string") return value;
-                    return value
-                        .replaceAll(/&amp;/g, "&")
-                        .replaceAll(/&lt;/g, "<")
-                        .replaceAll(/&gt;/g, ">")
-                        .replaceAll(/&quot;/g, '"')
-                        .replaceAll(/&apos;/g, "'")
-                        .replaceAll(/&copy;/g, "©")
-                        .replaceAll(/&reg;/g, "®")
-                        .replaceAll(/&trade;/g, "™")
-                        .replaceAll(/&euro;/g, "€")
-                        .replaceAll(/&pound;/g, "£")
-                        .replaceAll(/&yen;/g, "¥")
-                        .replaceAll(/&dollar;/g, "$")
-                        .replaceAll(/&cent;/g, "¢")
-                        .replaceAll(/&percnt;/g, "%")
-                        .replaceAll(/&nbsp;/g, " ")
-                        .replaceAll(/\s+/g, " ")
-                        .trim();
-                }
-
-                function getTdColumnName(el) {
-                    const tag = el.tagName.toLowerCase();
-                    if (tag !== "td") return null;
-
-                    const td = el;
-
-                    const tr = td.closest("tr");
-                    const table = td.closest("table");
-                    if (!tr || !table) return null;
-
-                    // index within row among td/th
-                    const cells = Array.from(tr.querySelectorAll("th,td"));
-                    const colIndex = cells.indexOf(td);
-                    if (colIndex < 0) return null;
-
-                    // prefer thead -> first header row
-                    const theadRow = table.querySelector("thead tr");
-                    if (theadRow) {
-                        const ths = Array.from(theadRow.querySelectorAll("th"));
-                        return (ths[colIndex]?.textContent || "").trim();
-                    }
-
-                    // fallback: first row th
-                    const firstRow = table.querySelector("tr");
-                    if (firstRow) {
-                        const ths = Array.from(firstRow.querySelectorAll("th"));
-                        return (ths[colIndex]?.textContent || "").trim();
-                    }
-
-                    return null;
-                }
-
-                function getTdColumnThHtml(el) {
-                    const tag = el.tagName.toLowerCase();
-                    if (tag !== "td") return null;
-
-                    const td = el;
-
-                    const tr = td.closest("tr");
-                    const table = td.closest("table");
-                    if (!tr || !table) return null;
-
-                    // index within row among td/th
-                    const cells = Array.from(tr.querySelectorAll("th,td"));
-                    const colIndex = cells.indexOf(td);
-                    if (colIndex < 0) return null;
-
-                    // prefer thead -> first header row
-                    const theadRow = table.querySelector("thead tr");
-                    if (theadRow) {
-                        const ths = Array.from(theadRow.querySelectorAll("th"));
-                        return ths[colIndex]?.outerHTML;
-                    }
-
-                    // fallback: first row th
-                    const firstRow = table.querySelector("tr");
-                    if (firstRow) {
-                        const ths = Array.from(firstRow.querySelectorAll("th"));
-                        return ths[colIndex]?.outerHTML;
-                    }
-
-                    return null;
-                }
-
-                function getLabel(el, maxDepth = 4) {
-                    let label = el.closest("label")?.textContent?.trim() || null;
-                    if (!label && maxDepth > 0) {
-                        const labels = Array.from(el.parentElement?.querySelectorAll("label") || []);
-                        label =
-                            labels
-                                .map((l) => l.textContent?.trim())
-                                .filter(Boolean)
-                                .join(" ") || null;
-                        if (!label) {
-                            label = getLabel(el.parentElement, maxDepth - 1);
-                        }
-                    }
-                    return label;
-                }
-
-                function getValuesOfAllInnerElements(el) {
-                    return Array.from(el.querySelectorAll("input, textarea, select"))
-                        .map((el) => el.value)
-                        .join(" ");
-                }
-
                 const e = el;
 
                 // all attributes on the element
