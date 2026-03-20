@@ -620,7 +620,7 @@ export class QA {
         try {
             chaiExpect(
                 this.currentElement.data.text || this.currentElement.data.value || this.currentElement.data.html
-            ).to.contain(text);
+            ).to.include(text);
             await this._showHint(`${this._describeLastElementInQueue()} contains ${text}`, "success");
         } catch (error) {
             if (throwError) {
