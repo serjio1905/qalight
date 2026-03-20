@@ -703,7 +703,7 @@ export class QA {
                 // if (input === "" || input === "\r" || input === "\n") {
                 // Enter key pressed
                 rl.close();
-                this._hideHint();
+                // this._hideHint();
                 resolve();
                 // }
             });
