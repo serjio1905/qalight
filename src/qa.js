@@ -1167,6 +1167,7 @@ export class QA {
                         .replaceAll(/&cent;/g, "¢")
                         .replaceAll(/&percnt;/g, "%")
                         .replaceAll(/&nbsp;/g, " ")
+                        .replaceAll(/\s+/g, " ")
                         .trim();
                 }
 
