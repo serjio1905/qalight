@@ -242,6 +242,7 @@ export class QA {
                 ? options.apiResponseCallback
                 : (log) => this._defaultApiResponseCallback(log)
         );
+        this.expect = new Expect(this);
         return this;
     }
 
@@ -868,129 +869,6 @@ export class QA {
         return true;
     }
 
-    expect = {
-        equal: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.equal(expectedValue);
-            await this._showHint(`${this._describeLastElementInQueue()} is equal to ${expectedValue}`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        notEqual: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.not.equal(expectedValue);
-            await this._showHint(`${this._describeLastElementInQueue()} is not equal to ${expectedValue}`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        contain: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.contain(expectedValue);
-            await this._showHint(`${this._describeLastElementInQueue()} contains ${expectedValue}`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        notContain: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.not.contain(expectedValue);
-            await this._showHint(`${this._describeLastElementInQueue()} does not contain ${expectedValue}`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        greaterThan: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.be.greaterThan(expectedValue);
-            await this._showHint(`${this._describeLastElementInQueue()} is greater than ${expectedValue}`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        lessThan: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.be.lessThan(expectedValue);
-            await this._showHint(`${this._describeLastElementInQueue()} is less than ${expectedValue}`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        greaterThanOrEqual: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.be.greaterThanOrEqual(expectedValue);
-            await this._showHint(
-                `${this._describeLastElementInQueue()} is greater than or equal to ${expectedValue}`,
-                "success"
-            );
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        lessThanOrEqual: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.be.lessThanOrEqual(expectedValue);
-            await this._showHint(
-                `${this._describeLastElementInQueue()} is less than or equal to ${expectedValue}`,
-                "success"
-            );
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        between: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.be.between(expectedValue[0], expectedValue[1]);
-            await this._showHint(
-                `${this._describeLastElementInQueue()} is between ${expectedValue[0]} and ${expectedValue[1]}`,
-                "success"
-            );
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        notBetween: async (actualValue, expectedValue, hint) => {
-            chaiExpect(actualValue).to.not.be.between(expectedValue[0], expectedValue[1]);
-            await this._showHint(
-                `${this._describeLastElementInQueue()} is not between ${expectedValue[0]} and ${expectedValue[1]}`,
-                "success"
-            );
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        notEmpty: async (actualValue, hint) => {
-            chaiExpect(actualValue).to.not.be.empty;
-            await this._showHint(`${this._describeLastElementInQueue()} is not empty`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        empty: async (actualValue, hint) => {
-            chaiExpect(actualValue).to.be.empty;
-            await this._showHint(`${this._describeLastElementInQueue()} is empty`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        notNull: async (actualValue, hint) => {
-            chaiExpect(actualValue).to.not.be.null;
-            await this._showHint(`${this._describeLastElementInQueue()} is not null`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        null: async (actualValue, hint) => {
-            chaiExpect(actualValue).to.be.null;
-            await this._showHint(`${this._describeLastElementInQueue()} is null`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        notUndefined: async (actualValue, hint) => {
-            chaiExpect(actualValue).to.not.be.undefined;
-            await this._showHint(`${this._describeLastElementInQueue()} is not undefined`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        undefined: async (actualValue, hint) => {
-            chaiExpect(actualValue).to.be.undefined;
-            await this._showHint(`${this._describeLastElementInQueue()} is undefined`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        notNullOrEmpty: async (actualValue, hint) => {
-            chaiExpect(actualValue).to.not.be.null;
-            await this._showHint(`${this._describeLastElementInQueue()} is not null or empty`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-        nullOrEmpty: async (actualValue, hint) => {
-            chaiExpect(actualValue).to.be.null;
-            await this._showHint(`${this._describeLastElementInQueue()} is null or empty`, "success");
-            await this.waitFor(Math.max(this.timeout, 500), false);
-            await this._hideHint();
-        },
-    };
-
     async _executeQueue(tries = 0, checking = false) {
         if (this.queue.length === 0) return this;
         await this.waitFor(this.timeout, false);
@@ -1265,6 +1143,26 @@ export class QA {
         return points;
     }
 
+    async _elumitateHtmlChars(value) {
+        if (typeof value !== "string") return value;
+        return value
+            .replaceAll(/&amp;/g, "&")
+            .replaceAll(/&lt;/g, "<")
+            .replaceAll(/&gt;/g, ">")
+            .replaceAll(/&quot;/g, '"')
+            .replaceAll(/&apos;/g, "'")
+            .replaceAll(/&copy;/g, "©")
+            .replaceAll(/&reg;/g, "®")
+            .replaceAll(/&trade;/g, "™")
+            .replaceAll(/&euro;/g, "€")
+            .replaceAll(/&pound;/g, "£")
+            .replaceAll(/&yen;/g, "¥")
+            .replaceAll(/&dollar;/g, "$")
+            .replaceAll(/&cent;/g, "¢")
+            .replaceAll(/&percnt;/g, "%")
+            .replaceAll(/&nbsp;/g, " ");
+    }
+
     async _extractDataFromLocator(locator) {
         // const timeout = this.timeout ?? 5000;
         // const opts = { timeout };
@@ -1387,12 +1285,12 @@ export class QA {
                     checked,
 
                     // everything else
-                    text: el.textContent,
-                    parentText: el.parentElement?.textContent?.trim() || null,
-                    html: el.outerHTML,
-                    columnName: getTdColumnName?.(el),
-                    columnThHtml: getTdColumnThHtml?.(el),
-                    label: getLabel?.(el),
+                    text: this._elumitateHtmlChars(el.textContent),
+                    parentText: this._elumitateHtmlChars(el.parentElement?.textContent?.trim() || null),
+                    html: this._elumitateHtmlChars(el.outerHTML),
+                    columnName: this._elumitateHtmlChars(getTdColumnName?.(el)),
+                    columnThHtml: this._elumitateHtmlChars(getTdColumnThHtml?.(el)),
+                    label: this._elumitateHtmlChars(getLabel?.(el)),
                     ...attrs,
                 };
                 let identifier = dom.text || dom.name || dom.id || dom.className || dom.placeholder;
