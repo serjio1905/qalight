@@ -31,6 +31,7 @@ export class QA {
             withSnapshots: false,
             restrictionMapping: {},
             testInfo: null,
+            safeMode: false,
             apiResponseCallback: (log) => this._defaultApiResponseCallback(log),
         }
     ) {
@@ -40,6 +41,8 @@ export class QA {
         }
         /** @type {import('@playwright/test').Page} */
         this.page = page;
+        /** @type {boolean} */
+        this.safeMode = options.safeMode;
         this.parentElement = null;
         this.currentElement = null;
         /** @type {number} */
@@ -173,9 +176,15 @@ export class QA {
         return this;
     }
 
+    async abort(msg) {
+        await this._showHint(msg, "error");
+        await this.waitFor(3000, false);
+        throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
+    }
+
     async click(double = false) {
-        await this._executeQueue();
         try {
+            await this._executeQueue();
             await this._showHint(`Clicking on ${this._describeLastElementInQueue()}`, "info");
             if (double) {
                 await this.currentElement.locator.dblclick();
@@ -183,17 +192,30 @@ export class QA {
                 await this.currentElement.locator.click();
             }
         } catch (error) {
-            await this._showHint(`Error clicking on ${this._describeLastElementInQueue()}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(
+                    `Failed to click on ${this._describeLastElementInQueue()}. Perform manual action and continue.`,
+                    "warning",
+                    [
+                        { text: "Continue", onClick: () => this.continue() },
+                        {
+                            text: "Stop",
+                            onClick: async () =>
+                                await this.abort(`Error clicking on ${this._describeLastElementInQueue()}`),
+                        },
+                    ]
+                );
+            } else {
+                await this.abort(`Error clicking on ${this._describeLastElementInQueue()}`);
+            }
         }
         await this._hideHint();
         return this;
     }
 
     async check(value = true) {
-        await this._executeQueue();
         try {
+            await this._executeQueue();
             await this._showHint(`Checking ${this._describeLastElementInQueue()}`, "info");
             if (value) {
                 await this.currentElement.locator.check({ force: true });
@@ -202,9 +224,18 @@ export class QA {
             }
         } catch (error) {
             if (!error.message?.includes("did not change its state")) {
-                await this._showHint(`Error checking ${this._describeLastElementInQueue()}`, "error");
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(`Failed to check ${this._describeLastElementInQueue()}`, "warning", [
+                        { text: "Continue", onClick: () => this.continue() },
+                        {
+                            text: "Stop",
+                            onClick: async () =>
+                                await this.abort(`Error checking ${this._describeLastElementInQueue()}`),
+                        },
+                    ]);
+                } else {
+                    await this.abort(`Error checking ${this._describeLastElementInQueue()}`);
+                }
             }
         }
         await this._hideHint();
@@ -212,11 +243,11 @@ export class QA {
     }
 
     async fill(text) {
-        await this._executeQueue();
         // In rare cases (e.g. password fields) Playwright's .fill() may only fill the first character.
         // Workaround: clear first, then type char-by-char if .fill() fails.
         // await this.currentElement.locator.fill(""); // Always clear before filling
         try {
+            await this._executeQueue();
             await this._showHint(`Filling "${text}" in ${this._describeLastElementInQueue()}`, "info");
             if (typeof text === "number") text = String(text);
             await this.currentElement.locator.fill(text);
@@ -233,9 +264,18 @@ export class QA {
                 }
             }
         } catch (error) {
-            await this._showHint(`Error filling "${text}" in ${this._describeLastElementInQueue()}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to fill "${text}" in ${this._describeLastElementInQueue()}`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () =>
+                            await this.abort(`Error filling "${text}" in ${this._describeLastElementInQueue()}`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error filling "${text}" in ${this._describeLastElementInQueue()}`);
+            }
         }
         await this._hideHint();
         return this;
@@ -250,9 +290,17 @@ export class QA {
                 document.activeElement && document.activeElement.blur();
             });
         } catch (error) {
-            await this._showHint(`Error blurring ${this._describeLastElementInQueue()}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to blur ${this._describeLastElementInQueue()}`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () => await this.abort(`Error blurring ${this._describeLastElementInQueue()}`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error blurring ${this._describeLastElementInQueue()}`);
+            }
         }
         await this._hideHint();
         return this;
@@ -266,9 +314,17 @@ export class QA {
                 document.activeElement && document.activeElement.focus();
             });
         } catch (error) {
-            await this._showHint(`Error focusing ${this._describeLastElementInQueue()}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to focus ${this._describeLastElementInQueue()}`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () => await this.abort(`Error focusing ${this._describeLastElementInQueue()}`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error focusing ${this._describeLastElementInQueue()}`);
+            }
         }
         await this._hideHint();
         return this;
@@ -280,9 +336,18 @@ export class QA {
             await this._showHint(`Selecting in ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.selectOption(value);
         } catch (error) {
-            await this._showHint(`Error selecting in ${this._describeLastElementInQueue()}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to select in ${this._describeLastElementInQueue()}`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () =>
+                            await this.abort(`Error selecting in ${this._describeLastElementInQueue()}`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error selecting in ${this._describeLastElementInQueue()}`);
+            }
         }
         await this._hideHint();
         return this;
@@ -298,9 +363,18 @@ export class QA {
             }
             await this.currentElement.locator.fill(value);
         } catch (error) {
-            await this._showHint(`Error setting date and time to "${yyyy}-${MM}-${dd} ${HH}:${mm}"`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to set date and time to "${yyyy}-${MM}-${dd} ${HH}:${mm}"`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () =>
+                            await this.abort(`Error setting date and time to "${yyyy}-${MM}-${dd} ${HH}:${mm}"`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error setting date and time to "${yyyy}-${MM}-${dd} ${HH}:${mm}"`);
+            }
         }
         await this._hideHint();
         return this;
@@ -315,9 +389,17 @@ export class QA {
             const monthString = month < 10 ? `0${month}` : `${month}`;
             await this.currentElement.locator.fill(`${yyyy}-${monthString}`);
         } catch (error) {
-            await this._showHint(`Error setting month to "${yyyy}-${month}"`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to set month to "${yyyy}-${month}"`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () => await this.abort(`Error setting month to "${yyyy}-${month}"`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error setting month to "${yyyy}-${month}"`);
+            }
         }
         await this._hideHint();
         return this;
@@ -340,9 +422,18 @@ export class QA {
             await this._showHint(`Scrolling to ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.scrollIntoViewIfNeeded();
         } catch (error) {
-            await this._showHint(`Error scrolling to ${this._describeLastElementInQueue()}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to scroll to ${this._describeLastElementInQueue()}`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () =>
+                            await this.abort(`Error scrolling to ${this._describeLastElementInQueue()}`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error scrolling to ${this._describeLastElementInQueue()}`);
+            }
         }
         await this._hideHint();
         return this;
@@ -377,9 +468,17 @@ export class QA {
             const targetElement = this.page.locator(identifiersString, { hasText: text });
             await this._scrollContairnerUntilTargetVisible(this.currentElement.locator, targetElement, { direction });
         } catch (error) {
-            await this._showHint(`Error scrolling to ${text}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to scroll to ${text}`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () => await this.abort(`Error scrolling to ${text}`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error scrolling to ${text}`);
+            }
         }
         return this;
     }
@@ -408,9 +507,18 @@ export class QA {
             await this._showHint(`Pressing Enter on ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.press("Enter");
         } catch (error) {
-            await this._showHint(`Error pressing Enter on ${this._describeLastElementInQueue()}`, "error");
-            await this.waitFor(3000, false);
-            throw error;
+            if (this.safeMode) {
+                await this.pause(`Failed to press Enter on ${this._describeLastElementInQueue()}`, "warning", [
+                    { text: "Continue", onClick: () => this.continue() },
+                    {
+                        text: "Stop",
+                        onClick: async () =>
+                            await this.abort(`Error pressing Enter on ${this._describeLastElementInQueue()}`),
+                    },
+                ]);
+            } else {
+                await this.abort(`Error pressing Enter on ${this._describeLastElementInQueue()}`);
+            }
         }
         await this._hideHint();
         return this;
@@ -447,12 +555,24 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} contains ${text}`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} contains ${text}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} contains ${text}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} contains ${text}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(`Error checking if ${this._describeLastElementInQueue()} contains ${text}`);
+                }
             }
             return false;
         }
@@ -469,12 +589,26 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} does not contain ${text}`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} does not contain ${text}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} does not contain ${text}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} does not contain ${text}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(
+                        `Error checking if ${this._describeLastElementInQueue()} does not contain ${text}`
+                    );
+                }
             }
             return false;
         }
@@ -491,12 +625,24 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} has text ${text}`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} has text ${text}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} has text ${text}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} has text ${text}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(`Error checking if ${this._describeLastElementInQueue()} has text ${text}`);
+                }
             }
             return false;
         }
@@ -511,12 +657,24 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} contains HTML ${html}`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} contains HTML ${html}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} contains HTML ${html}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} contains HTML ${html}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(`Error checking if ${this._describeLastElementInQueue()} contains HTML ${html}`);
+                }
             }
             return false;
         }
@@ -531,12 +689,26 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} does not contain HTML ${html}`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} does not contain HTML ${html}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} does not contain HTML ${html}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} does not contain HTML ${html}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(
+                        `Error checking if ${this._describeLastElementInQueue()} does not contain HTML ${html}`
+                    );
+                }
             }
             return false;
         }
@@ -554,12 +726,24 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} has value ${value}`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} has value ${value}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} has value ${value}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} has value ${value}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(`Error checking if ${this._describeLastElementInQueue()} has value ${value}`);
+                }
             }
             return false;
         }
@@ -574,12 +758,24 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} contains value ${value}`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} contains value ${value}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} contains value ${value}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} contains value ${value}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(`Error checking if ${this._describeLastElementInQueue()} contains value ${value}`);
+                }
             }
             return false;
         }
@@ -598,9 +794,18 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} exists`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(`Error checking if ${this._describeLastElementInQueue()} exists`, "error");
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(`Failed to check if ${this._describeLastElementInQueue()} exists`, "warning", [
+                        { text: "Continue", onClick: () => this.continue() },
+                        {
+                            text: "Stop",
+                            onClick: async () =>
+                                await this.abort(`Error checking if ${this._describeLastElementInQueue()} exists`),
+                        },
+                    ]);
+                } else {
+                    await this.abort(`Error checking if ${this._describeLastElementInQueue()} exists`);
+                }
             }
             return false;
         }
@@ -614,9 +819,24 @@ export class QA {
         const count = await this.currentElement.locator.count();
         if (count > 0) {
             if (throwError) {
-                await this._showHint(`Error checking if ${this._describeLastElementInQueue()} does not exist`, "error");
-                await this.waitFor(3000, false);
-                throw new Error(`Element exists: ${this._describeLastElementInQueue()}`);
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} does not exist`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} does not exist`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(`Error checking if ${this._describeLastElementInQueue()} does not exist`);
+                }
             }
             return false;
         }
@@ -637,12 +857,26 @@ export class QA {
             );
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} is ${value ? "checked" : "unchecked"}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} is ${value ? "checked" : "unchecked"}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} is ${value ? "checked" : "unchecked"}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(
+                        `Error checking if ${this._describeLastElementInQueue()} is ${value ? "checked" : "unchecked"}`
+                    );
+                }
             }
             return false;
         }
@@ -657,12 +891,26 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} contains class ${className}`, "success");
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} contains class ${className}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} contains class ${className}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} contains class ${className}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(
+                        `Error checking if ${this._describeLastElementInQueue()} contains class ${className}`
+                    );
+                }
             }
             return false;
         }
@@ -680,12 +928,26 @@ export class QA {
             );
         } catch (error) {
             if (throwError) {
-                await this._showHint(
-                    `Error checking if ${this._describeLastElementInQueue()} does not contain class ${className}`,
-                    "error"
-                );
-                await this.waitFor(3000, false);
-                throw error;
+                if (this.safeMode) {
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} does not contain class ${className}`,
+                        "warning",
+                        [
+                            { text: "Continue", onClick: () => this.continue() },
+                            {
+                                text: "Stop",
+                                onClick: async () =>
+                                    await this.abort(
+                                        `Error checking if ${this._describeLastElementInQueue()} does not contain class ${className}`
+                                    ),
+                            },
+                        ]
+                    );
+                } else {
+                    await this.abort(
+                        `Error checking if ${this._describeLastElementInQueue()} does not contain class ${className}`
+                    );
+                }
             }
             return false;
         }
@@ -693,16 +955,21 @@ export class QA {
         return true;
     }
 
-    pause() {
+    /**
+     * Pause the test execution and show a hint with the given text, buttons and type.
+     * @param {string} text - The text to show in the hint.
+     * @param {Array<{ text: string, onClick: () => void }>} buttons - The buttons to show in the hint.
+     * @param {"info" | "success" | "warning" | "error"} type - The type of the hint.
+     * @returns {Promise<void>}
+     */
+    pause(text = "Paused", buttons = [{ text: "Continue", onClick: () => this.continue() }], type = "info") {
         return new Promise(async (resolve) => {
-            await this._showHint("Paused. Call resume() to continue.", "info", [
-                { text: "Resume", onClick: () => this.resume() },
-            ]);
+            await this._showHint(text, type, buttons);
             this._pauseResolver = resolve;
         });
     }
 
-    resume() {
+    continue() {
         if (this._pauseResolver) {
             this._hideHint();
             this._pauseResolver();
