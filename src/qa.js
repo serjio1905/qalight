@@ -897,7 +897,7 @@ export class QA {
             await this.waitFor(200, false);
             if (hintPopupElementWrapper) {
                 await hintPopupElementWrapper.evaluate((el) => {
-                    el.style.backgroundColor = "rgba(0, 0, 255, 0)";
+                    el.style.backgroundColor = "blue";
                 });
             }
             if (hintPopupElement) {
@@ -1238,7 +1238,7 @@ export class QA {
 
             el.style.outline = "3px solid #ff00ff";
             el.style.outlineOffset = "2px";
-            el.style.backgroundColor = "rgba(255, 0, 255, 0.5)";
+            el.style.backgroundColor = "blue";
 
             setTimeout(() => {
                 el.style.outline = prevOutline;
