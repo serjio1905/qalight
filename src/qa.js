@@ -1194,7 +1194,8 @@ export class QA {
                     wrapper.style.width = "100vw";
                     wrapper.style.height = "30px";
                     wrapper.style.backgroundColor = color;
-                    document.body.appendChild(wrapper);
+                    document.documentElement.prepend(wrapper);
+                    document.body.marginTop = "30px";
                 }
 
                 let el = document.getElementById(ID);
