@@ -927,11 +927,15 @@ export class QA {
         };
         const color = colors[type] || colors.info;
         try {
-            buttons.forEach((button, idx) => {
+            for (let idx = 0; idx < buttons.length; idx++) {
+                const button = buttons[idx];
                 if (typeof button.onClick === "function") {
-                    this.page.exposeFunction(`__qalight__button${idx}Click`, async () => await button.onClick?.());
+                    await this.page.exposeFunction(
+                        `__qalight__button${idx}Click`,
+                        async () => await button.onClick?.()
+                    );
                 }
-            });
+            }
             await this._injectQaHintPopup(color);
             const hintPopupElementWrapper = await this.page.$("#qa-hint-popup-wrapper");
             if (hintPopupElementWrapper) {
