@@ -1196,7 +1196,7 @@ export class QA {
                     wrapper.style.height = "30px";
                     wrapper.style.backgroundColor = color;
                     document.documentElement.prepend(wrapper);
-                    document.body.style["margin-top"] = "30px !important";
+                    document.body.style.marginTop = "30px !important";
                 }
 
                 let el = document.getElementById(ID);
@@ -1243,7 +1243,7 @@ export class QA {
 
             el.style.outline = "3px solid #ff00ff";
             el.style.outlineOffset = "2px";
-            el.style.backgroundColor = "blue";
+            el.style.backgroundColor = "#ff00ff";
 
             setTimeout(() => {
                 el.style.outline = prevOutline;
