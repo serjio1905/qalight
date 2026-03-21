@@ -760,7 +760,13 @@ export class QA {
         text = "Paused",
         buttons = [
             { text: "Continue", onClick: async () => await this.continue() },
-            { text: "Stop", onClick: async () => await this.abort() },
+            {
+                text: "Stop",
+                onClick: async () => {
+                    await this.continue();
+                    await this.abort();
+                },
+            },
         ],
         type = "warning"
     ) {
@@ -779,11 +785,6 @@ export class QA {
     }
 
     async abort(msg = this._abortMessage) {
-        if (this._pauseResolver) {
-            this._hideHint();
-            this._pauseResolver();
-            this._pauseResolver = null;
-        }
         await this._showHint(msg || "Aborted by user.", "error");
         await this.waitFor(3000, false);
         throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
@@ -949,7 +950,7 @@ export class QA {
                         // The style property cannot set "!important"; use setProperty for that
                         document.body.style.setProperty("padding-top", "30px", "important");
                         el.textContent = text;
-                        el.style.display = "block";
+                        el.style.display = "flex";
                         if (buttons?.length > 0) {
                             buttons.forEach((button, idx) => {
                                 const buttonElement = document.createElement("button");
