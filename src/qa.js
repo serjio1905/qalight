@@ -1183,7 +1183,6 @@ export class QA {
                 if (!wrapper) {
                     wrapper = document.createElement("div");
                     wrapper.id = WRAPPER_ID;
-                    document.body.insertBefore(wrapper, document.body.firstChild);
                     wrapper.style.position = "absolute";
                     wrapper.style.display = "block";
                     wrapper.style.top = "0";
@@ -1191,7 +1190,8 @@ export class QA {
                     wrapper.style.zIndex = "2147483647";
                     wrapper.style.width = "100vw";
                     wrapper.style.height = "30px";
-                    wrapper.style.backgroundColor = "rgba(0, 0, 0, 0)";
+                    wrapper.style.backgroundColor = color;
+                    document.body.appendChild(wrapper);
                 }
 
                 let el = document.getElementById(ID);
