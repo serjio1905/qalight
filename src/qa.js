@@ -177,6 +177,10 @@ export class QA {
     }
 
     async abort(msg = this._abortMessage) {
+        if (this._pauseResolver) {
+            this._pauseResolver();
+            this._pauseResolver = null;
+        }
         await this._showHint(msg || "Aborted by user.", "error");
         await this.waitFor(3000, false);
         throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
