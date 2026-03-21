@@ -68,7 +68,7 @@ export class QA {
         this.expect = new ExpectFramework(this);
 
         this._pauseResolver = null;
-        window.__qalight__ = {};
+        // window.__qalight__ = {};
         return this;
     }
 
