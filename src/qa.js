@@ -176,16 +176,6 @@ export class QA {
         return this;
     }
 
-    async abort(msg = this._abortMessage) {
-        if (this._pauseResolver) {
-            this._pauseResolver();
-            this._pauseResolver = null;
-        }
-        await this._showHint(msg || "Aborted by user.", "error");
-        await this.waitFor(3000, false);
-        throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
-    }
-
     async click(double = false) {
         try {
             await this._executeQueue();
@@ -769,8 +759,8 @@ export class QA {
     pause(
         text = "Paused",
         buttons = [
-            { text: "Continue", onClick: () => this.continue() },
-            { text: "Stop", onClick: () => this.abort() },
+            { text: "Continue", onClick: async () => await this.continue() },
+            { text: "Stop", onClick: async () => await this.abort() },
         ],
         type = "warning"
     ) {
@@ -786,6 +776,17 @@ export class QA {
             this._pauseResolver();
             this._pauseResolver = null;
         }
+    }
+
+    async abort(msg = this._abortMessage) {
+        if (this._pauseResolver) {
+            this._hideHint();
+            this._pauseResolver();
+            this._pauseResolver = null;
+        }
+        await this._showHint(msg || "Aborted by user.", "error");
+        await this.waitFor(3000, false);
+        throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
     }
 
     async _executeQueue(tries = 0, checking = false) {
@@ -954,7 +955,6 @@ export class QA {
                                 const buttonElement = document.createElement("button");
                                 buttonElement.textContent = button.text;
                                 buttonElement.addEventListener("click", () => {
-                                    console.log(`__qalight__button${idx}Click`, window[`__qalight__button${idx}Click`]);
                                     window[`__qalight__button${idx}Click`]?.();
                                 });
                                 el.appendChild(buttonElement);
