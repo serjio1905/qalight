@@ -858,7 +858,6 @@ export class QA {
                 await hintPopupElementWrapper.evaluate(
                     (el, { color }) => {
                         el.style.backgroundColor = color;
-                        document.body.style.paddingTop = "30px !important";
                     },
                     { color }
                 );
@@ -868,6 +867,7 @@ export class QA {
                 await hintPopupElement.evaluate(
                     (el, { text, color, buttons }) => {
                         // el.style.backgroundColor = color;
+                        document.body.style.paddingTop = "30px !important";
                         el.textContent = text;
                         el.style.display = "block";
                         if (buttons?.length > 0) {
