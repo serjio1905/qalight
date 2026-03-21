@@ -880,7 +880,7 @@ export class QA {
                     el.style.display = "none";
                 });
             }
-            window.__qalight__?.buttons = [];
+            window.__qalight__.buttons = [];
         } catch (error) {}
     }
 
@@ -1179,7 +1179,7 @@ export class QA {
                 el.style.whiteSpace = "pre-wrap";
                 el.style.pointerEvents = "none"; // IMPORTANT: don't break UI interactions
                 if (window.__qalight__?.buttons?.length > 0) {
-                    window.__qalight__?.buttons.forEach((button, idx) => {
+                    window.__qalight__.buttons.forEach((button, idx) => {
                         const buttonElement = document.createElement("button");
                         buttonElement.textContent = button.text;
                         buttonElement.addEventListener("click", () => button.onClick?.());
