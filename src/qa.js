@@ -1291,6 +1291,10 @@ export class QA {
                     el.style.lineHeight = "1.25";
                     el.style.textAlign = "center";
                     el.style.whiteSpace = "pre-wrap";
+                    el.style.display = "flex";
+                    el.style.alignItems = "center";
+                    el.style.justifyContent = "center";
+                    el.style.gap = "5px";
                     wrapper.appendChild(el);
                 }
             },
