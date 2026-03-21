@@ -67,7 +67,6 @@ export class QA {
         this.expect = new ExpectFramework(this);
 
         this._pauseResolver = null;
-        window.__qalight__ = {};
         return this;
     }
 
@@ -848,8 +847,12 @@ export class QA {
         };
         const color = colors[type] || colors.info;
         try {
-            window.__qalight__.buttons = buttons;
-            await this._injectQaHintPopup(color);
+            buttons.forEach((button, idx) => {
+                if (typeof button.onClick === "function") {
+                    this.page.exposeFunction(`__qalight__button${idx}Click`, async () => await button.onClick?.());
+                }
+            });
+            await this._injectQaHintPopup(color, buttons);
             const hintPopupElement = await this.page.$("#qa-hint-popup");
             if (hintPopupElement) {
                 await hintPopupElement.evaluate(
@@ -880,7 +883,6 @@ export class QA {
                     el.style.display = "none";
                 });
             }
-            window.__qalight__.buttons = [];
         } catch (error) {}
     }
 
@@ -1149,46 +1151,49 @@ export class QA {
         return { ...dom, visible: isVisible, enabled: isEnabled };
     }
 
-    async _injectQaHintPopup(color) {
-        await this.page.evaluate((color) => {
-            const ID = "qa-hint-popup";
+    async _injectQaHintPopup(color, buttons = []) {
+        await this.page.evaluate(
+            ({ color, buttons }) => {
+                const ID = "qa-hint-popup";
 
-            let el = document.getElementById(ID);
-            if (!el) {
-                el = document.createElement("div");
-                el.id = ID;
+                let el = document.getElementById(ID);
+                if (!el) {
+                    el = document.createElement("div");
+                    el.id = ID;
 
-                // styling: doesn't reflow page, doesn't block clicks
-                el.style.position = "fixed";
-                el.style.display = "block";
-                el.style.left = "50%";
-                el.style.bottom = "16px";
-                el.style.transform = "translateX(-50%)";
-                el.style.zIndex = "2147483647";
-                el.style.backgroundColor = color;
-                el.style.color = "white";
-                el.style.fontWeight = "700";
-                el.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
-                el.style.fontSize = "14px";
-                el.style.lineHeight = "1.25";
-                el.style.padding = "10px 14px";
-                el.style.borderRadius = "10px";
-                el.style.boxShadow = "0 6px 20px rgba(0,0,0,0.35)";
-                el.style.maxWidth = "80vw";
-                el.style.textAlign = "center";
-                el.style.whiteSpace = "pre-wrap";
-                el.style.pointerEvents = "none"; // IMPORTANT: don't break UI interactions
-                if (window.__qalight__?.buttons?.length > 0) {
-                    window.__qalight__.buttons.forEach((button, idx) => {
-                        const buttonElement = document.createElement("button");
-                        buttonElement.textContent = button.text;
-                        buttonElement.addEventListener("click", () => button.onClick?.());
-                        el.appendChild(buttonElement);
-                    });
+                    // styling: doesn't reflow page, doesn't block clicks
+                    el.style.position = "fixed";
+                    el.style.display = "block";
+                    el.style.left = "50%";
+                    el.style.bottom = "16px";
+                    el.style.transform = "translateX(-50%)";
+                    el.style.zIndex = "2147483647";
+                    el.style.backgroundColor = color;
+                    el.style.color = "white";
+                    el.style.fontWeight = "700";
+                    el.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+                    el.style.fontSize = "14px";
+                    el.style.lineHeight = "1.25";
+                    el.style.padding = "10px 14px";
+                    el.style.borderRadius = "10px";
+                    el.style.boxShadow = "0 6px 20px rgba(0,0,0,0.35)";
+                    el.style.maxWidth = "80vw";
+                    el.style.textAlign = "center";
+                    el.style.whiteSpace = "pre-wrap";
+                    el.style.pointerEvents = "none"; // IMPORTANT: don't break UI interactions
+                    if (buttons?.length > 0) {
+                        buttons.forEach((button, idx) => {
+                            const buttonElement = document.createElement("button");
+                            buttonElement.textContent = button.text;
+                            buttonElement.addEventListener("click", () => window[`__qalight__button${idx}Click`]?.());
+                            el.appendChild(buttonElement);
+                        });
+                    }
+                    document.documentElement.appendChild(el);
                 }
-                document.documentElement.appendChild(el);
-            }
-        }, color);
+            },
+            { color, buttons: buttons.map((button) => ({ text: button.text })) }
+        );
     }
     // Optional helper to remove it
     async _removeQaHintPopup() {
