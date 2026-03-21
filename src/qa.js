@@ -852,7 +852,7 @@ export class QA {
                     this.page.exposeFunction(`__qalight__button${idx}Click`, async () => await button.onClick?.());
                 }
             });
-            await this._injectQaHintPopup(color, buttons);
+            await this._injectQaHintPopup(color);
             const hintPopupElement = await this.page.$("#qa-hint-popup");
             if (hintPopupElement) {
                 await hintPopupElement.evaluate(
@@ -860,8 +860,18 @@ export class QA {
                         el.style.backgroundColor = color;
                         el.textContent = text;
                         el.style.display = "block";
+                        if (buttons?.length > 0) {
+                            buttons.forEach((button, idx) => {
+                                const buttonElement = document.createElement("button");
+                                buttonElement.textContent = button.text;
+                                buttonElement.addEventListener("click", () =>
+                                    window[`__qalight__button${idx}Click`]?.()
+                                );
+                                el.appendChild(buttonElement);
+                            });
+                        }
                     },
-                    { text, color }
+                    { text, color, buttons: buttons.map((button) => ({ text: button.text })) }
                 );
             }
             if (this.currentElement?.locator) {
@@ -1151,9 +1161,9 @@ export class QA {
         return { ...dom, visible: isVisible, enabled: isEnabled };
     }
 
-    async _injectQaHintPopup(color, buttons = []) {
+    async _injectQaHintPopup(color) {
         await this.page.evaluate(
-            ({ color, buttons }) => {
+            ({ color }) => {
                 const ID = "qa-hint-popup";
 
                 let el = document.getElementById(ID);
@@ -1181,18 +1191,10 @@ export class QA {
                     el.style.textAlign = "center";
                     el.style.whiteSpace = "pre-wrap";
                     el.style.pointerEvents = "none"; // IMPORTANT: don't break UI interactions
-                    if (buttons?.length > 0) {
-                        buttons.forEach((button, idx) => {
-                            const buttonElement = document.createElement("button");
-                            buttonElement.textContent = button.text;
-                            buttonElement.addEventListener("click", () => window[`__qalight__button${idx}Click`]?.());
-                            el.appendChild(buttonElement);
-                        });
-                    }
                     document.documentElement.appendChild(el);
                 }
             },
-            { color, buttons: buttons.map((button) => ({ text: button.text })) }
+            { color }
         );
     }
     // Optional helper to remove it
