@@ -1190,7 +1190,9 @@ export class QA {
                     wrapper = document.createElement("div");
                     wrapper.id = WRAPPER_ID;
                     wrapper.style.position = "absolute";
-                    wrapper.style.display = "block";
+                    wrapper.style.display = "flex";
+                    wrapper.style.alignItems = "center";
+                    wrapper.style.justifyContent = "center";
                     wrapper.style.top = "0";
                     wrapper.style.right = "0";
                     wrapper.style.zIndex = "2147483647";
@@ -1208,8 +1210,6 @@ export class QA {
                     // styling: doesn't reflow page, doesn't block clicks
                     el.style.position = "relative";
                     el.style.display = "block";
-                    el.style.left = "50%";
-                    el.style.transform = "translateX(-50%)";
                     el.style.color = "white";
                     el.style.fontWeight = "700";
                     el.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
