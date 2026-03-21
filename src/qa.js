@@ -855,9 +855,12 @@ export class QA {
             await this._injectQaHintPopup(color);
             const hintPopupElementWrapper = await this.page.$("#qa-hint-popup-wrapper");
             if (hintPopupElementWrapper) {
-                await hintPopupElementWrapper.evaluate((el) => {
-                    el.style.backgroundColor = color;
-                });
+                await hintPopupElementWrapper.evaluate(
+                    (el, { color }) => {
+                        el.style.backgroundColor = color;
+                    },
+                    { color }
+                );
             }
             const hintPopupElement = await this.page.$("#qa-hint-popup");
             if (hintPopupElement) {
