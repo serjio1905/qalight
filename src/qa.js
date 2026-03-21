@@ -858,7 +858,7 @@ export class QA {
                 await hintPopupElementWrapper.evaluate(
                     (el, { color }) => {
                         el.style.backgroundColor = color;
-                        document.body.style.marginTop = "30px !important";
+                        document.body.style.paddingTop = "30px !important";
                     },
                     { color }
                 );
@@ -874,9 +874,10 @@ export class QA {
                             buttons.forEach((button, idx) => {
                                 const buttonElement = document.createElement("button");
                                 buttonElement.textContent = button.text;
-                                buttonElement.addEventListener("click", () =>
-                                    window[`__qalight__button${idx}Click`]?.()
-                                );
+                                buttonElement.addEventListener("click", () => {
+                                    console.log(`__qalight__button${idx}Click`, window[`__qalight__button${idx}Click`]);
+                                    window[`__qalight__button${idx}Click`]?.();
+                                });
                                 el.appendChild(buttonElement);
                             });
                         }
@@ -1196,7 +1197,6 @@ export class QA {
                     wrapper.style.height = "30px";
                     wrapper.style.backgroundColor = color;
                     document.documentElement.prepend(wrapper);
-                    document.body.style.marginTop = "30px !important";
                 }
 
                 let el = document.getElementById(ID);
