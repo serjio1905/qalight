@@ -867,7 +867,8 @@ export class QA {
                 await hintPopupElement.evaluate(
                     (el, { text, color, buttons }) => {
                         // el.style.backgroundColor = color;
-                        document.body.style.paddingTop = "30px !important";
+                        // The style property cannot set "!important"; use setProperty for that
+                        document.body.style.setProperty("padding-top", "30px", "important");
                         el.textContent = text;
                         el.style.display = "block";
                         if (buttons?.length > 0) {
