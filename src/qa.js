@@ -762,10 +762,7 @@ export class QA {
             { text: "Continue", onClick: async () => await this.continue() },
             {
                 text: "Stop",
-                onClick: async () => {
-                    await this.continue();
-                    await this.abort();
-                },
+                onClick: async () => await this.abort(),
             },
         ],
         type = "warning"
@@ -787,13 +784,14 @@ export class QA {
     async abort(msg = this._abortMessage) {
         await this._showHint(msg || "Aborted by user.", "error");
         await this.waitFor(3000, false);
-        // INSERT_YOUR_CODE
-        // If there is a Playwright test context available, break or fail execution here.
-        // The following line throws to abort the current test, ensuring test execution stops immediately after abortion.
         if (typeof test !== "undefined" && typeof test.fail === "function") {
-            test.fail(true, "Test aborted via QA.abort");
+            if (typeof process !== "undefined" && typeof process.exit === "function") {
+                process.exit(1);
+            } else {
+                throw new QAError("Test aborted via QA.abort");
+            }
         }
-        // throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
+        throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
     }
 
     async _executeQueue(tries = 0, checking = false) {
