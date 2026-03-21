@@ -1216,7 +1216,6 @@ export class QA {
                     el.style.lineHeight = "1.25";
                     el.style.textAlign = "center";
                     el.style.whiteSpace = "pre-wrap";
-                    el.style.pointerEvents = "none"; // IMPORTANT: don't break UI interactions
                     wrapper.appendChild(el);
                 }
             },
