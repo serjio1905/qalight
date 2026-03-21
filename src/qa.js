@@ -1,4 +1,3 @@
-import readline from "readline";
 import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
 import { API } from "./api.js";
@@ -68,7 +67,7 @@ export class QA {
         this.expect = new ExpectFramework(this);
 
         this._pauseResolver = null;
-        // window.__qalight__ = {};
+        window.__qalight__ = {};
         return this;
     }
 
@@ -849,7 +848,7 @@ export class QA {
         };
         const color = colors[type] || colors.info;
         try {
-            window.__qalight__?.buttons = buttons;
+            window.__qalight__.buttons = buttons;
             await this._injectQaHintPopup(color);
             const hintPopupElement = await this.page.$("#qa-hint-popup");
             if (hintPopupElement) {
