@@ -858,6 +858,7 @@ export class QA {
                 await hintPopupElementWrapper.evaluate(
                     (el, { color }) => {
                         el.style.backgroundColor = color;
+                        document.body.marginTop = "30px !important";
                     },
                     { color }
                 );
