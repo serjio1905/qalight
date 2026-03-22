@@ -1300,7 +1300,7 @@ export class QA {
                     wrapper.style.width = "100vw";
                     wrapper.style.height = "23px";
                     wrapper.style.backgroundColor = color;
-                    document.appendChild(wrapper);
+                    document.documentElement.appendChild(wrapper);
                 }
 
                 let el = document.getElementById(ID);
