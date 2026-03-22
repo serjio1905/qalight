@@ -23,7 +23,7 @@ export class WeightPointCalculator {
     };
 
     _partialMismatchPenalty(key) {
-        return this.ATTR_BONUS[key] / 5;
+        return (this.ATTR_BONUS[key] || 3) / 5;
     }
 
     _attributeBonus(key) {
