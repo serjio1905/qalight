@@ -5,7 +5,7 @@ export class WeightPointCalculator {
         this.exceptIdentifiers = exceptIdentifiers;
     }
 
-    DEFAULT_WEIGHT = 50;
+    DEFAULT_WEIGHT = 0;
     ATTR_BONUS = {
         id: 10,
         name: 10,
@@ -76,6 +76,7 @@ export class WeightPointCalculator {
     calculateWeight(except = false) {
         let weight = this.DEFAULT_WEIGHT;
         let bonus = 0;
+        let prevBonus = 0;
         let identifierCount = 0;
 
         for (const identifier of except ? this.exceptIdentifiers : this.identifiers) {
@@ -92,7 +93,10 @@ export class WeightPointCalculator {
                 }
                 bonus += bestAttrBonus;
             }
-            bonus += this._identifierNumberBonus(identifierCount);
+            if (bonus > prevBonus) {
+                bonus += this._identifierNumberBonus(identifierCount);
+            }
+            prevBonus = bonus;
             identifierCount++;
         }
         return (except ? 0 : weight) + bonus;
