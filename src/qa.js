@@ -21,6 +21,20 @@ export class QA {
 
     static reporter = null;
 
+    /**
+     * @param {import('@playwright/test').Page} page
+     * @param {Object} options
+     * @param {number} options.timeout
+     * @param {import('@playwright/test').Waiter} options.waiter
+     * @param {boolean} options.withHighlight
+     * @param {boolean} options.withHint
+     * @param {boolean} options.withSnapshots
+     * @param {Object} options.restrictionMapping
+     * @param {import('@playwright/test').TestInfo} options.testInfo
+     * @param {boolean} options.safeMode
+     * @param {Function} options.apiResponseCallback
+     * @returns {QA}
+     */
     constructor(
         page,
         options = {
