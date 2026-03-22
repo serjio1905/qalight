@@ -36,15 +36,20 @@ export class API {
     async _request(method, url, params = {}, headers = {}, data = {}) {
         let timeStart = Date.now();
         const fullUrl = `${this.config.baseURL || ""}${url}`;
-        const response = await axios.request({
-            responseType: "json",
-            method,
-            url: fullUrl,
-            params,
-            headers: { ...(this.config?.headers || {}), ...headers },
-            data,
-            withCredentials: true,
-        });
+        try {
+            const response = await axios.request({
+                responseType: "json",
+                method,
+                url: fullUrl,
+                params,
+                headers: { ...(this.config?.headers || {}), ...headers },
+                data,
+                withCredentials: true,
+            });
+        } catch (e) {
+            console.error(fullUrl, e);
+            throw e;
+        }
         let timeEnd = Date.now();
         return { status: response.status, data: response.data, time: timeEnd - timeStart };
     }
