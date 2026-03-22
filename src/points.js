@@ -16,9 +16,9 @@ export class WeightPointCalculator {
         placeholder: 8,
         title: 8,
         label: 8,
-        html: 6,
         class: 5,
-        parentText: 5,
+        html: 2,
+        parentText: 2,
         inlineStyle: 2,
         checked: 2,
     };
