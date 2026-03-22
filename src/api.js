@@ -46,12 +46,12 @@ export class API {
                 data,
                 withCredentials: true,
             });
+            let timeEnd = Date.now();
+            return { status: response.status, data: response.data, time: timeEnd - timeStart };
         } catch (e) {
             console.error(fullUrl, e);
             throw e;
         }
-        let timeEnd = Date.now();
-        return { status: response.status, data: response.data, time: timeEnd - timeStart };
     }
 
     async get(url, params = {}, headers = {}) {
