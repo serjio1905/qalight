@@ -27,7 +27,7 @@ export class WeightPointCalculator {
     }
 
     _attributeBonus(key) {
-        return this.ATTR_BONUS[key] || 0;
+        return this.ATTR_BONUS[key] || 1;
     }
 
     _identifierNumberBonus(identifierCount) {
@@ -48,7 +48,7 @@ export class WeightPointCalculator {
     }
 
     _attributeDefinedBonus(attr) {
-        return (this.ATTR_BONUS[attr] || 0) / 3;
+        return (this.ATTR_BONUS[attr] || 3) / 3;
     }
 
     _calculateBonus(attr, value) {
@@ -90,7 +90,7 @@ export class WeightPointCalculator {
                 }
                 bonus += bestAttrBonus;
             }
-            bonus += this._identifierNumberBonus(identifierCount, 0);
+            bonus += this._identifierNumberBonus(identifierCount);
             identifierCount++;
         }
         return (except ? 0 : weight) + bonus;
