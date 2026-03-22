@@ -4,6 +4,7 @@ import { API } from "./api.js";
 import { ExpectFramework } from "./expect.js";
 import { DEFAULT_WAIT_TIME, MATCHING_WEIGHTS, TAGS } from "./constants.js";
 import { QAReporter } from "./reporter.js";
+import { WeightPointCalculator } from "./points.js";
 
 export class QAError extends Error {
     constructor(message) {
@@ -874,15 +875,16 @@ export class QA {
 
     async _getElement(parent, tag, identifiers = [], exceptIdentifiers = [], index = 0, tries = 0) {
         const elements = await this._getAllElements(parent, tag, identifiers, tries);
-        let maxPoints = 0;
+        let maxWeight = 0;
         for (const element of elements) {
-            const pointsPlus = this._calculateMatchingPoints(element.data, identifiers || []);
-            const pointsMinus = this._calculateMatchingPoints(element.data, exceptIdentifiers || []);
-            element.points = pointsPlus - pointsMinus;
-            maxPoints = Math.max(maxPoints, element.points);
+            const weightCalculator = new WeightPointCalculator(element, identifiers, exceptIdentifiers);
+            const weightPlus = weightCalculator.calculateWeight();
+            const weightMinus = weightCalculator.calculateWeight(true);
+            element.weight = weightPlus - weightMinus;
+            maxWeight = Math.max(maxWeight, element.weight);
         }
         const matchedElements = elements.filter(
-            (element) => element.points === maxPoints && (element.points > 0 || identifiers.length === 0)
+            (element) => element.weight === maxWeight && (element.weight > 0 || identifiers.length === 0)
         );
         return { element: matchedElements?.[index] ?? null, elements: matchedElements };
     }
