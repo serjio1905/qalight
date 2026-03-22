@@ -973,7 +973,7 @@ export class QA {
                     (el, { text, color, buttons }) => {
                         // el.style.backgroundColor = color;
                         // The style property cannot set "!important"; use setProperty for that
-                        document.body.style.setProperty("padding-top", "30px", "important");
+                        // document.body.style.setProperty("padding-top", "30px", "important");
                         el.textContent = text;
                         el.style.display = "flex";
                         if (buttons?.length > 0) {
@@ -1069,7 +1069,7 @@ export class QA {
                     wrapper.style.height = "20px";
                     wrapper.style.backgroundColor = color;
                     document.documentElement.appendChild(wrapper);
-                    document.body.style.setProperty("padding-top", "30px", "important");
+                    // document.body.style.setProperty("padding-top", "30px", "important");
                 }
 
                 let el = document.getElementById(ID);
@@ -1162,15 +1162,17 @@ export class QA {
                                     addSpecialSymbol = false;
                                 }
                                 details += `${JSON.stringify(
-                                    identifier.map((item) => {
-                                        if (typeof item === "string") {
-                                            return item;
-                                        } else if (typeof item === "object") {
-                                            return `${Object.entries(item)
-                                                .map(([key, value]) => `${key}=${value}`)
-                                                .join(", ")}`;
-                                        }
-                                    })
+                                    identifier
+                                        .map((item) => {
+                                            if (typeof item === "string") {
+                                                return item;
+                                            } else if (typeof item === "object") {
+                                                return `${Object.entries(item)
+                                                    .map(([key, value]) => `${key}=${value}`)
+                                                    .join(", ")}`;
+                                            }
+                                        })
+                                        .join(", ")
                                 )}`;
                             } else if (typeof identifier === "object") {
                                 if (addSpecialSymbol && identifier) {
