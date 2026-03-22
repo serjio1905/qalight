@@ -1298,7 +1298,7 @@ export class QA {
                     wrapper.style.right = "0";
                     wrapper.style.zIndex = "2147483647";
                     wrapper.style.width = "100vw";
-                    wrapper.style.height = "23px";
+                    wrapper.style.height = "20px";
                     wrapper.style.backgroundColor = color;
                     document.documentElement.appendChild(wrapper);
                 }
@@ -1312,9 +1312,9 @@ export class QA {
                     el.style.position = "relative";
                     el.style.display = "block";
                     el.style.color = "white";
-                    el.style.fontWeight = "700";
+                    el.style.fontWeight = "600";
                     el.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
-                    el.style.fontSize = "14px";
+                    el.style.fontSize = "12px";
                     el.style.lineHeight = "1.25";
                     el.style.textAlign = "center";
                     el.style.whiteSpace = "pre-wrap";
