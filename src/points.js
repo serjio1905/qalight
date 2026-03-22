@@ -13,22 +13,23 @@ export class WeightPointCalculator {
         text: 10,
         columnName: 10,
         columnThHtml: 10,
+        placeholder: 8,
         label: 8,
         html: 6,
         class: 5,
-        placeholder: 5,
         parentText: 5,
         inlineStyle: 2,
         checked: 2,
     };
 
-    _partialMismatchPenalty(key, value, foundValue) {
-        const difference = value.length - foundValue.length;
-        return (1 - difference / value.length) * this.ATTR_BONUS[key];
+    _partialMismatchPenalty(key) {
+        return this.ATTR_BONUS[key] / 5;
     }
+
     _attributeBonus(key) {
         return this.ATTR_BONUS[key] || 0;
     }
+
     _identifierNumberBonus(identifierCount) {
         return 10 / (identifierCount + 1);
     }
@@ -66,7 +67,7 @@ export class WeightPointCalculator {
             actualValue?.includes?.(value.toLowerCase().trim())
         ) {
             bonus = this._attributeBonus(attr, value, actualValue);
-            penalty = this._partialMismatchPenalty(attr, value, actualValue);
+            penalty = this._partialMismatchPenalty(attr);
         }
         return bonus - penalty;
     }
