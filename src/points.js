@@ -1,5 +1,3 @@
-import { QAError } from "..";
-
 export class WeightPointCalculator {
     constructor(element, identifiers = [], exceptIdentifiers = []) {
         this.element = element;
@@ -43,7 +41,7 @@ export class WeightPointCalculator {
             value = identifier[attr];
         }
         if (typeof value !== "string") {
-            throw new QAError("Value must be a string");
+            throw new Error("Value must be a string");
         }
         return { attr, value };
     }
