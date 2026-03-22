@@ -14,6 +14,7 @@ export class WeightPointCalculator {
         columnName: 10,
         columnThHtml: 10,
         placeholder: 8,
+        title: 8,
         label: 8,
         html: 6,
         class: 5,
