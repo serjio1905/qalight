@@ -1294,7 +1294,7 @@ export class QA {
                     wrapper.style.display = "flex";
                     wrapper.style.alignItems = "center";
                     wrapper.style.justifyContent = "center";
-                    wrapper.style.bottom = "0";
+                    wrapper.style.top = "0";
                     wrapper.style.right = "0";
                     wrapper.style.zIndex = "2147483647";
                     wrapper.style.width = "100vw";
