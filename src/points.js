@@ -93,6 +93,6 @@ export class WeightPointCalculator {
             bonus += this._identifierNumberBonus(identifierCount, 0);
             identifierCount++;
         }
-        return weight + bonus;
+        return (except ? 0 : weight) + bonus;
     }
 }
