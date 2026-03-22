@@ -86,7 +86,7 @@ export class WeightPointCalculator {
             } else {
                 let bestAttrBonus = 0;
                 for (const attr of Object.keys(this.element.data)) {
-                    if (key in ["parentText", "tagName", "stringified"]) continue;
+                    if (attr in ["parentText", "tagName", "stringified"]) continue;
                     const attrBonus = this._calculateBonus(attr, value);
                     bestAttrBonus = Math.max(bestAttrBonus, attrBonus);
                 }
