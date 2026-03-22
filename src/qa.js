@@ -1290,17 +1290,17 @@ export class QA {
                 if (!wrapper) {
                     wrapper = document.createElement("div");
                     wrapper.id = WRAPPER_ID;
-                    wrapper.style.position = "absolute";
+                    wrapper.style.position = "fixed";
                     wrapper.style.display = "flex";
                     wrapper.style.alignItems = "center";
                     wrapper.style.justifyContent = "center";
-                    wrapper.style.top = "0";
+                    wrapper.style.bottom = "0";
                     wrapper.style.right = "0";
                     wrapper.style.zIndex = "2147483647";
                     wrapper.style.width = "100vw";
                     wrapper.style.height = "23px";
                     wrapper.style.backgroundColor = color;
-                    document.documentElement.prepend(wrapper);
+                    document.appendChild(wrapper);
                 }
 
                 let el = document.getElementById(ID);
