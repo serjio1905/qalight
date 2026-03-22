@@ -1046,6 +1046,27 @@ export class QA {
 
     _calculateMatchingPoints(data, identifiers = []) {
         let points = 0;
+        let identifierCount = 0;
+
+        const ATTR_BONUS = 0.1;
+        function partialMatchPenalty(key, value, foundValue) {
+            if (
+                key === "text" ||
+                key === "value" ||
+                key === "html" ||
+                key === "parentText" ||
+                key === "label" ||
+                key === "columnName" ||
+                key === "columnThHtml"
+            ) {
+                return Math.abs(value.length - foundValue.length) / value.length / 2;
+            }
+            return 0;
+        }
+        function identifierNumberBonus(identifierCount, partialMatchPenalty) {
+            return identifierCount * 0.1 - (partialMatchPenalty || 0);
+        }
+
         for (const identifier of identifiers) {
             if (typeof identifier === "string") {
                 const value = identifier;
@@ -1057,27 +1078,19 @@ export class QA {
                         foundValue = foundValue.toLowerCase().trim();
                     }
                     if (foundValue === value.toLowerCase().trim()) {
-                        bestPoint = Math.max(
-                            bestPoint,
-                            this.MATCHING_WEIGHTS?.[key]?.withoutKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT
-                        );
+                        const fullPoint =
+                            (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT) +
+                            ATTR_BONUS +
+                            identifierNumberBonus(identifierCount, 0);
+                        bestPoint = Math.max(bestPoint, fullPoint);
                     } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
-                        const lengthDifference = Math.abs(foundValue.length - value.length);
-                        let coefficient = 1;
-                        if (
-                            key === "text" ||
-                            key === "value" ||
-                            key === "html" ||
-                            key === "parentText" ||
-                            key === "label" ||
-                            key === "columnName" ||
-                            key === "columnThHtml"
-                        ) {
-                            coefficient = 1 - (lengthDifference / foundValue.length) * 0.5;
-                        }
+                        const partialMatchPenalty = partialMatchPenalty(key, value, foundValue);
                         const partialPoint =
                             (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
-                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) * coefficient;
+                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) -
+                            partialMatchPenalty +
+                            ATTR_BONUS +
+                            identifierNumberBonus(identifierCount, partialMatchPenalty);
                         bestPoint = Math.max(bestPoint, partialPoint);
                     }
                 }
@@ -1086,34 +1099,27 @@ export class QA {
             if (typeof identifier === "object") {
                 const [key, value] = Object.entries(identifier)[0];
                 if (data.hasOwnProperty(key)) {
-                    const bonusCoefficient = 0.1;
                     const foundValue = typeof data[key] === "string" ? data[key].toLowerCase().trim() : data[key];
                     if (foundValue === value.toLowerCase().trim()) {
-                        points +=
+                        points += Math.max(
+                            points,
                             (this.MATCHING_WEIGHTS?.[key]?.withKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT) *
-                            (1 + bonusCoefficient);
+                                (1 + ATTR_BONUS) +
+                                identifierNumberBonus(identifierCount, 0)
+                        );
                     } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
-                        const lengthDifference = Math.abs(foundValue.length - value.length);
-                        let coefficient = 1;
-                        if (
-                            key === "text" ||
-                            key === "value" ||
-                            key === "html" ||
-                            key === "parentText" ||
-                            key === "label" ||
-                            key === "columnName" ||
-                            key === "columnThHtml"
-                        ) {
-                            coefficient = 1 - (lengthDifference / foundValue.length) * 0.5;
-                        }
+                        const partialMatchPenalty = partialMatchPenalty(key, value, foundValue);
                         const partialPoint =
                             (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
-                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) *
-                            (coefficient + bonusCoefficient);
-                        points += partialPoint;
+                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) -
+                            partialMatchPenalty +
+                            ATTR_BONUS +
+                            identifierNumberBonus(identifierCount, partialMatchPenalty);
+                        points += Math.max(points, partialPoint);
                     }
                 }
             }
+            identifierCount++;
         }
         return points;
     }
@@ -1301,6 +1307,7 @@ export class QA {
                     wrapper.style.height = "20px";
                     wrapper.style.backgroundColor = color;
                     document.documentElement.appendChild(wrapper);
+                    document.body.style.setProperty("padding-top", "30px", "important");
                 }
 
                 let el = document.getElementById(ID);
