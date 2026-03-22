@@ -962,6 +962,7 @@ export class QA {
                 await hintPopupElementWrapper.evaluate(
                     (el, { color }) => {
                         el.style.backgroundColor = color;
+                        el.style.display = "flex";
                     },
                     { color }
                 );
