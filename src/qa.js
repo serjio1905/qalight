@@ -1298,7 +1298,7 @@ export class QA {
                     wrapper.style.right = "0";
                     wrapper.style.zIndex = "2147483647";
                     wrapper.style.width = "100vw";
-                    wrapper.style.height = "30px";
+                    wrapper.style.height = "25px";
                     wrapper.style.backgroundColor = color;
                     document.documentElement.prepend(wrapper);
                 }
