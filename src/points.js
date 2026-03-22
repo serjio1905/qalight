@@ -53,6 +53,7 @@ export class WeightPointCalculator {
     _calculateBonus(attr, value) {
         let bonus = 0;
         let penalty = 0;
+        const { data } = this.element;
         let actualValue = data[attr];
         if (typeof actualValue === "string") {
             actualValue = actualValue.toLowerCase().trim();
