@@ -49,6 +49,7 @@ export class API {
             let timeEnd = Date.now();
             return { status: response.status, data: response.data, time: timeEnd - timeStart };
         } catch (e) {
+            // TODO: replace with nice error logging
             console.error(fullUrl, e);
             throw e;
         }

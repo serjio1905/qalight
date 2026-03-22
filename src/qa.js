@@ -2,7 +2,7 @@ import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
 import { API } from "./api.js";
 import { ExpectFramework } from "./expect.js";
-import { DEFAULT_WAIT_TIME, MATCHING_WEIGHTS, TAGS } from "./constants.js";
+import { DEFAULT_WAIT_TIME, TAGS } from "./constants.js";
 import { QAReporter } from "./reporter.js";
 import { WeightPointCalculator } from "./points.js";
 
@@ -15,9 +15,9 @@ export class QAError extends Error {
 
 export class QA {
     DEFAULT_WAIT_TIME = DEFAULT_WAIT_TIME;
-    DEFAULT_MATCHING_WEIGHT = 0.5;
-    DEFAULT_PARTIAL_MATCHING_WEIGHT = 0.1;
-    MATCHING_WEIGHTS = MATCHING_WEIGHTS;
+    // DEFAULT_MATCHING_WEIGHT = 0.5;
+    // DEFAULT_PARTIAL_MATCHING_WEIGHT = 0.1;
+    // MATCHING_WEIGHTS = MATCHING_WEIGHTS;
     TAGS = TAGS;
 
     static reporter = null;
@@ -843,7 +843,7 @@ export class QA {
             } else if (typeof item === "object" && item.hasOwnProperty("parent") && this.currentElement?.locator) {
                 // if (this.currentElement?.then) this.currentElement = await this.currentElement;
                 this.currentElement.locator = this.currentElement.locator.locator(`..`).nth(item.parent);
-                this.currentElement.data = await this._extractDataFromLocator(this.currentElement.locator);
+                this.currentElement.data = await WeightPointCalculator.prepareData(this.currentElement.locator);
                 this.currentElement.data.stringified = `Parent of ${this.currentElement.data.stringified}`;
             }
         }
@@ -1037,7 +1037,7 @@ export class QA {
         }
         for (const result of results) {
             try {
-                const data = await this._extractDataFromLocator(result);
+                const data = await WeightPointCalculator.prepareData(result);
                 elements.push({ locator: result, data });
             } catch (error) {
                 console.error(`Error extracting data from locator: ${result.toString()}, error: ${error.message}`);
@@ -1046,247 +1046,247 @@ export class QA {
         return elements;
     }
 
-    _calculateMatchingPoints(data, identifiers = []) {
-        let points = 0;
-        let identifierCount = 0;
+    // _calculateMatchingPoints(data, identifiers = []) {
+    //     let points = 0;
+    //     let identifierCount = 0;
 
-        const ATTR_BONUS = 0.1;
-        function partialMatchPenalty(key, value, foundValue) {
-            if (
-                key === "text" ||
-                key === "value" ||
-                key === "html" ||
-                key === "parentText" ||
-                key === "label" ||
-                key === "columnName" ||
-                key === "columnThHtml"
-            ) {
-                return Math.abs(value.length - foundValue.length) / value.length / 2;
-            }
-            return 0;
-        }
-        function identifierNumberBonus(identifierCount, partialMatchPenalty) {
-            return identifierCount * 0.1 - (partialMatchPenalty || 0);
-        }
+    //     const ATTR_BONUS = 0.1;
+    //     function partialMatchPenalty(key, value, foundValue) {
+    //         if (
+    //             key === "text" ||
+    //             key === "value" ||
+    //             key === "html" ||
+    //             key === "parentText" ||
+    //             key === "label" ||
+    //             key === "columnName" ||
+    //             key === "columnThHtml"
+    //         ) {
+    //             return Math.abs(value.length - foundValue.length) / value.length / 2;
+    //         }
+    //         return 0;
+    //     }
+    //     function identifierNumberBonus(identifierCount, partialMatchPenalty) {
+    //         return identifierCount * 0.1 - (partialMatchPenalty || 0);
+    //     }
 
-        for (const identifier of identifiers) {
-            if (typeof identifier === "string") {
-                const value = identifier;
-                const dataEntries = Object.entries(data);
-                let bestPoint = 0;
-                for (let i = 0; i < dataEntries.length; i++) {
-                    let [key, foundValue] = dataEntries[i];
-                    if (typeof foundValue === "string") {
-                        foundValue = foundValue.toLowerCase().trim();
-                    }
-                    if (foundValue === value.toLowerCase().trim()) {
-                        const fullPoint =
-                            (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT) +
-                            ATTR_BONUS +
-                            identifierNumberBonus(identifierCount, 0);
-                        bestPoint = Math.max(bestPoint, fullPoint);
-                    } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
-                        const partialMatchPenalty = partialMatchPenalty(key, value, foundValue);
-                        const partialPoint =
-                            (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
-                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) -
-                            partialMatchPenalty +
-                            ATTR_BONUS +
-                            identifierNumberBonus(identifierCount, partialMatchPenalty);
-                        bestPoint = Math.max(bestPoint, partialPoint);
-                    }
-                }
-                points += bestPoint;
-            }
-            if (typeof identifier === "object") {
-                const [key, value] = Object.entries(identifier)[0];
-                if (data.hasOwnProperty(key)) {
-                    const foundValue = typeof data[key] === "string" ? data[key].toLowerCase().trim() : data[key];
-                    if (foundValue === value.toLowerCase().trim()) {
-                        points += Math.max(
-                            points,
-                            (this.MATCHING_WEIGHTS?.[key]?.withKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT) *
-                                (1 + ATTR_BONUS) +
-                                identifierNumberBonus(identifierCount, 0)
-                        );
-                    } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
-                        const partialMatchPenalty = partialMatchPenalty(key, value, foundValue);
-                        const partialPoint =
-                            (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
-                                this.DEFAULT_PARTIAL_MATCHING_WEIGHT) -
-                            partialMatchPenalty +
-                            ATTR_BONUS +
-                            identifierNumberBonus(identifierCount, partialMatchPenalty);
-                        points += Math.max(points, partialPoint);
-                    }
-                }
-            }
-            identifierCount++;
-        }
-        return points;
-    }
+    //     for (const identifier of identifiers) {
+    //         if (typeof identifier === "string") {
+    //             const value = identifier;
+    //             const dataEntries = Object.entries(data);
+    //             let bestPoint = 0;
+    //             for (let i = 0; i < dataEntries.length; i++) {
+    //                 let [key, foundValue] = dataEntries[i];
+    //                 if (typeof foundValue === "string") {
+    //                     foundValue = foundValue.toLowerCase().trim();
+    //                 }
+    //                 if (foundValue === value.toLowerCase().trim()) {
+    //                     const fullPoint =
+    //                         (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT) +
+    //                         ATTR_BONUS +
+    //                         identifierNumberBonus(identifierCount, 0);
+    //                     bestPoint = Math.max(bestPoint, fullPoint);
+    //                 } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
+    //                     const partialMatchPenalty = partialMatchPenalty(key, value, foundValue);
+    //                     const partialPoint =
+    //                         (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
+    //                             this.DEFAULT_PARTIAL_MATCHING_WEIGHT) -
+    //                         partialMatchPenalty +
+    //                         ATTR_BONUS +
+    //                         identifierNumberBonus(identifierCount, partialMatchPenalty);
+    //                     bestPoint = Math.max(bestPoint, partialPoint);
+    //                 }
+    //             }
+    //             points += bestPoint;
+    //         }
+    //         if (typeof identifier === "object") {
+    //             const [key, value] = Object.entries(identifier)[0];
+    //             if (data.hasOwnProperty(key)) {
+    //                 const foundValue = typeof data[key] === "string" ? data[key].toLowerCase().trim() : data[key];
+    //                 if (foundValue === value.toLowerCase().trim()) {
+    //                     points += Math.max(
+    //                         points,
+    //                         (this.MATCHING_WEIGHTS?.[key]?.withKey?.fullMatching || this.DEFAULT_MATCHING_WEIGHT) *
+    //                             (1 + ATTR_BONUS) +
+    //                             identifierNumberBonus(identifierCount, 0)
+    //                     );
+    //                 } else if (foundValue?.includes?.(value.toLowerCase().trim())) {
+    //                     const partialMatchPenalty = partialMatchPenalty(key, value, foundValue);
+    //                     const partialPoint =
+    //                         (this.MATCHING_WEIGHTS?.[key]?.withoutKey?.partialMatching ||
+    //                             this.DEFAULT_PARTIAL_MATCHING_WEIGHT) -
+    //                         partialMatchPenalty +
+    //                         ATTR_BONUS +
+    //                         identifierNumberBonus(identifierCount, partialMatchPenalty);
+    //                     points += Math.max(points, partialPoint);
+    //                 }
+    //             }
+    //         }
+    //         identifierCount++;
+    //     }
+    //     return points;
+    // }
 
-    async _extractDataFromLocator(locator) {
-        // const timeout = this.timeout ?? 5000;
-        // const opts = { timeout };
-        const [dom, isVisible, isEnabled] = await Promise.all([
-            locator.evaluate((el) => {
-                function elumitateHtmlChars(value) {
-                    if (typeof value !== "string") return value;
-                    return value
-                        .replaceAll(/&amp;/g, "&")
-                        .replaceAll(/&lt;/g, "<")
-                        .replaceAll(/&gt;/g, ">")
-                        .replaceAll(/&quot;/g, '"')
-                        .replaceAll(/&apos;/g, "'")
-                        .replaceAll(/&copy;/g, "©")
-                        .replaceAll(/&reg;/g, "®")
-                        .replaceAll(/&trade;/g, "™")
-                        .replaceAll(/&euro;/g, "€")
-                        .replaceAll(/&pound;/g, "£")
-                        .replaceAll(/&yen;/g, "¥")
-                        .replaceAll(/&dollar;/g, "$")
-                        .replaceAll(/&cent;/g, "¢")
-                        .replaceAll(/&percnt;/g, "%")
-                        .replaceAll(/&nbsp;/g, " ")
-                        .replaceAll(/\s+/g, " ")
-                        .trim();
-                }
+    // async _extractDataFromLocator(locator) {
+    //     // const timeout = this.timeout ?? 5000;
+    //     // const opts = { timeout };
+    //     const [dom, isVisible, isEnabled] = await Promise.all([
+    //         locator.evaluate((el) => {
+    //             function elumitateHtmlChars(value) {
+    //                 if (typeof value !== "string") return value;
+    //                 return value
+    //                     .replaceAll(/&amp;/g, "&")
+    //                     .replaceAll(/&lt;/g, "<")
+    //                     .replaceAll(/&gt;/g, ">")
+    //                     .replaceAll(/&quot;/g, '"')
+    //                     .replaceAll(/&apos;/g, "'")
+    //                     .replaceAll(/&copy;/g, "©")
+    //                     .replaceAll(/&reg;/g, "®")
+    //                     .replaceAll(/&trade;/g, "™")
+    //                     .replaceAll(/&euro;/g, "€")
+    //                     .replaceAll(/&pound;/g, "£")
+    //                     .replaceAll(/&yen;/g, "¥")
+    //                     .replaceAll(/&dollar;/g, "$")
+    //                     .replaceAll(/&cent;/g, "¢")
+    //                     .replaceAll(/&percnt;/g, "%")
+    //                     .replaceAll(/&nbsp;/g, " ")
+    //                     .replaceAll(/\s+/g, " ")
+    //                     .trim();
+    //             }
 
-                function getTdColumnName(el) {
-                    const tag = el.tagName.toLowerCase();
-                    if (tag !== "td") return null;
+    //             function getTdColumnName(el) {
+    //                 const tag = el.tagName.toLowerCase();
+    //                 if (tag !== "td") return null;
 
-                    const td = el;
+    //                 const td = el;
 
-                    const tr = td.closest("tr");
-                    const table = td.closest("table");
-                    if (!tr || !table) return null;
+    //                 const tr = td.closest("tr");
+    //                 const table = td.closest("table");
+    //                 if (!tr || !table) return null;
 
-                    // index within row among td/th
-                    const cells = Array.from(tr.querySelectorAll("th,td"));
-                    const colIndex = cells.indexOf(td);
-                    if (colIndex < 0) return null;
+    //                 // index within row among td/th
+    //                 const cells = Array.from(tr.querySelectorAll("th,td"));
+    //                 const colIndex = cells.indexOf(td);
+    //                 if (colIndex < 0) return null;
 
-                    // prefer thead -> first header row
-                    const theadRow = table.querySelector("thead tr");
-                    if (theadRow) {
-                        const ths = Array.from(theadRow.querySelectorAll("th"));
-                        return (ths[colIndex]?.textContent || "").trim();
-                    }
+    //                 // prefer thead -> first header row
+    //                 const theadRow = table.querySelector("thead tr");
+    //                 if (theadRow) {
+    //                     const ths = Array.from(theadRow.querySelectorAll("th"));
+    //                     return (ths[colIndex]?.textContent || "").trim();
+    //                 }
 
-                    // fallback: first row th
-                    const firstRow = table.querySelector("tr");
-                    if (firstRow) {
-                        const ths = Array.from(firstRow.querySelectorAll("th"));
-                        return (ths[colIndex]?.textContent || "").trim();
-                    }
+    //                 // fallback: first row th
+    //                 const firstRow = table.querySelector("tr");
+    //                 if (firstRow) {
+    //                     const ths = Array.from(firstRow.querySelectorAll("th"));
+    //                     return (ths[colIndex]?.textContent || "").trim();
+    //                 }
 
-                    return null;
-                }
+    //                 return null;
+    //             }
 
-                function getTdColumnThHtml(el) {
-                    const tag = el.tagName.toLowerCase();
-                    if (tag !== "td") return null;
+    //             function getTdColumnThHtml(el) {
+    //                 const tag = el.tagName.toLowerCase();
+    //                 if (tag !== "td") return null;
 
-                    const td = el;
+    //                 const td = el;
 
-                    const tr = td.closest("tr");
-                    const table = td.closest("table");
-                    if (!tr || !table) return null;
+    //                 const tr = td.closest("tr");
+    //                 const table = td.closest("table");
+    //                 if (!tr || !table) return null;
 
-                    // index within row among td/th
-                    const cells = Array.from(tr.querySelectorAll("th,td"));
-                    const colIndex = cells.indexOf(td);
-                    if (colIndex < 0) return null;
+    //                 // index within row among td/th
+    //                 const cells = Array.from(tr.querySelectorAll("th,td"));
+    //                 const colIndex = cells.indexOf(td);
+    //                 if (colIndex < 0) return null;
 
-                    // prefer thead -> first header row
-                    const theadRow = table.querySelector("thead tr");
-                    if (theadRow) {
-                        const ths = Array.from(theadRow.querySelectorAll("th"));
-                        return ths[colIndex]?.outerHTML;
-                    }
+    //                 // prefer thead -> first header row
+    //                 const theadRow = table.querySelector("thead tr");
+    //                 if (theadRow) {
+    //                     const ths = Array.from(theadRow.querySelectorAll("th"));
+    //                     return ths[colIndex]?.outerHTML;
+    //                 }
 
-                    // fallback: first row th
-                    const firstRow = table.querySelector("tr");
-                    if (firstRow) {
-                        const ths = Array.from(firstRow.querySelectorAll("th"));
-                        return ths[colIndex]?.outerHTML;
-                    }
+    //                 // fallback: first row th
+    //                 const firstRow = table.querySelector("tr");
+    //                 if (firstRow) {
+    //                     const ths = Array.from(firstRow.querySelectorAll("th"));
+    //                     return ths[colIndex]?.outerHTML;
+    //                 }
 
-                    return null;
-                }
+    //                 return null;
+    //             }
 
-                function getLabel(el, maxDepth = 4) {
-                    let label = el.closest("label")?.textContent?.trim() || null;
-                    if (!label && maxDepth > 0) {
-                        const labels = Array.from(el.parentElement?.querySelectorAll("label") || []);
-                        label =
-                            labels
-                                .map((l) => l.textContent?.trim())
-                                .filter(Boolean)
-                                .join(" ") || null;
-                        if (!label) {
-                            label = getLabel(el.parentElement, maxDepth - 1);
-                        }
-                    }
-                    return label;
-                }
+    //             function getLabel(el, maxDepth = 4) {
+    //                 let label = el.closest("label")?.textContent?.trim() || null;
+    //                 if (!label && maxDepth > 0) {
+    //                     const labels = Array.from(el.parentElement?.querySelectorAll("label") || []);
+    //                     label =
+    //                         labels
+    //                             .map((l) => l.textContent?.trim())
+    //                             .filter(Boolean)
+    //                             .join(" ") || null;
+    //                     if (!label) {
+    //                         label = getLabel(el.parentElement, maxDepth - 1);
+    //                     }
+    //                 }
+    //                 return label;
+    //             }
 
-                function getValuesOfAllInnerElements(el) {
-                    return Array.from(el.querySelectorAll("input, textarea, select"))
-                        .map((el) => el.value)
-                        .join(" ");
-                }
+    //             function getValuesOfAllInnerElements(el) {
+    //                 return Array.from(el.querySelectorAll("input, textarea, select"))
+    //                     .map((el) => el.value)
+    //                     .join(" ");
+    //             }
 
-                const e = el;
+    //             const e = el;
 
-                // all attributes on the element
-                const attrs = {};
-                for (const a of Array.from(el.attributes)) attrs[a.name] = a.value;
+    //             // all attributes on the element
+    //             const attrs = {};
+    //             for (const a of Array.from(el.attributes)) attrs[a.name] = a.value;
 
-                // tag-level inline style (style="...")
-                const inlineStyle = el.getAttribute("style") ?? "";
+    //             // tag-level inline style (style="...")
+    //             const inlineStyle = el.getAttribute("style") ?? "";
 
-                // common “value/checked” for form elements
-                const input = el;
-                const value = "value" in input ? input.value : getValuesOfAllInnerElements(el);
-                const checked = el.checked === "";
+    //             // common “value/checked” for form elements
+    //             const input = el;
+    //             const value = "value" in input ? input.value : getValuesOfAllInnerElements(el);
+    //             const checked = el.checked === "";
 
-                const dom = {
-                    tagName: el.tagName.toLowerCase(),
+    //             const dom = {
+    //                 tagName: el.tagName.toLowerCase(),
 
-                    // common attributes
-                    id: el.id || null,
-                    name: el.getAttribute("name"),
-                    className: e.className ?? null, // string for HTML
-                    classList: Array.from(el.classList),
-                    // styles
-                    inlineStyle, // only defined on tag level
-                    // computedStyle: window.getComputedStyle(el).cssText,  // optional (heavy / huge)
+    //                 // common attributes
+    //                 id: el.id || null,
+    //                 name: el.getAttribute("name"),
+    //                 className: e.className ?? null, // string for HTML
+    //                 classList: Array.from(el.classList),
+    //                 // styles
+    //                 inlineStyle, // only defined on tag level
+    //                 // computedStyle: window.getComputedStyle(el).cssText,  // optional (heavy / huge)
 
-                    // form-ish
-                    value,
-                    checked,
+    //                 // form-ish
+    //                 value,
+    //                 checked,
 
-                    // everything else
-                    text: elumitateHtmlChars(el.textContent),
-                    parentText: elumitateHtmlChars(el.parentElement?.textContent?.trim() || null),
-                    html: elumitateHtmlChars(el.outerHTML),
-                    columnName: elumitateHtmlChars(getTdColumnName?.(el)),
-                    columnThHtml: elumitateHtmlChars(getTdColumnThHtml?.(el)),
-                    label: elumitateHtmlChars(getLabel?.(el)),
-                    ...attrs,
-                };
-                let identifier = dom.text || dom.name || dom.id || dom.className || dom.placeholder;
-                dom.stringified = `${el.tagName.toLowerCase()} (${identifier})`;
-                return dom;
-            }),
-            locator.isVisible(),
-            locator.isEnabled(),
-        ]);
-        return { ...dom, visible: isVisible, enabled: isEnabled };
-    }
+    //                 // everything else
+    //                 text: elumitateHtmlChars(el.textContent),
+    //                 parentText: elumitateHtmlChars(el.parentElement?.textContent?.trim() || null),
+    //                 html: elumitateHtmlChars(el.outerHTML),
+    //                 columnName: elumitateHtmlChars(getTdColumnName?.(el)),
+    //                 columnThHtml: elumitateHtmlChars(getTdColumnThHtml?.(el)),
+    //                 label: elumitateHtmlChars(getLabel?.(el)),
+    //                 ...attrs,
+    //             };
+    //             let identifier = dom.text || dom.name || dom.id || dom.className || dom.placeholder;
+    //             dom.stringified = `${el.tagName.toLowerCase()} (${identifier})`;
+    //             return dom;
+    //         }),
+    //         locator.isVisible(),
+    //         locator.isEnabled(),
+    //     ]);
+    //     return { ...dom, visible: isVisible, enabled: isEnabled };
+    // }
 
     async _injectQaHintPopup(color) {
         await this.page.evaluate(
