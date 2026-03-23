@@ -647,8 +647,8 @@ export class QA {
     }
 
     async shouldExist(throwError = true) {
-        await this._executeQueue(0, true);
         try {
+            await this._executeQueue(0, true);
             const count = await this.currentElement.locator.count();
             if (count === 0) {
                 if (!throwError) {
