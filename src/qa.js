@@ -867,7 +867,7 @@ export class QA {
             this.queue = [];
             // await this._highlight(this.currentElement.locator, { ms: this.timeout });
         } else {
-            if (tries > 4 && !checking) {
+            if (tries > 3 && !checking) {
                 await this._showHint(`No element was found ${this._describeLastElementInQueue()}`, "error");
                 await this.waitFor(3000, false);
                 await this._hideHint();
