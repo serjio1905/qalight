@@ -801,14 +801,15 @@ export class QA {
 
     async abort(msg = this._abortMessage) {
         await this._showHint(msg || "Aborted by user.", "error");
-        await this.waitFor(3000, false);
-        if (typeof test !== "undefined" && typeof test.fail === "function") {
-            if (typeof process !== "undefined" && typeof process.exit === "function") {
-                process.exit(1);
-            } else {
-                throw new QAError("Test aborted via QA.abort");
-            }
-        }
+        await this.waitFor(2000, false);
+        // if (typeof test !== "undefined" && typeof test.fail === "function") {
+        //     if (typeof process !== "undefined" && typeof process.exit === "function") {
+        //         process.exit(1);
+        //     } else {
+        //         throw new QAError("Test aborted via QA.abort");
+        //     }
+        // }
+        this._hideHint();
         throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
     }
 
