@@ -825,6 +825,12 @@ export class QA {
                 this.parentElement.index,
                 tries
             );
+            if (!element) {
+                await this._showHint(`No element was found ${this._describeLastElementInQueue()}`, "error");
+                await this.waitFor(3000, false);
+                await this._hideHint();
+                throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
+            }
             this.currentElement = element;
             this.matchedElements = elements;
         }
@@ -838,6 +844,12 @@ export class QA {
                     item.index,
                     tries
                 );
+                if (!element) {
+                    await this._showHint(`No element was found ${this._describeLastElementInQueue()}`, "error");
+                    await this.waitFor(3000, false);
+                    await this._hideHint();
+                    throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
+                }
                 this.currentElement = element;
                 this.matchedElements = elements;
             } else if (typeof item === "object" && item.hasOwnProperty("parent") && this.currentElement?.locator) {
