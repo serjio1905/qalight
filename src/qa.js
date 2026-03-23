@@ -831,9 +831,16 @@ export class QA {
             this.currentElement = element;
             this.matchedElements = elements;
             if (!element) {
-                await this._showHint(`No element was found ${this._describeLastElementInQueue()}`, "error");
+                await this._showHint(
+                    `No element was found ${this._describeLastElementInQueue()}`,
+                    checking ? "info" : "error"
+                );
                 await this.waitFor(3000, false);
                 await this._hideHint();
+                this.queue = [];
+                if (checking) {
+                    return this;
+                }
                 throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
             }
         }
@@ -856,6 +863,7 @@ export class QA {
                     );
                     await this.waitFor(1000, false);
                     await this._hideHint();
+                    this.queue = [];
                     if (checking) {
                         return this;
                     }
