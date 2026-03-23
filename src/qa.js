@@ -651,6 +651,9 @@ export class QA {
         try {
             const count = await this.currentElement.locator.count();
             if (count === 0) {
+                if (!throwError) {
+                    return false;
+                }
                 throw new Error(`Element does not exist: ${this._describeLastElementInQueue()}`);
             }
             await expect(this.currentElement.locator.first()).toBeVisible();
