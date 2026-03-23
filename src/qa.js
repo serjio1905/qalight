@@ -828,14 +828,14 @@ export class QA {
                 this.parentElement.index,
                 tries
             );
+            this.currentElement = element;
+            this.matchedElements = elements;
             if (!element) {
                 await this._showHint(`No element was found ${this._describeLastElementInQueue()}`, "error");
                 await this.waitFor(3000, false);
                 await this._hideHint();
                 throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
             }
-            this.currentElement = element;
-            this.matchedElements = elements;
         }
         for (const item of this.queue) {
             if (typeof item === "object" && !item.hasOwnProperty("parent")) {
@@ -847,6 +847,8 @@ export class QA {
                     item.index,
                     tries
                 );
+                this.currentElement = element;
+                this.matchedElements = elements;
                 if (!element) {
                     await this._showHint(
                         `No element was found ${this._describeLastElementInQueue()}`,
@@ -859,8 +861,6 @@ export class QA {
                     }
                     throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
                 }
-                this.currentElement = element;
-                this.matchedElements = elements;
             } else if (typeof item === "object" && item.hasOwnProperty("parent") && this.currentElement?.locator) {
                 // if (this.currentElement?.then) this.currentElement = await this.currentElement;
                 this.currentElement.locator = this.currentElement.locator.locator(`..`).nth(item.parent);
