@@ -201,7 +201,6 @@ export class QA {
                 await this.currentElement.locator.click();
             }
         } catch (error) {
-            this._abortMessage = `Error clicking on ${this._describeLastElementInQueue()}`;
             if (this.safeMode) {
                 await this.pause(
                     `Failed to click on ${this._describeLastElementInQueue()}. Perform manual action and continue.`
@@ -225,7 +224,6 @@ export class QA {
             }
         } catch (error) {
             if (!error.message?.includes("did not change its state")) {
-                this._abortMessage = `Error checking ${this._describeLastElementInQueue()}`;
                 if (this.safeMode) {
                     await this.pause(`Failed to check ${this._describeLastElementInQueue()}`);
                 } else {
@@ -259,7 +257,6 @@ export class QA {
                 }
             }
         } catch (error) {
-            this._abortMessage = `Error filling "${text}" in ${this._describeLastElementInQueue()}`;
             if (this.safeMode) {
                 await this.pause(`Failed to fill "${text}" in ${this._describeLastElementInQueue()}`);
             } else {
@@ -279,7 +276,6 @@ export class QA {
                 document.activeElement && document.activeElement.blur();
             });
         } catch (error) {
-            this._abortMessage = `Error blurring ${this._describeLastElementInQueue()}`;
             if (this.safeMode) {
                 await this.pause(`Failed to blur ${this._describeLastElementInQueue()}`);
             } else {
@@ -298,7 +294,6 @@ export class QA {
                 document.activeElement && document.activeElement.focus();
             });
         } catch (error) {
-            this._abortMessage = `Error focusing ${this._describeLastElementInQueue()}`;
             if (this.safeMode) {
                 await this.pause(`Failed to focus ${this._describeLastElementInQueue()}`);
             } else {
@@ -315,7 +310,6 @@ export class QA {
             await this._showHint(`Selecting in ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.selectOption(value);
         } catch (error) {
-            this._abortMessage = `Error selecting in ${this._describeLastElementInQueue()}`;
             if (this.safeMode) {
                 await this.pause(`Failed to select in ${this._describeLastElementInQueue()}`);
             } else {
@@ -336,7 +330,6 @@ export class QA {
             }
             await this.currentElement.locator.fill(value);
         } catch (error) {
-            this._abortMessage = `Error setting date and time to "${yyyy}-${MM}-${dd} ${HH}:${mm}"`;
             if (this.safeMode) {
                 await this.pause(`Failed to set date and time to "${yyyy}-${MM}-${dd} ${HH}:${mm}"`);
             } else {
@@ -356,7 +349,6 @@ export class QA {
             const monthString = month < 10 ? `0${month}` : `${month}`;
             await this.currentElement.locator.fill(`${yyyy}-${monthString}`);
         } catch (error) {
-            this._abortMessage = `Error setting month to "${yyyy}-${month}"`;
             if (this.safeMode) {
                 await this.pause(`Failed to set month to "${yyyy}-${month}"`);
             } else {
@@ -384,7 +376,6 @@ export class QA {
             await this._showHint(`Scrolling to ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.scrollIntoViewIfNeeded();
         } catch (error) {
-            this._abortMessage = `Error scrolling to ${this._describeLastElementInQueue()}`;
             if (this.safeMode) {
                 await this.pause(`Failed to scroll to ${this._describeLastElementInQueue()}`);
             } else {
@@ -424,7 +415,6 @@ export class QA {
             const targetElement = this.page.locator(identifiersString, { hasText: text });
             await this._scrollContairnerUntilTargetVisible(this.currentElement.locator, targetElement, { direction });
         } catch (error) {
-            this._abortMessage = `Error scrolling to ${text}`;
             if (this.safeMode) {
                 await this.pause(`Failed to scroll to ${text}`);
             } else {
@@ -458,7 +448,6 @@ export class QA {
             await this._showHint(`Pressing Enter on ${this._describeLastElementInQueue()}`, "info");
             await this.currentElement.locator.press("Enter");
         } catch (error) {
-            this._abortMessage = `Error pressing Enter on ${this._describeLastElementInQueue()}`;
             if (this.safeMode) {
                 await this.pause(`Failed to press Enter on ${this._describeLastElementInQueue()}`);
             } else {
@@ -500,7 +489,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} contains ${text}`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} contains ${text}`;
                 if (this.safeMode) {
                     await this.pause(`Failed to check if ${this._describeLastElementInQueue()} contains ${text}`);
                 } else {
@@ -522,7 +510,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} does not contain ${text}`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} does not contain ${text}`;
                 if (this.safeMode) {
                     await this.pause(
                         `Failed to check if ${this._describeLastElementInQueue()} does not contain ${text}`
@@ -546,7 +533,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} has text ${text}`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} has text ${text}`;
                 if (this.safeMode) {
                     await this.pause(`Failed to check if ${this._describeLastElementInQueue()} has text ${text}`);
                 } else {
@@ -566,7 +552,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} contains HTML ${html}`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} contains HTML ${html}`;
                 if (this.safeMode) {
                     await this.pause(`Failed to check if ${this._describeLastElementInQueue()} contains HTML ${html}`);
                 } else {
@@ -586,7 +571,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} does not contain HTML ${html}`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} does not contain HTML ${html}`;
                 if (this.safeMode) {
                     await this.pause(
                         `Failed to check if ${this._describeLastElementInQueue()} does not contain HTML ${html}`
@@ -611,7 +595,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} has value ${value}`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} has value ${value}`;
                 if (this.safeMode) {
                     await this.pause(`Failed to check if ${this._describeLastElementInQueue()} has value ${value}`);
                 } else {
@@ -631,7 +614,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} contains value ${value}`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} contains value ${value}`;
                 if (this.safeMode) {
                     await this.pause(
                         `Failed to check if ${this._describeLastElementInQueue()} contains value ${value}`
@@ -660,7 +642,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} exists`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} exists`;
                 if (this.safeMode) {
                     await this.pause(`Failed to check if ${this._describeLastElementInQueue()} exists`);
                 } else {
@@ -679,7 +660,6 @@ export class QA {
         const count = await this.currentElement.locator.count();
         if (count > 0) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} does not exist`;
                 if (this.safeMode) {
                     await this.pause(`Failed to check if ${this._describeLastElementInQueue()} does not exist`);
                 } else {
@@ -705,7 +685,6 @@ export class QA {
             );
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} is ${value ? "checked" : "unchecked"}`;
                 if (this.safeMode) {
                     await this.pause(
                         `Failed to check if ${this._describeLastElementInQueue()} is ${value ? "checked" : "unchecked"}`
@@ -727,7 +706,6 @@ export class QA {
             await this._showHint(`${this._describeLastElementInQueue()} contains class ${className}`, "success");
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} contains class ${className}`;
                 if (this.safeMode) {
                     await this.pause(
                         `Failed to check if ${this._describeLastElementInQueue()} contains class ${className}`
@@ -752,7 +730,6 @@ export class QA {
             );
         } catch (error) {
             if (throwError) {
-                this._abortMessage = `Error checking if ${this._describeLastElementInQueue()} does not contain class ${className}`;
                 if (this.safeMode) {
                     await this.pause(
                         `Failed to check if ${this._describeLastElementInQueue()} does not contain class ${className}`
@@ -799,20 +776,11 @@ export class QA {
         }
     }
 
-    async abort(msg = this._abortMessage) {
+    async abort(msg = "Aborted by user.") {
         this.continue();
-        await this._showHint(msg || "Aborted by user.", "error");
+        await this._showHint(msg, "error");
         await this.waitFor(2000, false);
-        // if (typeof test !== "undefined" && typeof test.fail === "function") {
-        //     if (typeof process !== "undefined" && typeof process.exit === "function") {
-        //         process.exit(1);
-        //     } else {
-        //         throw new QAError("Test aborted via QA.abort");
-        //     }
-        // }
         this._hideHint();
-        // Prevent any further test execution by stopping code execution
-        // In Node.js, process.exit will terminate. In browser, throw a fatal error to halt, if possible.
         if (typeof process !== "undefined" && typeof process.exit === "function") {
             process.exit(1);
         } else {
@@ -822,8 +790,6 @@ export class QA {
                 /* infinite loop to halt execution in browser environment */
             }
         }
-
-        throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
     }
 
     async _executeQueue(tries = 0, checking = false) {
