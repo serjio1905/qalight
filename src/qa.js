@@ -811,6 +811,18 @@ export class QA {
         //     }
         // }
         this._hideHint();
+        // Prevent any further test execution by stopping code execution
+        // In Node.js, process.exit will terminate. In browser, throw a fatal error to halt, if possible.
+        if (typeof process !== "undefined" && typeof process.exit === "function") {
+            process.exit(1);
+        } else {
+            // Forcefully halt further JS execution
+            // eslint-disable-next-line no-constant-condition
+            while (true) {
+                /* infinite loop to halt execution in browser environment */
+            }
+        }
+
         throw new QAError(`Failed to execute action.${this.safeMode ? " Aborted by user." : ""}`);
     }
 
