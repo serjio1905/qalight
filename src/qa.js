@@ -800,6 +800,7 @@ export class QA {
     }
 
     async abort(msg = this._abortMessage) {
+        this.continue();
         await this._showHint(msg || "Aborted by user.", "error");
         await this.waitFor(2000, false);
         // if (typeof test !== "undefined" && typeof test.fail === "function") {
