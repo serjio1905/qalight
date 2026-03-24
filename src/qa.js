@@ -1158,13 +1158,14 @@ export class QA {
                 if (details.length > 0) addSpecialSymbol = true;
                 if (typeof elem === "object") {
                     if (Array.isArray(elem.identifiers)) {
+                        let isFirstIdentifier = true;
                         for (const identifier of elem.identifiers) {
                             if (typeof identifier === "string") {
                                 if (addSpecialSymbol && identifier) {
                                     details += " > ";
                                     addSpecialSymbol = false;
                                 }
-                                details += `${identifier}`;
+                                details += `${isFirstIdentifier ? "" : ", "}${identifier}`;
                             } else if (Array.isArray(identifier)) {
                                 if (addSpecialSymbol && identifier) {
                                     details += " > ";
@@ -1192,6 +1193,7 @@ export class QA {
                                     .map(([key, value]) => `${key}=${value}`)
                                     .join(", ")}`;
                             }
+                            isFirstIdentifier = false;
                         }
                     }
                 }
