@@ -233,17 +233,20 @@ export class WeightPointCalculator {
         return { ...dom, visible: isVisible, enabled: isEnabled };
     }
 
-    calculateWeight(except = false) {
+    calculateWeight(except = false, allIdentifiers = false) {
         let weight = this.DEFAULT_WEIGHT;
         let bonus = 0;
         let prevBonus = 0;
         let identifierCount = 0;
 
+        let matchedIdentifiersCount = 0;
         for (const identifier of except ? this.exceptIdentifiers : this.identifiers) {
             const { attr, value } = this._validateData(identifier);
             if (attr) {
                 bonus += this._calculateBonus(attr, value);
-                bonus += this._attributeDefinedBonus(attr);
+                if (bonus > 0) {
+                    bonus += this._attributeDefinedBonus(attr);
+                }
             } else {
                 let bestAttrBonus = 0;
                 for (const attr of Object.keys(this.element.data)) {
@@ -255,9 +258,13 @@ export class WeightPointCalculator {
             }
             if (bonus > prevBonus) {
                 bonus += this._identifierNumberBonus(identifierCount);
+                matchedIdentifiersCount++;
             }
             prevBonus = bonus;
             identifierCount++;
+        }
+        if (allIdentifiers && matchedIdentifiersCount === 0) {
+            return 0;
         }
         return (except ? 0 : weight) + bonus;
     }

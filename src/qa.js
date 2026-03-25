@@ -811,7 +811,8 @@ export class QA {
                 this.parentElement.identifiers,
                 this.parentElement.exceptIdentifiers,
                 this.parentElement.index,
-                tries
+                tries,
+                checking
             );
             this.currentElement = element;
             this.matchedElements = elements;
@@ -837,7 +838,8 @@ export class QA {
                     item.identifiers,
                     item.exceptIdentifiers,
                     item.index,
-                    tries
+                    tries,
+                    checking
                 );
                 this.currentElement = element;
                 this.matchedElements = elements;
@@ -887,13 +889,21 @@ export class QA {
         return this;
     }
 
-    async _getElement(parent, tag, identifiers = [], exceptIdentifiers = [], index = 0, tries = 0) {
+    async _getElement(
+        parent,
+        tag,
+        identifiers = [],
+        exceptIdentifiers = [],
+        index = 0,
+        tries = 0,
+        allIdentifiers = false
+    ) {
         const elements = await this._getAllElements(parent, tag, identifiers, tries);
         let maxWeight = 0;
         for (const element of elements) {
             const weightCalculator = new WeightPointCalculator(element, identifiers, exceptIdentifiers);
-            const weightPlus = weightCalculator.calculateWeight();
-            const weightMinus = weightCalculator.calculateWeight(true);
+            const weightPlus = weightCalculator.calculateWeight(false, allIdentifiers);
+            const weightMinus = weightCalculator.calculateWeight(true, allIdentifiers);
             element.weight = weightPlus - weightMinus;
             maxWeight = Math.max(maxWeight, element.weight);
         }
