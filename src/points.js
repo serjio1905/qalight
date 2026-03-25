@@ -263,7 +263,7 @@ export class WeightPointCalculator {
             prevBonus = bonus;
             identifierCount++;
         }
-        if (allIdentifiers && matchedIdentifiersCount === 0) {
+        if (allIdentifiers && matchedIdentifiersCount.length < this.identifiers.length) {
             return 0;
         }
         return (except ? 0 : weight) + bonus;
