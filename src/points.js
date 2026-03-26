@@ -183,7 +183,7 @@ export class WeightPointCalculator {
                                 .filter(Boolean)
                                 .join(" ") || null;
                         if (!label) {
-                            label = getLabel(el.parentElement, maxDepth - 1);
+                            label = getLabel(el.parentElement, maxDepth - 1)?.text;
                         }
                         depth++;
                     }
