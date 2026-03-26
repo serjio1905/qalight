@@ -173,7 +173,6 @@ export class WeightPointCalculator {
                 }
 
                 function getLabel(el, maxDepth = 4) {
-                    let depth = 0;
                     let label = el.closest("label")?.textContent?.trim() || null;
                     if (!label && maxDepth > 0) {
                         const labels = Array.from(el.parentElement?.querySelectorAll("label") || []);
@@ -185,9 +184,8 @@ export class WeightPointCalculator {
                         if (!label) {
                             label = getLabel(el.parentElement, maxDepth - 1)?.text;
                         }
-                        depth++;
                     }
-                    return { text: label, depth };
+                    return { text: label, depth: 4 - maxDepth };
                 }
 
                 function getValuesOfAllInnerElements(el) {
