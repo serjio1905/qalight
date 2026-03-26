@@ -52,6 +52,10 @@ export class WeightPointCalculator {
         return (this.ATTR_BONUS[attr] || 3) / 3;
     }
 
+    _labelDepthPenalty() {
+        return (this.element.data.labelDepth || 0) / 10;
+    }
+
     _calculateBonus(attr, value) {
         let bonus = 0;
         let penalty = 0;
@@ -62,6 +66,9 @@ export class WeightPointCalculator {
         }
         if (value === actualValue || (typeof value === "string" && actualValue === value.toLowerCase().trim())) {
             bonus = this._attributeBonus(attr);
+            if (attr === "label") {
+                penalty += this._labelDepthPenalty();
+            }
         } else if (
             typeof value === "string" &&
             typeof actualValue === "string" &&
@@ -69,6 +76,9 @@ export class WeightPointCalculator {
         ) {
             bonus = this._attributeBonus(attr, value, actualValue);
             penalty = this._partialMismatchPenalty(attr);
+            if (attr === "label") {
+                penalty += this._labelDepthPenalty();
+            }
         }
         return bonus - penalty;
     }
@@ -163,6 +173,7 @@ export class WeightPointCalculator {
                 }
 
                 function getLabel(el, maxDepth = 4) {
+                    let depth = 0;
                     let label = el.closest("label")?.textContent?.trim() || null;
                     if (!label && maxDepth > 0) {
                         const labels = Array.from(el.parentElement?.querySelectorAll("label") || []);
@@ -174,8 +185,9 @@ export class WeightPointCalculator {
                         if (!label) {
                             label = getLabel(el.parentElement, maxDepth - 1);
                         }
+                        depth++;
                     }
-                    return label;
+                    return { text: label, depth };
                 }
 
                 function getValuesOfAllInnerElements(el) {
@@ -197,6 +209,8 @@ export class WeightPointCalculator {
                 const input = el;
                 const value = "value" in input ? input.value : getValuesOfAllInnerElements(el);
                 const checked = el.checked === "";
+
+                const label = getLabel?.(el);
 
                 const dom = {
                     tagName: el.tagName.toLowerCase(),
@@ -220,7 +234,8 @@ export class WeightPointCalculator {
                     html: elumitateHtmlChars(el.outerHTML),
                     columnName: elumitateHtmlChars(getTdColumnName?.(el)),
                     columnThHtml: elumitateHtmlChars(getTdColumnThHtml?.(el)),
-                    label: elumitateHtmlChars(getLabel?.(el)),
+                    label: elumitateHtmlChars(label.text),
+                    labelDepth: label.depth,
                     ...attrs,
                 };
                 let identifier = dom.text || dom.name || dom.id || dom.className || dom.placeholder;
@@ -250,7 +265,7 @@ export class WeightPointCalculator {
             } else {
                 let bestAttrBonus = 0;
                 for (const attr of Object.keys(this.element.data)) {
-                    if (["parentText", "tagName", "stringified"].includes(attr)) continue;
+                    if (["parentText", "tagName", "stringified", "labelDepth"].includes(attr)) continue;
                     const attrBonus = this._calculateBonus(attr, value);
                     bestAttrBonus = Math.max(bestAttrBonus, attrBonus);
                 }
