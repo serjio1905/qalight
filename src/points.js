@@ -241,7 +241,7 @@ export class WeightPointCalculator {
                 dom.stringified = `${el.tagName.toLowerCase()} (${identifier})`;
                 return dom;
             }),
-            { MAX_DEPTH },
+            { MAX_DEPTH: WeightPointCalculator.MAX_DEPTH },
         ]);
         return { ...dom, visible: isVisible, enabled: isEnabled };
     }
