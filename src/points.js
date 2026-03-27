@@ -86,7 +86,7 @@ export class WeightPointCalculator {
 
     static async prepareData(locator) {
         const [dom, isVisible, isEnabled] = await Promise.all([
-            locator.evaluate((el) => {
+            locator.evaluate((el, { MAX_DEPTH }) => {
                 function elumitateHtmlChars(value) {
                     if (typeof value !== "string") return value;
                     return value
@@ -173,7 +173,7 @@ export class WeightPointCalculator {
                     return null;
                 }
 
-                function getLabel(el, maxDepth = WeightPointCalculator.MAX_DEPTH) {
+                function getLabel(el, maxDepth = MAX_DEPTH) {
                     let label = el.closest("label")?.textContent?.trim() || null;
                     if (!label && maxDepth > 0) {
                         const labels = Array.from(el.parentElement?.querySelectorAll("label") || []);
@@ -186,7 +186,7 @@ export class WeightPointCalculator {
                             label = getLabel(el.parentElement, maxDepth - 1)?.text;
                         }
                     }
-                    return { text: label, depth: WeightPointCalculator.MAX_DEPTH - maxDepth };
+                    return { text: label, depth: MAX_DEPTH - maxDepth };
                 }
 
                 function getValuesOfAllInnerElements(el) {
@@ -241,8 +241,7 @@ export class WeightPointCalculator {
                 dom.stringified = `${el.tagName.toLowerCase()} (${identifier})`;
                 return dom;
             }),
-            locator.isVisible(),
-            locator.isEnabled(),
+            { MAX_DEPTH },
         ]);
         return { ...dom, visible: isVisible, enabled: isEnabled };
     }
