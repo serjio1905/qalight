@@ -54,6 +54,7 @@ export class NetworkTracker {
                 headers: response.headers(),
             };
             if (this.responseCallback) {
+                console.log(`[${new Date().toISOString()}] Network: ${JSON.stringify(log)}`);
                 this.responseCallback?.(log);
             }
         } catch (e) {}

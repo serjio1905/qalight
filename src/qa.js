@@ -34,6 +34,12 @@ export class QA {
      * @param {import('@playwright/test').TestInfo} options.testInfo
      * @param {boolean} options.safeMode
      * @param {Function} options.apiResponseCallback
+     * @param {Object} options.consoleLoggerOptions
+     * @param {boolean} options.consoleLoggerOptions.warn
+     * @param {boolean} options.consoleLoggerOptions.info
+     * @param {boolean} options.consoleLoggerOptions.error
+     * @param {boolean} options.consoleLoggerOptions.success
+     * @param {boolean} options.consoleLoggerOptions.log
      * @returns {QA}
      */
     constructor(
@@ -47,6 +53,13 @@ export class QA {
             restrictionMapping: {},
             testInfo: null,
             safeMode: false,
+            consoleLoggerOptions: {
+                warn: true,
+                info: false,
+                error: true,
+                success: false,
+                log: false,
+            },
             apiResponseCallback: (log) => this._defaultApiResponseCallback(log),
         }
     ) {
@@ -85,6 +98,8 @@ export class QA {
         this.expect = new ExpectFramework(this);
 
         this._pauseResolver = null;
+        this.consoleLogger = new ConsoleLogger(page, options.consoleLoggerOptions);
+        this.consoleLogger.startLogging();
         return this;
     }
 
