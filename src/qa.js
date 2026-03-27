@@ -158,7 +158,7 @@ export class QA {
         return this;
     }
 
-    get(tag, identifiers = [], exceptIdentifiers = [], index = 0) {
+    get(tag, identifiers = [], exceptIdentifiers = [], index = 0, aroundDepth = 0) {
         this._validateTag(tag);
         const normalizedIdentifiers = this._normalizeIdentifiers(identifiers, exceptIdentifiers);
         this.queue.push({
@@ -166,8 +166,13 @@ export class QA {
             identifiers: normalizedIdentifiers.identifiers,
             exceptIdentifiers: normalizedIdentifiers.exceptIdentifiers,
             index,
+            aroundDepth,
         });
         return this;
+    }
+
+    getAround(tag, identifiers = [], exceptIdentifiers = [], index = 0, aroundDepth = 4) {
+        return this.get(tag, identifiers, exceptIdentifiers, index, aroundDepth);
     }
 
     getParent(index = 0) {
@@ -797,6 +802,13 @@ export class QA {
         }
     }
 
+    async _goToParent(item) {
+        if (!this.currentElement) return;
+        this.currentElement.locator = this.currentElement.locator.locator(`..`).nth(item.parent);
+        this.currentElement.data = await WeightPointCalculator.prepareData(this.currentElement.locator);
+        this.currentElement.data.stringified = `Parent of ${this.currentElement.data.stringified}`;
+    }
+
     async _executeQueue(tries = 0, checking = false) {
         if (this.queue.length === 0) return this;
         await this.waitFor(this.timeout, false);
@@ -832,7 +844,7 @@ export class QA {
         }
         for (const item of this.queue) {
             if (typeof item === "object" && !item.hasOwnProperty("parent")) {
-                const { element, elements } = await this._getElement(
+                let { element, elements } = await this._getElement(
                     this.currentElement?.locator || this.page.locator("body"),
                     item.tag,
                     item.identifiers,
@@ -841,6 +853,23 @@ export class QA {
                     tries,
                     checking
                 );
+                if (item.aroundDepth > 0 && !element && this.currentElement) {
+                    let currentDepth = 1;
+                    while (currentDepth < item.aroundDepth && !element) {
+                        const result = await this._getElement(
+                            this.currentElement.locator,
+                            item.tag,
+                            item.identifiers,
+                            item.exceptIdentifiers,
+                            item.index,
+                            tries,
+                            checking
+                        );
+                        element = result?.element;
+                        elements = result?.elements;
+                        currentDepth++;
+                    }
+                }
                 this.currentElement = element;
                 this.matchedElements = elements;
                 if (!element) {
@@ -857,10 +886,7 @@ export class QA {
                     throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
                 }
             } else if (typeof item === "object" && item.hasOwnProperty("parent") && this.currentElement?.locator) {
-                // if (this.currentElement?.then) this.currentElement = await this.currentElement;
-                this.currentElement.locator = this.currentElement.locator.locator(`..`).nth(item.parent);
-                this.currentElement.data = await WeightPointCalculator.prepareData(this.currentElement.locator);
-                this.currentElement.data.stringified = `Parent of ${this.currentElement.data.stringified}`;
+                await this._goToParent(item);
             }
         }
         if (this.currentElement?.locator) {

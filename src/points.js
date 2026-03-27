@@ -6,6 +6,7 @@ export class WeightPointCalculator {
     }
 
     DEFAULT_WEIGHT = 0;
+    MAX_DEPTH = 4;
     ATTR_BONUS = {
         id: 10,
         name: 10,
@@ -172,7 +173,7 @@ export class WeightPointCalculator {
                     return null;
                 }
 
-                function getLabel(el, maxDepth = 4) {
+                function getLabel(el, maxDepth = WeightPointCalculator.MAX_DEPTH) {
                     let label = el.closest("label")?.textContent?.trim() || null;
                     if (!label && maxDepth > 0) {
                         const labels = Array.from(el.parentElement?.querySelectorAll("label") || []);
@@ -185,7 +186,7 @@ export class WeightPointCalculator {
                             label = getLabel(el.parentElement, maxDepth - 1)?.text;
                         }
                     }
-                    return { text: label, depth: 4 - maxDepth };
+                    return { text: label, depth: WeightPointCalculator.MAX_DEPTH - maxDepth };
                 }
 
                 function getValuesOfAllInnerElements(el) {
