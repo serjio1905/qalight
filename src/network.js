@@ -1,5 +1,3 @@
-import { QA } from "./qa.js";
-
 export class NetworkTracker {
     constructor(page, responseCallback = null) {
         this.page = page;

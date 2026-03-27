@@ -5,6 +5,7 @@ import { ExpectFramework } from "./expect.js";
 import { DEFAULT_WAIT_TIME, TAGS } from "./constants.js";
 import { QAReporter } from "./reporter.js";
 import { WeightPointCalculator } from "./points.js";
+import { ConsoleLogger } from "./console.js";
 
 export class QAError extends Error {
     constructor(message) {
