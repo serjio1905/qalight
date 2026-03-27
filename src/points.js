@@ -6,7 +6,7 @@ export class WeightPointCalculator {
     }
 
     DEFAULT_WEIGHT = 0;
-    MAX_DEPTH = 4;
+    static MAX_DEPTH = 4;
     ATTR_BONUS = {
         id: 10,
         name: 10,
