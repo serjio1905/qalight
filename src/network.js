@@ -52,7 +52,13 @@ export class NetworkTracker {
                 headers: response.headers(),
             };
             if (this.responseCallback) {
-                console.log(`[${new Date().toISOString()}] Network: ${JSON.stringify(log)}`);
+                let icon = "✅";
+                if (response.status() >= 400 && response.status() < 500) {
+                    icon = "⚠️";
+                } else if (response.status() >= 500) {
+                    icon = "❌";
+                }
+                console.log(`[${new Date().toISOString()}] ${icon} Network: ${JSON.stringify(log)}`);
                 this.responseCallback?.(log);
             }
         } catch (e) {}

@@ -447,7 +447,7 @@ export class QA {
 
     async getStyles() {
         await this._executeQueue();
-        return this.currentElement.locator.evaluate((el) => {
+        const styles = await this.currentElement.locator.evaluate((el) => {
             const style = window.getComputedStyle(el);
             const styleJson = {};
             for (let i = 0; i < style.length; i++) {
@@ -456,6 +456,12 @@ export class QA {
             }
             return styleJson;
         });
+        await this._showHint(
+            `Got styles of ${this._describeLastElementInQueue()} is ${JSON.stringify(styles)}`,
+            "info"
+        );
+        await this._hideHint();
+        return styles;
     }
 
     async count() {
@@ -481,17 +487,22 @@ export class QA {
 
     async getAttribute(attribute) {
         await this._executeQueue();
-        return await this.currentElement.locator.getAttribute(attribute);
+        const value = await this.currentElement.locator.getAttribute(attribute);
+        await this._showHint(`Got attribute ${attribute} of ${this._describeLastElementInQueue()} is ${value}`, "info");
+        await this._hideHint();
+        return value;
     }
 
     async getText() {
         await this._executeQueue();
-        return await this.currentElement.locator.textContent();
+        const text = (await this.currentElement.locator.textContent())?.trim();
+        await this._showHint(`Got text of ${this._describeLastElementInQueue()} is ${text}`, "info");
+        await this._hideHint();
+        return text;
     }
 
     async getValue() {
-        await this._executeQueue();
-        return await this.currentElement.locator.inputValue();
+        return await this.getAttribute("value");
     }
 
     async highlight() {

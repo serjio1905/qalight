@@ -15,8 +15,8 @@ export class ConsoleLogger {
         this.options = options;
     }
 
-    _prepareMessage(message) {
-        return `[${new Date().toISOString()}] Console: ${message.text()}`;
+    _prepareMessage(message, icon) {
+        return `[${new Date().toISOString()}] ${icon} Console: ${message.text()}`;
     }
 
     startLogging() {
@@ -24,32 +24,32 @@ export class ConsoleLogger {
             switch (message.type()) {
                 case "log":
                     if (this.options.log) {
-                        console.log(this._prepareMessage(message));
+                        console.log(this._prepareMessage(message, "ℹ️"));
                     }
                     break;
                 case "warn":
                     if (this.options.warn) {
-                        console.warn(this._prepareMessage(message));
+                        console.warn(this._prepareMessage(message, "⚠️"));
                     }
                     break;
                 case "error":
                     if (this.options.error) {
-                        console.error(this._prepareMessage(message));
+                        console.error(this._prepareMessage(message, "❌"));
                     }
                     break;
                 case "success":
                     if (this.options.success) {
-                        console.success(this._prepareMessage(message));
+                        console.success(this._prepareMessage(message, "✅"));
                     }
                     break;
                 case "info":
                     if (this.options.info) {
-                        console.info(this._prepareMessage(message));
+                        console.info(this._prepareMessage(message, "ℹ️"));
                     }
                     break;
                 default:
                     if (this.options.log) {
-                        console.log(this._prepareMessage(message));
+                        console.log(this._prepareMessage(message, "ℹ️"));
                     }
                     break;
             }
