@@ -5,127 +5,317 @@ export class ExpectFramework {
         this.qa = qa;
     }
 
-    async equal(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.equal(expectedValue);
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is equal to ${expectedValue}`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+    async equal(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.equal(expectedValue);
+            await this.qa._showHint(`${actualValue} is equal to ${expectedValue}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is equal to ${expectedValue}`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async notEqual(actualValue, expectedValue, hint) {
+
+    async notEqual(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.not.equal(expectedValue);
+            await this.qa._showHint(`${actualValue} is not equal to ${expectedValue}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is not equal to ${expectedValue}`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
         chaiExpect(actualValue).to.not.equal(expectedValue);
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is not equal to ${expectedValue}`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
     }
-    async contain(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.contain(expectedValue);
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} contains ${expectedValue}`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async contain(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.contain(expectedValue);
+            await this.qa._showHint(`${actualValue} contains ${expectedValue}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} contains ${expectedValue}`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async notContain(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.not.contain(expectedValue);
-        await this.qa._showHint(
-            `${this.qa._describeLastElementInQueue()} does not contain ${expectedValue}`,
-            "success"
-        );
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async notContain(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.not.contain(expectedValue);
+            await this.qa._showHint(`${actualValue} does not contain ${expectedValue}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} does not contain ${expectedValue}`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async greaterThan(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.be.greaterThan(expectedValue);
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is greater than ${expectedValue}`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async greaterThan(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.be.greaterThan(expectedValue);
+            await this.qa._showHint(`${actualValue} is greater than ${expectedValue}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is greater than ${expectedValue}`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async lessThan(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.be.lessThan(expectedValue);
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is less than ${expectedValue}`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async lessThan(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.be.lessThan(expectedValue);
+            await this.qa._showHint(`${actualValue} is less than ${expectedValue}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is less than ${expectedValue}`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async greaterThanOrEqual(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.be.greaterThanOrEqual(expectedValue);
-        await this.qa._showHint(
-            `${this.qa._describeLastElementInQueue()} is greater than or equal to ${expectedValue}`,
-            "success"
-        );
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async greaterThanOrEqual(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.be.greaterThanOrEqual(expectedValue);
+            await this.qa._showHint(`${actualValue} is greater than or equal to ${expectedValue}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(
+                        `Failed to check if ${actualValue} is greater than or equal to ${expectedValue}`
+                    );
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async lessThanOrEqual(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.be.lessThanOrEqual(expectedValue);
-        await this._showHint(
-            `${this.qa._describeLastElementInQueue()} is less than or equal to ${expectedValue}`,
-            "success"
-        );
-        await this.waitFor(Math.max(this.timeout, 500), false);
-        await this._hideHint();
+
+    async lessThanOrEqual(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.be.lessThanOrEqual(expectedValue);
+            await this.qa._showHint(`${actualValue} is less than or equal to ${expectedValue}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is less than or equal to ${expectedValue}`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async isBetween(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.be.between(expectedValue[0], expectedValue[1]);
-        await this.qa._showHint(
-            `${this.qa._describeLastElementInQueue()} is between ${expectedValue[0]} and ${expectedValue[1]}`,
-            "success"
-        );
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async isBetween(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.be.between(expectedValue[0], expectedValue[1]);
+            await this.qa._showHint(`${actualValue} is between ${expectedValue[0]} and ${expectedValue[1]}`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(
+                        `Failed to check if ${actualValue} is between ${expectedValue[0]} and ${expectedValue[1]}`
+                    );
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async isNotBetween(actualValue, expectedValue, hint) {
-        chaiExpect(actualValue).to.not.be.between(expectedValue[0], expectedValue[1]);
-        await this.qa._showHint(
-            `${this.qa._describeLastElementInQueue()} is not between ${expectedValue[0]} and ${expectedValue[1]}`,
-            "success"
-        );
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async isNotBetween(actualValue, expectedValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.not.be.between(expectedValue[0], expectedValue[1]);
+            await this.qa._showHint(
+                `${actualValue} is not between ${expectedValue[0]} and ${expectedValue[1]}`,
+                "success"
+            );
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(
+                        `Failed to check if ${actualValue} is not between ${expectedValue[0]} and ${expectedValue[1]}`
+                    );
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async isNotEmpty(actualValue, hint) {
-        chaiExpect(actualValue).to.not.be.empty;
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is not empty`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async isNotEmpty(actualValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.not.be.empty;
+            await this.qa._showHint(`${actualValue} is not empty`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is not empty`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async isEmpty(actualValue, hint) {
-        chaiExpect(actualValue).to.be.empty;
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is empty`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async isEmpty(actualValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.be.empty;
+            await this.qa._showHint(`${actualValue} is empty`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is empty`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async isNotNull(actualValue, hint) {
-        chaiExpect(actualValue).to.not.be.null;
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is not null`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async isNull(actualValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.be.null;
+            await this.qa._showHint(`${actualValue} is null`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is null`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async isNull(actualValue, hint) {
-        chaiExpect(actualValue).to.be.null;
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is null`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async isNotUndefined(actualValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.not.be.undefined;
+            await this.qa._showHint(`${actualValue} is not undefined`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is not undefined`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async isNotUndefined(actualValue, hint) {
-        chaiExpect(actualValue).to.not.be.undefined;
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is not undefined`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async notNullOrEmpty(actualValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.not.be.null;
+            await this.qa._showHint(`${actualValue} is not null or empty`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is not null or empty`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
-    async isUndefined(actualValue, hint) {
-        chaiExpect(actualValue).to.be.undefined;
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is undefined`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
-    }
-    async notNullOrEmpty(actualValue, hint) {
-        chaiExpect(actualValue).to.not.be.null;
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is not null or empty`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
-    }
-    async nullOrEmpty(actualValue, hint) {
-        chaiExpect(actualValue).to.be.null;
-        await this.qa._showHint(`${this.qa._describeLastElementInQueue()} is null or empty`, "success");
-        await this.qa.waitFor(Math.max(this.timeout, 500), false);
-        await this.qa._hideHint();
+
+    async nullOrEmpty(actualValue, throwError = true) {
+        try {
+            chaiExpect(actualValue).to.be.null;
+            await this.qa._showHint(`${actualValue} is null or empty`, "success");
+            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa._hideHint();
+        } catch (error) {
+            if (throwError) {
+                if (this.qa.safeMode) {
+                    await this.qa.pause(`Failed to check if ${actualValue} is null or empty`);
+                } else {
+                    this.qa.abort(error.message);
+                }
+            }
+            return false;
+        }
+        return true;
     }
 }

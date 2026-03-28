@@ -1,5 +1,14 @@
 export class NetworkTracker {
-    constructor(page, responseCallback = null) {
+    /**
+     * @param {import('@playwright/test').Page} page
+     * @param {(log: {url: string, status: number, method: string, data: any, body: string|null|undefined, headers: Record<string, string>}) => void} responseCallback
+     * @param {{ "1xx": boolean, "2xx": boolean, "3xx": boolean, "4xx": boolean, "5xx": boolean }} options
+     */
+    constructor(
+        page,
+        responseCallback = null,
+        options = { "1xx": true, "2xx": true, "3xx": true, "4xx": true, "5xx": true }
+    ) {
         this.page = page;
         this.pending = new Set();
         this.pendingCount = 0;
@@ -52,13 +61,25 @@ export class NetworkTracker {
                 headers: response.headers(),
             };
             if (this.responseCallback) {
-                let icon = "✅";
-                if (response.status() >= 400 && response.status() < 500) {
+                let icon = null;
+                if (options["1xx"] && response.status() >= 100 && response.status() < 200) {
+                    icon = "ℹ️";
+                }
+                if (options["2xx"] && response.status() >= 200 && response.status() < 300) {
+                    icon = "✅";
+                }
+                if (options["3xx"] && response.status() >= 300 && response.status() < 400) {
                     icon = "⚠️";
-                } else if (response.status() >= 500) {
+                }
+                if (options["4xx"] && response.status() >= 400 && response.status() < 500) {
+                    icon = "⚠️";
+                }
+                if (options["5xx"] && response.status() >= 500) {
                     icon = "❌";
                 }
-                console.log(`[${new Date().toISOString()}] ${icon} Network: ${JSON.stringify(log)}`);
+                if (icon) {
+                    console.log(`[${new Date().toISOString()}] ${icon} Network: ${JSON.stringify(log)}`);
+                }
                 this.responseCallback?.(log);
             }
         } catch (e) {}
