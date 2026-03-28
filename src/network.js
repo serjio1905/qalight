@@ -62,19 +62,19 @@ export class NetworkTracker {
             };
             this.responseCallback?.(log);
             let icon = null;
-            if (options["1xx"] && response.status() >= 100 && response.status() < 200) {
+            if (options["1xx"] && log.status >= 100 && log.status < 200) {
                 icon = "ℹ️";
             }
-            if (options["2xx"] && response.status() >= 200 && response.status() < 300) {
+            if (options["2xx"] && log.status >= 200 && log.status < 300) {
                 icon = "✅";
             }
-            if (options["3xx"] && response.status() >= 300 && response.status() < 400) {
+            if (options["3xx"] && log.status >= 300 && log.status < 400) {
                 icon = "⚠️";
             }
-            if (options["4xx"] && response.status() >= 400 && response.status() < 500) {
+            if (options["4xx"] && log.status >= 400 && log.status < 500) {
                 icon = "⚠️";
             }
-            if (options["5xx"] && response.status() >= 500) {
+            if (options["5xx"] && log.status >= 500) {
                 icon = "❌";
             }
             if (icon) {

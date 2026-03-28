@@ -41,7 +41,6 @@ export class ExpectFramework {
             return false;
         }
         return true;
-        chaiExpect(actualValue).to.not.equal(expectedValue);
     }
 
     async contain(actualValue, expectedValue, throwError = true) {
