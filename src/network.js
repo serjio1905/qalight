@@ -60,27 +60,25 @@ export class NetworkTracker {
                 body: response.request().postData(),
                 headers: response.headers(),
             };
-            if (this.responseCallback) {
-                let icon = null;
-                if (options["1xx"] && response.status() >= 100 && response.status() < 200) {
-                    icon = "ℹ️";
-                }
-                if (options["2xx"] && response.status() >= 200 && response.status() < 300) {
-                    icon = "✅";
-                }
-                if (options["3xx"] && response.status() >= 300 && response.status() < 400) {
-                    icon = "⚠️";
-                }
-                if (options["4xx"] && response.status() >= 400 && response.status() < 500) {
-                    icon = "⚠️";
-                }
-                if (options["5xx"] && response.status() >= 500) {
-                    icon = "❌";
-                }
-                if (icon) {
-                    console.log(`[${new Date().toISOString()}] ${icon} Network: ${JSON.stringify(log)}`);
-                }
-                this.responseCallback?.(log);
+            this.responseCallback?.(log);
+            let icon = null;
+            if (options["1xx"] && response.status() >= 100 && response.status() < 200) {
+                icon = "ℹ️";
+            }
+            if (options["2xx"] && response.status() >= 200 && response.status() < 300) {
+                icon = "✅";
+            }
+            if (options["3xx"] && response.status() >= 300 && response.status() < 400) {
+                icon = "⚠️";
+            }
+            if (options["4xx"] && response.status() >= 400 && response.status() < 500) {
+                icon = "⚠️";
+            }
+            if (options["5xx"] && response.status() >= 500) {
+                icon = "❌";
+            }
+            if (icon) {
+                console.log(`[${new Date().toISOString()}] ${icon} Network: ${JSON.stringify(log)}`);
             }
         } catch (e) {}
     }
