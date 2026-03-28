@@ -1033,8 +1033,10 @@ export class QA {
                     );
                 }
             }
-            await this._injectQaHintPopup(color);
             const hintPopupElementWrapper = await this.page.$("#qa-hint-popup-wrapper");
+            if (!hintPopupElementWrapper) {
+                await this._injectQaHintPopup(color);
+            }
             if (hintPopupElementWrapper) {
                 await hintPopupElementWrapper.evaluate(
                     (el, { color }) => {
