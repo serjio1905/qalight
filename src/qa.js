@@ -395,7 +395,23 @@ export class QA {
         await this._executeQueue();
         try {
             await this._showHint(`Scrolling to ${this._describeLastElementInQueue()}`, "info");
-            await this.currentElement.locator.scrollIntoViewIfNeeded();
+            await this._scrollCurrentElementIntoViewport();
+        } catch (error) {
+            if (this.safeMode) {
+                await this.pause(`Failed to scroll to ${this._describeLastElementInQueue()}`);
+            } else {
+                await this.abort();
+            }
+        }
+        await this._hideHint();
+        return this;
+    }
+
+    async scrollToCurrentElement() {
+        await this._executeQueue();
+        try {
+            await this._showHint(`Scrolling to ${this._describeLastElementInQueue()}`, "info");
+            await this._scrollCurrentElementIntoViewport();
         } catch (error) {
             if (this.safeMode) {
                 await this.pause(`Failed to scroll to ${this._describeLastElementInQueue()}`);
@@ -919,7 +935,9 @@ export class QA {
         if (this.currentElement?.locator) {
             this._describeLastElementInQueue();
             this.queue = [];
-            // await this._highlight(this.currentElement.locator, { ms: this.timeout });
+            if (!(await this._checkIfVisible())) {
+                await this._scrollCurrentElementIntoViewport();
+            }
         } else {
             if (tries > 3 && !checking) {
                 await this._showHint(`No element was found ${this._describeLastElementInQueue()}`, "error");
@@ -1274,7 +1292,7 @@ export class QA {
         return description || this._shadowDescription;
     }
 
-    async _checkIfVisible(target) {
+    async _checkIfVisible(target = this.currentElement.locator) {
         try {
             const isVisible = await target.first().isVisible();
             if (isVisible) {
@@ -1292,6 +1310,68 @@ export class QA {
             return false;
         } catch (error) {
             return false;
+        }
+    }
+
+    async _scrollCurrentElementIntoViewport() {
+        if (!this.currentElement?.locator) return;
+
+        if (await this._checkIfVisible(this.currentElement.locator)) return;
+
+        await this.currentElement.locator.first().evaluate((el) => {
+            const isScrollable = (node, axis) => {
+                const style = window.getComputedStyle(node);
+                const overflow = axis === "y" ? style.overflowY : style.overflowX;
+                const hasScrollableOverflow = overflow === "auto" || overflow === "scroll" || overflow === "overlay";
+                const canScroll =
+                    axis === "y" ? node.scrollHeight > node.clientHeight : node.scrollWidth > node.clientWidth;
+
+                return hasScrollableOverflow && canScroll;
+            };
+
+            let parent = el.parentElement;
+            while (parent) {
+                const parentRect = parent.getBoundingClientRect();
+                const elementRect = el.getBoundingClientRect();
+
+                if (isScrollable(parent, "y")) {
+                    if (elementRect.top < parentRect.top) {
+                        parent.scrollTop -= parentRect.top - elementRect.top;
+                    } else if (elementRect.bottom > parentRect.bottom) {
+                        parent.scrollTop += elementRect.bottom - parentRect.bottom;
+                    }
+                }
+
+                if (isScrollable(parent, "x")) {
+                    if (elementRect.left < parentRect.left) {
+                        parent.scrollLeft -= parentRect.left - elementRect.left;
+                    } else if (elementRect.right > parentRect.right) {
+                        parent.scrollLeft += elementRect.right - parentRect.right;
+                    }
+                }
+
+                parent = parent.parentElement;
+            }
+
+            const rect = el.getBoundingClientRect();
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+            const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+            const verticalPadding = Math.min(80, Math.max(viewportHeight * 0.1, 16));
+            const horizontalPadding = Math.min(80, Math.max(viewportWidth * 0.1, 16));
+
+            if (rect.top < verticalPadding || rect.bottom > viewportHeight - verticalPadding) {
+                const top = window.scrollY + rect.top - Math.max((viewportHeight - rect.height) / 2, verticalPadding);
+                window.scrollTo({ top, behavior: "auto" });
+            }
+
+            if (rect.left < horizontalPadding || rect.right > viewportWidth - horizontalPadding) {
+                const left = window.scrollX + rect.left - Math.max((viewportWidth - rect.width) / 2, horizontalPadding);
+                window.scrollTo({ left, behavior: "auto" });
+            }
+        });
+
+        if (!(await this._checkIfVisible(this.currentElement.locator))) {
+            await this.currentElement.locator.scrollIntoViewIfNeeded();
         }
     }
 
