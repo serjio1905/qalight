@@ -1045,13 +1045,25 @@ export class QA {
             for (let idx = 0; idx < buttons.length; idx++) {
                 const button = buttons[idx];
                 if (typeof button.onClick === "function") {
+                    const funcName = `__qalight__button${idx}Click`;
                     try {
-                        await this.page.exposeFunction(
-                            `__qalight__button${idx}Click`,
-                            async () => await button.onClick?.()
-                        );
+                        await this.page.exposeFunction(funcName, async () => await button.onClick?.());
                     } catch (error) {
-                        console.error(`Error exposing function for button ${idx}: ${error.message}`);
+                        if (
+                            error.message &&
+                            error.message.includes(`Function "${funcName}" has been already registered`)
+                        ) {
+                            // Remove existing function binding and redefine
+                            if (typeof this.page._removeExposedBindings === "function") {
+                                await this.page._removeExposedBindings(funcName);
+                            } else if (this.page.context()?._connection?._callbacks) {
+                                // fallback for Playwright internals (not public API)
+                                delete this.page.context()._connection._callbacks[funcName];
+                            }
+                            await this.page.exposeFunction(funcName, async () => await button.onClick?.());
+                        } else {
+                            throw error;
+                        }
                     }
                 }
             }
