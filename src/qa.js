@@ -1054,13 +1054,9 @@ export class QA {
                             error.message.includes(`Function "${funcName}" has been already registered`)
                         ) {
                             // Remove existing function binding and redefine
-                            if (typeof this.page._removeExposedBindings === "function") {
-                                await this.page._removeExposedBindings(funcName);
-                            } else if (this.page.context()?._connection?._callbacks) {
-                                // fallback for Playwright internals (not public API)
-                                delete this.page.context()._connection._callbacks[funcName];
-                            }
-                            await this.page.exposeFunction(funcName, async () => await button.onClick?.());
+                            await this.page.evaluate(() => {
+                                window[funcName] = async () => await button.onClick?.();
+                            });
                         } else {
                             throw error;
                         }
