@@ -1045,10 +1045,14 @@ export class QA {
             for (let idx = 0; idx < buttons.length; idx++) {
                 const button = buttons[idx];
                 if (typeof button.onClick === "function") {
-                    await this.page.exposeFunction(
-                        `__qalight__button${idx}Click`,
-                        async () => await button.onClick?.()
-                    );
+                    try {
+                        await this.page.exposeFunction(
+                            `__qalight__button${idx}Click`,
+                            async () => await button.onClick?.()
+                        );
+                    } catch (error) {
+                        console.error(`Error exposing function for button ${idx}: ${error.message}`);
+                    }
                 }
             }
             const hintPopupElementWrapper = await this.page.$("#qa-hint-popup-wrapper");
