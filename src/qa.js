@@ -812,11 +812,9 @@ export class QA {
     ) {
         return new Promise(async (resolve) => {
             await this._showHint(text, type, buttons);
-            const interval = setInterval(() => {
+            setTimeout(() => {
                 if (this._pauseResolver) {
                     this._showHint(text, type, buttons);
-                } else {
-                    clearInterval(interval);
                 }
             }, 2000);
             this._pauseResolver = resolve;
