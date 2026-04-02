@@ -187,7 +187,7 @@ export class QA {
         return this;
     }
 
-    getAround(tag, identifiers = [], exceptIdentifiers = [], index = 0, aroundDepth = 4) {
+    getAround(tag, identifiers = [], exceptIdentifiers = [], index = 0, aroundDepth = 5) {
         return this.get(tag, identifiers, exceptIdentifiers, index, aroundDepth);
     }
 
