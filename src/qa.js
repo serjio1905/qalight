@@ -1045,22 +1045,12 @@ export class QA {
             for (let idx = 0; idx < buttons.length; idx++) {
                 const button = buttons[idx];
                 if (typeof button.onClick === "function") {
-                    const funcName = `__qalight__button${idx}Click`;
+                    this._buttonActionsHandlers[idx] = async () => await button.onClick?.();
                     try {
-                        await this.page.exposeFunction(funcName, async () => await button.onClick?.());
-                    } catch (error) {
-                        if (
-                            error.message &&
-                            error.message.includes(`Function "${funcName}" has been already registered`)
-                        ) {
-                            // Remove existing function binding and redefine
-                            await this.page.evaluate(() => {
-                                window[funcName] = async () => await button.onClick?.();
-                            });
-                        } else {
-                            throw error;
-                        }
-                    }
+                        await this.page.exposeFunction("__qalight__dispatcher", async (idx) =>
+                            this._buttonActionsHandlers[idx]?.()
+                        );
+                    } catch (error) {}
                 }
             }
             const hintPopupElementWrapper = await this.page.$("#qa-hint-popup-wrapper");
@@ -1090,7 +1080,7 @@ export class QA {
                                 const buttonElement = document.createElement("button");
                                 buttonElement.textContent = button.text;
                                 buttonElement.addEventListener("click", () => {
-                                    window[`__qalight__button${idx}Click`]?.();
+                                    window["__qalight__dispatcher"](idx);
                                 });
                                 el.appendChild(buttonElement);
                             });
@@ -1422,4 +1412,6 @@ export class QA {
         }
         await expect(target).toBeVisible();
     }
+
+    _buttonActionsHandlers = [];
 }
