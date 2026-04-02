@@ -812,11 +812,11 @@ export class QA {
     ) {
         return new Promise(async (resolve) => {
             await this._showHint(text, type, buttons);
-            setTimeout(() => {
-                if (this._pauseResolver) {
-                    this._showHint(text, type, buttons);
-                }
-            }, 2000);
+            // setTimeout(() => {
+            //     if (this._pauseResolver) {
+            //         this._showHint(text, type, buttons);
+            //     }
+            // }, 2000);
             this._pauseResolver = resolve;
         });
     }
