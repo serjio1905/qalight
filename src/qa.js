@@ -96,6 +96,8 @@ export class QA {
                 ? options.apiResponseCallback
                 : (log) => this._defaultApiResponseCallback(log)
         );
+
+        /** @type {ExpectFramework} */
         this.expect = new ExpectFramework(this);
 
         this._pauseResolver = null;
