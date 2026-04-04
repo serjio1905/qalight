@@ -503,11 +503,21 @@ export class QA {
         return this;
     }
 
-    async getAttribute(attribute) {
+    /**
+     * @param {string} attribute
+     * @param {boolean} showHint
+     * @returns {Promise<string>}
+     */
+    async getAttribute(attribute, showHint = true) {
         await this._executeQueue();
-        const value = await this.currentElement.locator.getAttribute(attribute);
-        await this._showHint(`Got attribute ${attribute} of ${this._describeLastElementInQueue()} is ${value}`, "info");
-        await this._hideHint();
+        const value = this.currentElement?.data[attribute];
+        if (showHint) {
+            await this._showHint(
+                `Got attribute ${attribute} of ${this._describeLastElementInQueue()} is ${value}`,
+                "info"
+            );
+            await this._hideHint();
+        }
         return value;
     }
 
