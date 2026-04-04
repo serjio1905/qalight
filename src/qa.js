@@ -97,8 +97,7 @@ export class QA {
                 : (log) => this._defaultApiResponseCallback(log)
         );
 
-        /** @type {ExpectFramework} */
-        this.expect = new ExpectFramework(this);
+        this._expect = new ExpectFramework(this);
 
         this._pauseResolver = null;
         this.consoleLogger = new ConsoleLogger(page, options.consoleLoggerOptions);
@@ -806,6 +805,13 @@ export class QA {
         }
         await this._hideHint();
         return true;
+    }
+
+    /**
+     * @returns {ExpectFramework}
+     */
+    get expect() {
+        return this._expect;
     }
 
     /**

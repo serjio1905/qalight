@@ -1,10 +1,21 @@
 import { expect as chaiExpect } from "chai";
 
 export class ExpectFramework {
+    /**
+     * @typedef {import("./qa.js").QA} QA
+     * @param {import("./qa.js").QA} qa
+     * @returns {ExpectFramework}
+     */
     constructor(qa) {
         this.qa = qa;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async equal(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.equal(expectedValue);
@@ -24,6 +35,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async notEqual(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.not.equal(expectedValue);
@@ -43,6 +60,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async contain(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.contain(expectedValue);
@@ -62,6 +85,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async notContain(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.not.contain(expectedValue);
@@ -81,6 +110,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async greaterThan(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.be.greaterThan(expectedValue);
@@ -100,6 +135,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async lessThan(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.be.lessThan(expectedValue);
@@ -119,6 +160,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async greaterThanOrEqual(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.be.greaterThanOrEqual(expectedValue);
@@ -140,6 +187,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async lessThanOrEqual(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.be.lessThanOrEqual(expectedValue);
@@ -159,6 +212,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async isBetween(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.be.between(expectedValue[0], expectedValue[1]);
@@ -180,6 +239,12 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {string} expectedValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async isNotBetween(actualValue, expectedValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.not.be.between(expectedValue[0], expectedValue[1]);
@@ -204,6 +269,11 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async isNotEmpty(actualValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.not.be.empty;
@@ -223,6 +293,11 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async isEmpty(actualValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.be.empty;
@@ -242,6 +317,11 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async isNull(actualValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.be.null;
@@ -261,6 +341,11 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async isNotUndefined(actualValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.not.be.undefined;
@@ -280,6 +365,11 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async notNullOrEmpty(actualValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.not.be.null;
@@ -299,6 +389,11 @@ export class ExpectFramework {
         return true;
     }
 
+    /**
+     * @param {string} actualValue
+     * @param {boolean} throwError
+     * @returns {Promise<boolean>}
+     */
     async nullOrEmpty(actualValue, throwError = true) {
         try {
             chaiExpect(actualValue).to.be.null;
