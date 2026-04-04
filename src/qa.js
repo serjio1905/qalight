@@ -521,16 +521,20 @@ export class QA {
         return value;
     }
 
-    async getText() {
-        await this._executeQueue();
-        const text = (await this.currentElement.locator.textContent())?.trim();
-        await this._showHint(`Got text of ${this._describeLastElementInQueue()} is ${text}`, "info");
-        await this._hideHint();
-        return text;
+    /**
+     * @param {boolean} showHint
+     * @returns {Promise<string>}
+     */
+    async getText(showHint = true) {
+        return this.getAttribute("text", showHint);
     }
 
-    async getValue() {
-        return await this.getAttribute("value");
+    /**
+     * @param {boolean} showHint
+     * @returns {Promise<string>}
+     */
+    async getValue(showHint = true) {
+        return this.getAttribute("value", showHint);
     }
 
     async highlight() {
