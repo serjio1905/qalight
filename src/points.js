@@ -173,6 +173,7 @@ export class WeightPointCalculator {
                 }
 
                 function getLabel(el, maxDepth = 4) {
+                    if (!el) return { text: null, depth: 0 };
                     let label = el.closest("label")?.textContent?.trim() || null;
                     if (!label && maxDepth > 0) {
                         const labels = Array.from(el.parentElement?.querySelectorAll("label") || []);
