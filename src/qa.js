@@ -808,6 +808,11 @@ export class QA {
     }
 
     /**
+     * Returns the underlying ExpectFramework instance for chaining assertions and expect-like methods.
+     * Note: To see autocomplete/hint for methods, ensure your editor supports JSDoc @type hints or:
+     *    - Assign `const ex = qa.expect;` and use `ex.` for IDE intellisense.
+     *    - The returned object is of type `ExpectFramework`.
+     * @type {ExpectFramework}
      * @returns {ExpectFramework}
      */
     get expect() {
