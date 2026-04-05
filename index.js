@@ -3,4 +3,5 @@ module.exports = {
     QAError: require("./src/qa").QAError,
     QAReporter: require("./src/reporter").QAReporter,
     QAAPI: require("./src/api").API,
+    ExpectFramework: require("./src/expect").ExpectFramework,
 };
