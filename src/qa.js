@@ -152,12 +152,23 @@ export class QA {
 
     /**
      * @param {string} url
-     * @param {any[]} args
+     * @param {boolean} [incognito=false]
      * @returns {Promise<QA>}
      */
-    async openTab(url, ...args) {
-        const newPage = await this.page.context().newPage();
-        await newPage.goto(url, ...args);
+    async openTab(url, incognito = false) {
+        let context;
+
+        if (incognito) {
+            // create isolated (incognito) context
+            context = await this.page.context().browser().newContext();
+        } else {
+            // reuse existing context
+            context = this.page.context();
+        }
+
+        const newPage = await context.newPage();
+        await newPage.goto(url);
+
         return new QA(newPage, { ...this._originalOptions });
     }
 
