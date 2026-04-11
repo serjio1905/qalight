@@ -1014,35 +1014,26 @@ export class QA {
         const matchedElements = elements.filter(
             (element) => element.weight === maxWeight && (element.weight > 0 || identifiers.length === 0)
         );
-        const matchedElementsExludeParents = matchedElements
-            .map((element, index) => {
-                for (let i = 0; i < matchedElements.length; i++) {
-                    if (
-                        i !== index &&
-                        !matchedElements[i].data._isParent &&
-                        this._isParent(element, matchedElements[i])
-                    ) {
-                        matchedElements[i].data._isParent = true;
-                        break;
-                    }
+        for (let i = 0; i < matchedElements.length; i++) {
+            for (let j = 0; j < matchedElements.length; j++) {
+                if (
+                    i !== j &&
+                    !matchedElements[i].data._isParent &&
+                    (await this.isParent(matchedElements[i].locator, matchedElements[j].locator))
+                ) {
+                    matchedElements[i].data._isParent = true;
                 }
-                return element;
-            })
-            .filter((element) => !element.data._isParent);
+            }
+        }
+        const matchedElementsExludeParents = matchedElements.filter((element) => !element.data._isParent);
         return { element: matchedElementsExludeParents?.[index] ?? null, elements: matchedElementsExludeParents };
     }
 
-    _isParent(child, parent) {
-        let current = child.locator.locator(`..`);
-        while (current) {
-            const currentString = current.toString();
-            const parentString = parent.locator.toString();
-            if (currentString === parentString) {
-                return true;
-            }
-            current = current.locator(`..`);
-        }
-        return false;
+    async isParent(parentLocator, childLocator) {
+        return await parentLocator.evaluate(
+            (parent, child) => parent.contains(child),
+            await childLocator.elementHandle()
+        );
     }
 
     _validateTag(tag) {
