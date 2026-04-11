@@ -1016,10 +1016,13 @@ export class QA {
         );
         const matchedElementsExludeParents = matchedElements
             .map((element, index) => {
-                element.data._isParent = false;
                 for (let i = 0; i < matchedElements.length; i++) {
-                    if (i !== index && this._isParent(matchedElements[i], element)) {
-                        element.data._isParent = true;
+                    if (
+                        i !== index &&
+                        !matchedElements[i].data._isParent &&
+                        this._isParent(matchedElements[i], element)
+                    ) {
+                        matchedElements[i].data._isParent = true;
                         break;
                     }
                 }
