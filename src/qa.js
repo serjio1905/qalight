@@ -1014,14 +1014,18 @@ export class QA {
         const matchedElements = elements.filter(
             (element) => element.weight === maxWeight && (element.weight > 0 || identifiers.length === 0)
         );
-        const matchedElementsExludeParents = matchedElements.filter((element, index) => {
-            for (let i = index + 1; i < matchedElements.length; i++) {
-                if (this._isParent(matchedElements[i], element)) {
-                    return false;
+        const matchedElementsExludeParents = matchedElements
+            .map((element, index) => {
+                element.data._isParent = false;
+                for (let i = 0; i < matchedElements.length; i++) {
+                    if (i !== index && this._isParent(matchedElements[i], element)) {
+                        element.data._isParent = true;
+                        break;
+                    }
                 }
-            }
-            return true;
-        });
+                return element;
+            })
+            .filter((element) => !element.data._isParent);
         return { element: matchedElementsExludeParents?.[index] ?? null, elements: matchedElementsExludeParents };
     }
 

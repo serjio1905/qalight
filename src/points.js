@@ -262,7 +262,7 @@ export class WeightPointCalculator {
             } else {
                 let bestAttrBonus = 0;
                 for (const attr of Object.keys(this.element.data)) {
-                    if (["_parentText", "_tagName", "_stringified", "_labelDepth"].includes(attr)) continue;
+                    if (attr.startsWith("_")) continue;
                     const attrBonus = this._calculateBonus(attr, value);
                     bestAttrBonus = Math.max(bestAttrBonus, attrBonus);
                 }
