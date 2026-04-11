@@ -1019,9 +1019,9 @@ export class QA {
                 if (
                     i !== j &&
                     !matchedElements[i].data._isParent &&
-                    (await this.isParent(matchedElements[i].locator, matchedElements[j].locator))
+                    this.isParent(matchedElements[j].locator, matchedElements[i].locator)
                 ) {
-                    matchedElements[i].data._isParent = true;
+                    matchedElements[j].data._isParent = true;
                 }
             }
         }
@@ -1029,11 +1029,8 @@ export class QA {
         return { element: matchedElementsExludeParents?.[index] ?? null, elements: matchedElementsExludeParents };
     }
 
-    async isParent(parentLocator, childLocator) {
-        return await parentLocator.evaluate(
-            (parent, child) => parent.contains(child),
-            await childLocator.elementHandle()
-        );
+    isParent(parentLocator, childLocator) {
+        return parentLocator._selector.includes(childLocator._selector);
     }
 
     _validateTag(tag) {
