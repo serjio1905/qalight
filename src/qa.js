@@ -1014,7 +1014,26 @@ export class QA {
         const matchedElements = elements.filter(
             (element) => element.weight === maxWeight && (element.weight > 0 || identifiers.length === 0)
         );
-        return { element: matchedElements?.[index] ?? null, elements: matchedElements };
+        const matchedElementsExludeParents = matchedElements.filter((element, index) => {
+            for (let i = index + 1; i < matchedElements.length; i++) {
+                if (this._isParent(matchedElements[i], element)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+        return { element: matchedElementsExludeParents?.[index] ?? null, elements: matchedElementsExludeParents };
+    }
+
+    _isParent(child, parent) {
+        let current = child.parentElement;
+        while (current) {
+            if (current === parent) {
+                return true;
+            }
+            current = current.parentElement;
+        }
+        return false;
     }
 
     _validateTag(tag) {

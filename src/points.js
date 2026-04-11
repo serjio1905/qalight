@@ -53,7 +53,7 @@ export class WeightPointCalculator {
     }
 
     _labelDepthPenalty() {
-        return (this.element.data.labelDepth || 0) / 10;
+        return (this.element.data._labelDepth || 0) / 10;
     }
 
     _calculateBonus(attr, value) {
@@ -212,7 +212,7 @@ export class WeightPointCalculator {
                 const label = getLabel?.(el);
 
                 const dom = {
-                    tagName: el.tagName.toLowerCase(),
+                    _tagName: el.tagName.toLowerCase(),
 
                     // common attributes
                     id: el.id || null,
@@ -229,16 +229,16 @@ export class WeightPointCalculator {
 
                     // everything else
                     text: elumitateHtmlChars(el.textContent),
-                    parentText: elumitateHtmlChars(el.parentElement?.textContent?.trim() || null),
+                    _parentText: elumitateHtmlChars(el.parentElement?.textContent?.trim() || null),
                     html: elumitateHtmlChars(el.outerHTML),
                     columnName: elumitateHtmlChars(getTdColumnName?.(el)),
                     columnThHtml: elumitateHtmlChars(getTdColumnThHtml?.(el)),
                     label: elumitateHtmlChars(label.text),
-                    labelDepth: label.depth,
+                    _labelDepth: label.depth,
                     ...attrs,
                 };
                 let identifier = dom.text || dom.name || dom.id || dom.className || dom.placeholder;
-                dom.stringified = `${el.tagName.toLowerCase()} (${identifier})`;
+                dom._stringified = `${el.tagName.toLowerCase()} (${identifier})`;
                 return dom;
             }),
         ]);
@@ -262,7 +262,7 @@ export class WeightPointCalculator {
             } else {
                 let bestAttrBonus = 0;
                 for (const attr of Object.keys(this.element.data)) {
-                    if (["parentText", "tagName", "stringified", "labelDepth"].includes(attr)) continue;
+                    if (["_parentText", "_tagName", "_stringified", "_labelDepth"].includes(attr)) continue;
                     const attrBonus = this._calculateBonus(attr, value);
                     bestAttrBonus = Math.max(bestAttrBonus, attrBonus);
                 }
