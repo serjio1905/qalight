@@ -1020,7 +1020,7 @@ export class QA {
                     if (
                         i !== index &&
                         !matchedElements[i].data._isParent &&
-                        this._isParent(matchedElements[i], element)
+                        this._isParent(element, matchedElements[i])
                     ) {
                         matchedElements[i].data._isParent = true;
                         break;
@@ -1033,12 +1033,12 @@ export class QA {
     }
 
     _isParent(child, parent) {
-        let current = child.parentElement;
+        let current = child.locator.locator(`..`);
         while (current) {
-            if (current === parent) {
+            if (current.toString() === parent.locator.toString()) {
                 return true;
             }
-            current = current.parentElement;
+            current = current.locator(`..`);
         }
         return false;
     }
