@@ -1019,7 +1019,7 @@ export class QA {
                 if (
                     i !== j &&
                     !matchedElements[i].data._isParent &&
-                    this.isParent(matchedElements[j].locator, matchedElements[i].locator)
+                    (await this.isParent(matchedElements[j].locator, matchedElements[i].locator))
                 ) {
                     matchedElements[j].data._isParent = true;
                 }
@@ -1029,8 +1029,11 @@ export class QA {
         return { element: matchedElementsExludeParents?.[index] ?? null, elements: matchedElementsExludeParents };
     }
 
-    isParent(parentLocator, childLocator) {
-        return parentLocator._selector.includes(childLocator._selector);
+    async isParent(parentLocator, childLocator) {
+        return await parentLocator.evaluate(
+            (parent, child) => parent.contains(child),
+            await childLocator.elementHandle()
+        );
     }
 
     _validateTag(tag) {
