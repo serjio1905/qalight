@@ -1018,7 +1018,7 @@ export class QA {
             for (let j = 0; j < matchedElements.length; j++) {
                 if (
                     i !== j &&
-                    !matchedElements[i].data._isParent &&
+                    !matchedElements[j].data._isParent &&
                     (await this.isParent(matchedElements[j].locator, matchedElements[i].locator))
                 ) {
                     matchedElements[j].data._isParent = true;
