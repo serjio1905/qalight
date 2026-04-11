@@ -1035,7 +1035,9 @@ export class QA {
     _isParent(child, parent) {
         let current = child.locator.locator(`..`);
         while (current) {
-            if (current.toString() === parent.locator.toString()) {
+            const currentString = current.toString();
+            const parentString = parent.locator.toString();
+            if (currentString === parentString) {
                 return true;
             }
             current = current.locator(`..`);
