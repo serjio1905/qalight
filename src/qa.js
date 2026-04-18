@@ -219,6 +219,16 @@ export class QA {
         return this;
     }
 
+    async restrict() {
+        await this._executeQueue();
+        if (this.currentElement) {
+            this.parentElement = this.currentElement;
+        } else {
+            throw new QAError(`No element was found to restrict`, this.queue);
+        }
+        return this;
+    }
+
     clearRestrinction() {
         this.parentElement = null;
         return this;
@@ -893,29 +903,33 @@ export class QA {
         this.matchedElements = [];
         if (typeof this.waiter === "function") await this.waiter();
         if (this.parentElement) {
-            const { element, elements } = await this._getElement(
-                this.page.locator("body"),
-                this.parentElement.tag,
-                this.parentElement.identifiers,
-                this.parentElement.exceptIdentifiers,
-                this.parentElement.index,
-                tries,
-                checking
-            );
-            this.currentElement = element;
-            this.matchedElements = elements;
-            if (!element) {
-                await this._showHint(
-                    `No element was found ${this._describeLastElementInQueue()}`,
-                    checking ? "info" : "error"
+            if (this.parentElement.locator) {
+                this.currentElement = this.parentElement;
+            } else {
+                const { element, elements } = await this._getElement(
+                    this.page.locator("body"),
+                    this.parentElement.tag,
+                    this.parentElement.identifiers,
+                    this.parentElement.exceptIdentifiers,
+                    this.parentElement.index,
+                    tries,
+                    checking
                 );
-                await this.waitFor(3000, false);
-                await this._hideHint();
-                this.queue = [];
-                if (checking) {
-                    return this;
+                this.currentElement = element;
+                this.matchedElements = elements;
+                if (!element) {
+                    await this._showHint(
+                        `No element was found ${this._describeLastElementInQueue()}`,
+                        checking ? "info" : "error"
+                    );
+                    await this.waitFor(3000, false);
+                    await this._hideHint();
+                    this.queue = [];
+                    if (checking) {
+                        return this;
+                    }
+                    throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
                 }
-                throw new QAError(`No element was found ${this._describeLastElementInQueue()}`, this.queue);
             }
         }
         for (const item of this.queue) {
