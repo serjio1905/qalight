@@ -1033,7 +1033,7 @@ export class QA {
                 if (
                     i !== j &&
                     !matchedElements[j].data._isParent &&
-                    this.isParent(matchedElements[j], matchedElements[i])
+                    this._isParent(matchedElements[j], matchedElements[i])
                 ) {
                     matchedElements[j].data._isParent = true;
                 }
@@ -1043,7 +1043,7 @@ export class QA {
         return { element: matchedElementsExludeParents?.[index] ?? null, elements: matchedElementsExludeParents };
     }
 
-    isParent(parentElement, childElement) {
+    _isParent(parentElement, childElement) {
         const parentPath = parentElement.data._domPath;
         const childPath = childElement.data._domPath;
         if (!Array.isArray(parentPath) || !Array.isArray(childPath)) {
