@@ -195,10 +195,38 @@ export class WeightPointCalculator {
                         .join(" ");
                 }
 
-                function getElementDomPath(el) {
-                    return Array.from(el.closest("*"))
-                        .map((el) => el.tagName.toLowerCase())
-                        .join(" > ");
+                function getElementDomPath(elem) {
+                    if (!elem || elem.nodeType !== Node.ELEMENT_NODE) {
+                        throw new Error("getElementDomPath: elem must be a DOM Element");
+                    }
+
+                    const path = [];
+                    let current = elem;
+
+                    while (current) {
+                        const tag = current.tagName.toLowerCase();
+                        const parent = current.parentElement;
+
+                        let index = 0;
+
+                        if (parent) {
+                            const sameTagSiblings = Array.from(parent.children).filter(
+                                (child) => child.tagName.toLowerCase() === tag
+                            );
+
+                            index = sameTagSiblings.indexOf(current);
+                        }
+
+                        path.unshift({ tag, index });
+
+                        if (tag === "html") {
+                            break;
+                        }
+
+                        current = parent;
+                    }
+
+                    return path;
                 }
 
                 const e = el;
