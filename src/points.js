@@ -195,6 +195,12 @@ export class WeightPointCalculator {
                         .join(" ");
                 }
 
+                function getElementDomPath(el) {
+                    return Array.from(el.closest("*"))
+                        .map((el) => el.tagName.toLowerCase())
+                        .join(" > ");
+                }
+
                 const e = el;
 
                 // all attributes on the element
@@ -235,6 +241,7 @@ export class WeightPointCalculator {
                     columnThHtml: elumitateHtmlChars(getTdColumnThHtml?.(el)),
                     label: elumitateHtmlChars(label.text),
                     _labelDepth: label.depth,
+                    _domPath: getElementDomPath(el),
                     ...attrs,
                 };
                 let identifier = dom.text || dom.name || dom.id || dom.className || dom.placeholder;
