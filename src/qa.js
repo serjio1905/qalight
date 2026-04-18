@@ -1033,7 +1033,7 @@ export class QA {
                 if (
                     i !== j &&
                     !matchedElements[j].data._isParent &&
-                    (await this.isParent(matchedElements[j].locator, matchedElements[i].locator))
+                    this.isParent(matchedElements[j], matchedElements[i])
                 ) {
                     matchedElements[j].data._isParent = true;
                 }
@@ -1043,11 +1043,24 @@ export class QA {
         return { element: matchedElementsExludeParents?.[index] ?? null, elements: matchedElementsExludeParents };
     }
 
-    async isParent(parentLocator, childLocator) {
-        return await parentLocator.evaluate(
-            (parent, child) => parent.contains(child),
-            await childLocator.elementHandle()
-        );
+    isParent(parentElement, childElement) {
+        const parentPath = parentElement.data._domPath;
+        const childPath = childElement.data._domPath;
+        if (!Array.isArray(parentPath) || !Array.isArray(childPath)) {
+            throw new Error("isParentDomPath: both arguments must be arrays");
+        }
+
+        if (parentPath.length >= childPath.length) {
+            return false;
+        }
+
+        for (let i = 0; i < parentPath.length; i++) {
+            if (parentPath[i].tag !== childPath[i].tag || parentPath[i].index !== childPath[i].index) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     _validateTag(tag) {
