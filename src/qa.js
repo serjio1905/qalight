@@ -486,7 +486,6 @@ export class QA {
     async drag(x, y, percentage = false) {
         await this._executeQueue();
         try {
-            await this._showHint(`Dragging ${this._describeLastElementInQueue()}`, "info");
             const element = this.currentElement.locator;
             if (!Number.isFinite(x) || !Number.isFinite(y)) {
                 throw new Error(
@@ -505,6 +504,10 @@ export class QA {
                 xPixels = (x / 100) * box.width;
                 yPixels = (y / 100) * box.height;
             }
+            await this._showHint(
+                `Dragging ${this._describeLastElementInQueue()} to x=${xPixels}px, y=${yPixels}px`,
+                "info"
+            );
             const startX = box.x + box.width / 2;
             const startY = box.y + box.height / 2;
             await this.page.mouse.move(startX, startY);
@@ -587,6 +590,47 @@ export class QA {
      */
     async getText(showHint = true) {
         return this.getAttribute("text", showHint);
+    }
+
+    async _getBoundingBox() {
+        await this._executeQueue();
+        const box = await this.currentElement.locator.boundingBox();
+        if (!box) {
+            throw new Error(
+                `Cannot get bounding box of ${this._describeLastElementInQueue()} because its bounding box is unavailable. Make sure the element is rendered and visible.`
+            );
+        }
+        return box;
+    }
+
+    async getHeight() {
+        const box = await this._getBoundingBox();
+        return box.height;
+    }
+
+    async getWidth() {
+        const box = await this._getBoundingBox();
+        return box.width;
+    }
+
+    async getX() {
+        const box = await this._getBoundingBox();
+        return box.x;
+    }
+
+    async getY() {
+        const box = await this._getBoundingBox();
+        return box.y;
+    }
+
+    async getCenterX() {
+        const box = await this._getBoundingBox();
+        return box.x + box.width / 2;
+    }
+
+    async getCenterY() {
+        const box = await this._getBoundingBox();
+        return box.y + box.height / 2;
     }
 
     /**
