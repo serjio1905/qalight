@@ -186,7 +186,7 @@ export class QA {
         return this;
     }
 
-    get(tag, identifiers = [], exceptIdentifiers = [], index = 0, aroundDepth = 0) {
+    get(tag, identifiers = [], index = 0, exceptIdentifiers = [], aroundDepth = 0) {
         this._validateTag(tag);
         const normalizedIdentifiers = this._normalizeIdentifiers(identifiers, exceptIdentifiers);
         this.queue.push({
@@ -199,7 +199,7 @@ export class QA {
         return this;
     }
 
-    getAround(tag, identifiers = [], exceptIdentifiers = [], index = 0, aroundDepth = 5) {
+    getAround(tag, identifiers = [], index = 0, exceptIdentifiers = [], aroundDepth = 5) {
         return this.get(tag, identifiers, exceptIdentifiers, index, aroundDepth);
     }
 
