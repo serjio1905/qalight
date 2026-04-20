@@ -545,6 +545,31 @@ export class QA {
         return styles;
     }
 
+    async getIndex() {
+        await this._executeQueue();
+        const domPath = this.currentElement.data._domPath;
+        const bestDistancMatched = 0;
+        for (const element of this.matchedElements) {
+            if (element.locator === this.currentElement.locator) {
+                element.data._distanceMatched = -1;
+                continue;
+            }
+            const elementDomPath = element.data._domPath;
+            const distance = domPath.reduce((acc, current, index) => {
+                return acc + Math.abs(current.index - elementDomPath[index].index);
+            }, 0);
+            if (distance < bestDomPathMatched) {
+                bestDistancMatched = distance;
+            }
+            element.data._distanceMAtched = distance;
+        }
+        return this.matchedElements.filter(
+            (element) =>
+                (element.data._distanceMatched === bestDistancMatched && bestDistancMatched > 0) ||
+                element.data._distanceMatched === -1
+        );
+    }
+
     async count() {
         await this._executeQueue(0, true);
         return this.matchedElements.length;
