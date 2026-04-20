@@ -854,7 +854,9 @@ export class QA {
                 throw new Error(`Element does not exist: ${this._describeLastElementInQueue()}`);
             }
             await expect(this.currentElement.locator.first()).toBeVisible();
-            await this._showHint(`${this._describeLastElementInQueue()} exists`, "success");
+            if (throwError) {
+                await this._showHint(`${this._describeLastElementInQueue()} exists`, "success");
+            }
         } catch (error) {
             if (throwError) {
                 if (this.safeMode) {
