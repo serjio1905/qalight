@@ -554,22 +554,18 @@ export class QA {
                 biggestDistance = distance;
             }
         }
-        let results = this.matchedElements.filter(
-            (element) =>
-                element.data._domPath.length === biggestDistance &&
-                element.data.text?.toLowerCase().includes(searchWorld.toLowerCase())
-        );
+        let results = this.matchedElements.filter((element) => element.data._domPath.length === biggestDistance);
         let index = -1;
-        for (const element of results) {
-            if (element.data.text?.toLowerCase().includes(searchWorld.toLowerCase())) {
-                index = element.index;
+        for (let i = 0; i < results.length; i++) {
+            if (results[i].data.text?.toLowerCase().includes(searchWorld.toLowerCase())) {
+                index = i;
                 break;
             }
         }
         if (index === -1) {
-            for (const element of results) {
-                if (element.data.html?.toLowerCase().includes(searchWorld.toLowerCase())) {
-                    index = element.index;
+            for (let i = 0; i < results.length; i++) {
+                if (results[i].data.html?.toLowerCase().includes(searchWorld.toLowerCase())) {
+                    index = i;
                     break;
                 }
             }
