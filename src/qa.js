@@ -570,7 +570,10 @@ export class QA {
                 }
             }
         }
-        this._showHint(`Gained index of ${this._describeLastElementInQueue()} ${searchWorld} is ${index}`, "info");
+        await this._showHint(
+            `Gained index of ${this._describeLastElementInQueue()} ${searchWorld} is ${index}`,
+            "info"
+        );
         await this._hideHint();
         return index;
     }
@@ -640,6 +643,7 @@ export class QA {
 
     async getWidth() {
         const box = await this._getBoundingBox();
+        await this._showHint(`Gained width of ${this._describeLastElementInQueue()} is ${box.width}px`, "info");
         return box.width;
     }
 
