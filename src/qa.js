@@ -483,6 +483,35 @@ export class QA {
         return this;
     }
 
+    async drag(x, y, percentage = false) {
+        await this._executeQueue();
+        try {
+            await this._showHint(`Dragging ${this._describeLastElementInQueue()}`, "info");
+            const element = this.currentElement.locator;
+            let xPixels = x;
+            let yPixels = y;
+            const box = await element.boundingBox();
+            if (percentage) {
+                xPixels = (x / 100) * box.width;
+                yPixels = (y / 100) * box.height;
+            }
+            const startX = box.x + box.width / 2;
+            const startY = box.y + box.height / 2;
+            await page.mouse.move(startX, startY);
+            await page.mouse.down();
+            await page.mouse.move(startX + xPixels, startY + yPixels, { steps: 10 });
+            await page.mouse.up();
+        } catch (error) {
+            if (this.safeMode) {
+                await this.pause(`Failed to drag ${this._describeLastElementInQueue()}`);
+            } else {
+                await this.abort();
+            }
+        }
+        await this._hideHint();
+        return this;
+    }
+
     async getStyles() {
         await this._executeQueue();
         const styles = await this.currentElement.locator.evaluate((el) => {
