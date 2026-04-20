@@ -638,33 +638,46 @@ export class QA {
 
     async getHeight() {
         const box = await this._getBoundingBox();
+        await this._showHint(`Gained height of ${this._describeLastElementInQueue()} is ${box.height}px`, "info");
+        await this._hideHint();
         return box.height;
     }
 
     async getWidth() {
         const box = await this._getBoundingBox();
         await this._showHint(`Gained width of ${this._describeLastElementInQueue()} is ${box.width}px`, "info");
+        await this._hideHint();
         return box.width;
     }
 
     async getX() {
         const box = await this._getBoundingBox();
+        await this._showHint(`Gained x of ${this._describeLastElementInQueue()} is ${box.x}px`, "info");
+        await this._hideHint();
         return box.x;
     }
 
     async getY() {
         const box = await this._getBoundingBox();
+        await this._showHint(`Gained y of ${this._describeLastElementInQueue()} is ${box.y}px`, "info");
+        await this._hideHint();
         return box.y;
     }
 
     async getCenterX() {
         const box = await this._getBoundingBox();
-        return box.x + box.width / 2;
+        const centerX = box.x + box.width / 2;
+        await this._showHint(`Gained center x of ${this._describeLastElementInQueue()} is ${centerX}px`, "info");
+        await this._hideHint();
+        return centerX;
     }
 
     async getCenterY() {
         const box = await this._getBoundingBox();
-        return box.y + box.height / 2;
+        const centerY = box.y + box.height / 2;
+        await this._showHint(`Gained center y of ${this._describeLastElementInQueue()} is ${centerY}px`, "info");
+        await this._hideHint();
+        return centerY;
     }
 
     /**
