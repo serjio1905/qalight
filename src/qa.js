@@ -483,7 +483,7 @@ export class QA {
         return this;
     }
 
-    async drag(x, y, percentage = false) {
+    async drag(x = 0, y = 0, percentage = false) {
         await this._executeQueue();
         try {
             const element = this.currentElement.locator;
