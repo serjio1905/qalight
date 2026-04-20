@@ -488,24 +488,35 @@ export class QA {
         try {
             await this._showHint(`Dragging ${this._describeLastElementInQueue()}`, "info");
             const element = this.currentElement.locator;
+            if (!Number.isFinite(x) || !Number.isFinite(y)) {
+                throw new Error(
+                    `Invalid drag coordinates for ${this._describeLastElementInQueue()}: x="${x}", y="${y}". Both values must be finite numbers.`
+                );
+            }
             let xPixels = x;
             let yPixels = y;
             const box = await element.boundingBox();
+            if (!box) {
+                throw new Error(
+                    `Cannot drag ${this._describeLastElementInQueue()} because its bounding box is unavailable. Make sure the element is rendered and visible.`
+                );
+            }
             if (percentage) {
                 xPixels = (x / 100) * box.width;
                 yPixels = (y / 100) * box.height;
             }
             const startX = box.x + box.width / 2;
             const startY = box.y + box.height / 2;
-            await page.mouse.move(startX, startY);
-            await page.mouse.down();
-            await page.mouse.move(startX + xPixels, startY + yPixels, { steps: 10 });
-            await page.mouse.up();
+            await this.page.mouse.move(startX, startY);
+            await this.page.mouse.down();
+            await this.page.mouse.move(startX + xPixels, startY + yPixels, { steps: 10 });
+            await this.page.mouse.up();
         } catch (error) {
+            const errorMessage = `Failed to drag ${this._describeLastElementInQueue()}: ${error.message}`;
             if (this.safeMode) {
-                await this.pause(`Failed to drag ${this._describeLastElementInQueue()}`);
+                await this.pause(errorMessage);
             } else {
-                await this.abort();
+                await this.abort(errorMessage);
             }
         }
         await this._hideHint();
