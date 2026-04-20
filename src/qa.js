@@ -570,6 +570,8 @@ export class QA {
                 }
             }
         }
+        this._showHint(`Gained index of ${this._describeLastElementInQueue()} ${searchWorld} is ${index}`, "info");
+        await this._hideHint();
         return index;
     }
 
