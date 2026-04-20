@@ -545,29 +545,36 @@ export class QA {
         return styles;
     }
 
-    async getIndex() {
+    async indexOf(searchWorld = "") {
         await this._executeQueue();
-        const domPath = this.currentElement.data._domPath;
-        const bestDistancMatched = 0;
+        let biggestDistance = 0;
         for (const element of this.matchedElements) {
-            if (element.locator === this.currentElement.locator) {
-                element.data._distanceMatched = -1;
-                continue;
+            let distance = element.data._domPath.length;
+            if (distance > biggestDistance) {
+                biggestDistance = distance;
             }
-            const elementDomPath = element.data._domPath;
-            const distance = domPath.reduce((acc, current, index) => {
-                return acc + Math.abs(current.index - elementDomPath[index].index);
-            }, 0);
-            if (distance < bestDomPathMatched) {
-                bestDistancMatched = distance;
-            }
-            element.data._distanceMAtched = distance;
         }
-        return this.matchedElements.filter(
+        let results = this.matchedElements.filter(
             (element) =>
-                (element.data._distanceMatched === bestDistancMatched && bestDistancMatched > 0) ||
-                element.data._distanceMatched === -1
+                element.data._domPath.length === biggestDistance &&
+                element.data.text?.toLowerCase().includes(searchWorld.toLowerCase())
         );
+        let index = -1;
+        for (const element of results) {
+            if (element.data.text?.toLowerCase().includes(searchWorld.toLowerCase())) {
+                index = element.index;
+                break;
+            }
+        }
+        if (index === -1) {
+            for (const element of results) {
+                if (element.data.html?.toLowerCase().includes(searchWorld.toLowerCase())) {
+                    index = element.index;
+                    break;
+                }
+            }
+        }
+        return index;
     }
 
     async count() {
