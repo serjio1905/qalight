@@ -916,6 +916,54 @@ export class QA {
         return true;
     }
 
+    async shouldBeEnabled(throwError = true) {
+        await this._executeQueue();
+        try {
+            if (!this.currentElement.data.disabled) {
+                await this._showHint(`${this._describeLastElementInQueue()} is enabled`, "success");
+            } else {
+                if (throwError) {
+                    if (this.safeMode) {
+                        await this.pause(`Failed to check if ${this._describeLastElementInQueue()} is enabled`);
+                    } else {
+                        await this.abort();
+                    }
+                }
+                return false;
+            }
+        } catch (error) {
+            if (throwError) {
+                if (this.safeMode) {
+                    await this.pause(`Failed to check if ${this._describeLastElementInQueue()} is enabled`);
+                } else {
+                    await this.abort();
+                }
+            }
+            return false;
+        }
+        await this._hideHint();
+        return true;
+    }
+
+    async shouldBeDisabled(throwError = true) {
+        await this._executeQueue();
+        try {
+            chaiExpect(this.currentElement.data.disabled).to.be.true;
+            await this._showHint(`${this._describeLastElementInQueue()} is disabled`, "success");
+        } catch (error) {
+            if (throwError) {
+                if (this.safeMode) {
+                    await this.pause(`Failed to check if ${this._describeLastElementInQueue()} is disabled`);
+                } else {
+                    await this.abort();
+                }
+            }
+            return false;
+        }
+        await this._hideHint();
+        return true;
+    }
+
     async shouldContainClass(className, throwError = true) {
         await this._executeQueue();
         try {
