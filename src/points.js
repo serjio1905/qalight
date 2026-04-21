@@ -273,6 +273,11 @@ export class WeightPointCalculator {
                     ...attrs,
                 };
                 let identifier = dom.text || dom.name || dom.id || dom.className || dom.placeholder;
+                if (dom.disabled === "" || dom.disabled === true || dom.disabled === "true") {
+                    dom.disabled = true;
+                } else {
+                    dom.disabled = false;
+                }
                 dom._stringified = `${el.tagName.toLowerCase()} (${identifier})`;
                 return dom;
             }),
