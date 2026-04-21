@@ -1021,6 +1021,40 @@ export class QA {
         }
     }
 
+    async copy(text) {
+        await this.page.evaluate((text) => {
+            navigator.clipboard.writeText(text);
+        }, text);
+        await this._showHint(`Copied ${text} to clipboard`, "success");
+        await this._hideHint();
+    }
+
+    async paste() {
+        // Get the currently copied-to-clipboard value from the browser context
+        let clipboardValue;
+        try {
+            clipboardValue = await this.page.evaluate(async () => {
+                // Prefer modern Clipboard API
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    return await navigator.clipboard.readText();
+                }
+                // Fallback for older browsers (rarely needed in automation)
+                if (window.clipboardData && window.clipboardData.getData) {
+                    // IE
+                    return window.clipboardData.getData("Text");
+                }
+                // No clipboard access
+                return null;
+            });
+        } catch (error) {
+            await this._showHint(`Failed to get clipboard value: ${error.message}`, "error");
+            return null;
+        } finally {
+            await this._hideHint();
+        }
+        return clipboardValue;
+    }
+
     async _goToParent(item) {
         if (!this.currentElement) return;
         this.currentElement.locator = this.currentElement.locator.locator(`..`).nth(item.parent);
