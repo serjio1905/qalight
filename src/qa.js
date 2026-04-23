@@ -811,7 +811,9 @@ export class QA {
         } catch (error) {
             if (throwError) {
                 if (this.safeMode) {
-                    await this.pause(`Failed to check if ${this._describeLastElementInQueue()} has value ${value}`);
+                    await this.pause(
+                        `Failed to check if ${this._describeLastElementInQueue()} has value ${value}, actual value is ${actualValue}, expected value is ${expectedValue}`
+                    );
                 } else {
                     await this.abort();
                 }
