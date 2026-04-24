@@ -1257,6 +1257,9 @@ export class QA {
             }
         }
         const matchedElementsExludeParents = matchedElements.filter((element) => !element.data._isParent);
+        if (index < 0) {
+            index = matchedElementsExludeParents.length + index;
+        }
         return { element: matchedElementsExludeParents?.[index] ?? null, elements: matchedElementsExludeParents };
     }
 
