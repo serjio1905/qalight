@@ -208,7 +208,7 @@ export class QA {
         return this;
     }
 
-    setRestriction(tag, identifiers = [], exceptIdentifiers = [], index = 0) {
+    setRestriction(tag, identifiers = [], index = 0, exceptIdentifiers = []) {
         const normalizedIdentifiers = this._normalizeIdentifiers(identifiers, exceptIdentifiers);
         this.parentElement = {
             tag,
