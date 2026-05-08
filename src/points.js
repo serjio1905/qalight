@@ -11,6 +11,7 @@ export class WeightPointCalculator {
         name: 10,
         value: 10,
         text: 10,
+        innerText: 10,
         columnName: 10,
         columnThHtml: 10,
         placeholder: 8,
@@ -263,6 +264,7 @@ export class WeightPointCalculator {
 
                     // everything else
                     text: elumitateHtmlChars(el.textContent),
+                    innerText: elumitateHtmlChars(el.innerText),
                     _parentText: elumitateHtmlChars(el.parentElement?.textContent?.trim() || null),
                     html: elumitateHtmlChars(el.outerHTML),
                     columnName: elumitateHtmlChars(getTdColumnName?.(el)),
