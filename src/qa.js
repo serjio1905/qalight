@@ -1643,7 +1643,14 @@ export class QA {
             traceLines.push(`Test: ${this.testInfo.title}`);
         }
         if (this.testInfo?.file) {
-            traceLines.push(`Test file: ${this.testInfo.file}`);
+            const testLocationParts = [this.testInfo.file];
+            if (typeof this.testInfo.line === "number") {
+                testLocationParts.push(this.testInfo.line);
+                if (typeof this.testInfo.column === "number") {
+                    testLocationParts.push(this.testInfo.column);
+                }
+            }
+            traceLines.push(`Test file: ${testLocationParts.join(":")}`);
         }
         if (specFrame) {
             traceLines.push(`Spec location: ${specFrame.replace(/^\s*at\s+/, "")}`);
