@@ -1064,14 +1064,14 @@ export class QA {
 
     async showTrace() {
         const trace = this._pausedExecutionTrace || this._buildExecutionTrace("Trace requested outside pause()");
-        console.error(trace);
+        console.log(trace);
         try {
             await this.page.evaluate((traceText) => {
-                console.error(traceText);
+                console.log(traceText);
             }, trace);
         } catch (error) {}
         if (QA.reporter) {
-            await QA.reporter.log(trace, "error");
+            await QA.reporter.log(trace, "info");
         }
     }
 
@@ -1632,6 +1632,11 @@ export class QA {
         const relevantFrames = stackLines.filter((line) => isWorkspaceFrame(line) && !isInternalQaFrame(line));
         const fallbackFrames = stackLines.filter((line) => isWorkspaceFrame(line));
         const displayFrames = (relevantFrames.length > 0 ? relevantFrames : fallbackFrames).slice(0, 12);
+        const specFrame =
+            displayFrames.find((line) => /\.spec\.[jt]sx?:\d+:\d+/.test(line)) ||
+            relevantFrames.find((line) => /\.spec\.[jt]sx?:\d+:\d+/.test(line)) ||
+            fallbackFrames.find((line) => /\.spec\.[jt]sx?:\d+:\d+/.test(line)) ||
+            null;
 
         const traceLines = [`QA execution trace: ${reason}`];
         if (this.testInfo?.title) {
@@ -1639,6 +1644,9 @@ export class QA {
         }
         if (this.testInfo?.file) {
             traceLines.push(`Test file: ${this.testInfo.file}`);
+        }
+        if (specFrame) {
+            traceLines.push(`Spec location: ${specFrame.replace(/^\s*at\s+/, "")}`);
         }
         if (this.page && typeof this.page.url === "function") {
             try {
