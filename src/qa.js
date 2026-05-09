@@ -1064,9 +1064,14 @@ export class QA {
 
     async showTrace() {
         const trace = this._pausedExecutionTrace || this._buildExecutionTrace("Trace requested outside pause()");
-        console.log(trace);
+        console.error(trace);
+        try {
+            await this.page.evaluate((traceText) => {
+                console.error(traceText);
+            }, trace);
+        } catch (error) {}
         if (QA.reporter) {
-            await QA.reporter.log(trace, "info");
+            await QA.reporter.log(trace, "error");
         }
     }
 
