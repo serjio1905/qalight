@@ -625,6 +625,14 @@ export class QA {
         return this.getAttribute("text", showHint);
     }
 
+    /**
+     * @param {boolean} showHint
+     * @returns {Promise<string>}
+     */
+    async getHtml(showHint = true) {
+        return this.getAttribute("outerHTML", showHint);
+    }
+
     async _getBoundingBox() {
         await this._executeQueue();
         const box = await this.currentElement.locator.boundingBox();
