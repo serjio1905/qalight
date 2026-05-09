@@ -65,6 +65,7 @@ export class QA {
         }
     ) {
         this._originalOptions = { ...options };
+        this.testInfo = options.testInfo || null;
         if (options.testInfo) {
             QA.reporter = new QAReporter(page, options.testInfo);
         }
@@ -100,6 +101,7 @@ export class QA {
         this._expect = new ExpectFramework(this);
 
         this._pauseResolver = null;
+        this._pausedExecutionTrace = null;
         this.consoleLogger = new ConsoleLogger(page, options.consoleLoggerOptions);
         this.consoleLogger.startLogging();
         return this;
@@ -1040,6 +1042,7 @@ export class QA {
         ],
         type = "warning"
     ) {
+        this._pausedExecutionTrace = this._buildExecutionTrace(text);
         return new Promise(async (resolve) => {
             await this._showHint(text, type, buttons);
             // setTimeout(() => {
@@ -1060,9 +1063,11 @@ export class QA {
     }
 
     async showTrace() {
-        await this.page.evaluate(() => {
-            console.log(new Error().stack);
-        });
+        const trace = this._pausedExecutionTrace || this._buildExecutionTrace("Trace requested outside pause()");
+        console.log(trace);
+        if (QA.reporter) {
+            await QA.reporter.log(trace, "info");
+        }
     }
 
     async abort(msg = "Aborted by user.") {
@@ -1601,6 +1606,48 @@ export class QA {
             this._shadowDescription = description;
         }
         return description || this._shadowDescription;
+    }
+
+    _buildExecutionTrace(reason = "Paused") {
+        const traceError = new Error(reason);
+        if (typeof Error.captureStackTrace === "function") {
+            Error.captureStackTrace(traceError, this._buildExecutionTrace);
+        }
+
+        const rawStack = typeof traceError.stack === "string" ? traceError.stack : `${reason}`;
+        const lines = rawStack.split("\n").map((line) => line.trimEnd());
+        const stackLines = lines.slice(1).filter(Boolean);
+        const cwd =
+            typeof process !== "undefined" && typeof process.cwd === "function" ? process.cwd().replace(/\\/g, "/") : "";
+
+        const isWorkspaceFrame = (line) => cwd && line.replace(/\\/g, "/").includes(cwd);
+        const isInternalQaFrame = (line) =>
+            /\/src\/(qa|expect|console|reporter)\.js:\d+:\d+/.test(line.replace(/\\/g, "/"));
+
+        const relevantFrames = stackLines.filter((line) => isWorkspaceFrame(line) && !isInternalQaFrame(line));
+        const fallbackFrames = stackLines.filter((line) => isWorkspaceFrame(line));
+        const displayFrames = (relevantFrames.length > 0 ? relevantFrames : fallbackFrames).slice(0, 12);
+
+        const traceLines = [`QA execution trace: ${reason}`];
+        if (this.testInfo?.title) {
+            traceLines.push(`Test: ${this.testInfo.title}`);
+        }
+        if (this.testInfo?.file) {
+            traceLines.push(`Test file: ${this.testInfo.file}`);
+        }
+        if (this.page && typeof this.page.url === "function") {
+            try {
+                traceLines.push(`Page: ${this.page.url()}`);
+            } catch (error) {}
+        }
+        traceLines.push("Relevant stack frames:");
+        if (displayFrames.length > 0) {
+            traceLines.push(...displayFrames);
+        } else {
+            traceLines.push(...stackLines.slice(0, 12));
+        }
+
+        return traceLines.join("\n");
     }
 
     async _checkIfVisible(target = this.currentElement.locator) {
