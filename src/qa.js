@@ -1033,6 +1033,10 @@ export class QA {
                 text: "Stop",
                 onClick: async () => await this.abort(),
             },
+            {
+                text: "Show trace in console",
+                onClick: async () => await this.showTrace(),
+            },
         ],
         type = "warning"
     ) {
@@ -1053,6 +1057,12 @@ export class QA {
             this._pauseResolver();
             this._pauseResolver = null;
         }
+    }
+
+    async showTrace() {
+        await this.page.evaluate(() => {
+            console.log(new Error().stack);
+        });
     }
 
     async abort(msg = "Aborted by user.") {
@@ -1464,7 +1474,7 @@ export class QA {
                     wrapper.style.right = "0";
                     wrapper.style.zIndex = "2147483647";
                     wrapper.style.width = "100vw";
-                    wrapper.style.height = "20px";
+                    wrapper.style.minHeight = "20px";
                     wrapper.style.backgroundColor = color;
                     document.documentElement.appendChild(wrapper);
                     // document.body.style.setProperty("padding-top", "30px", "important");
