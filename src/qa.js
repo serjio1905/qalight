@@ -1025,6 +1025,7 @@ export class QA {
      * @param {string} text - The text to show in the hint.
      * @param {Array<{ text: string, onClick: () => void }>} buttons - The buttons to show in the hint.
      * @param {"info" | "success" | "warning" | "error"} type - The type of the hint.
+     * @param {string} traceDetails - Extra details to include only when the trace is shown.
      * @returns {Promise<void>}
      */
     pause(
@@ -1040,9 +1041,10 @@ export class QA {
                 onClick: async () => await this.showTrace(),
             },
         ],
-        type = "warning"
+        type = "warning",
+        traceDetails = ""
     ) {
-        this._pausedExecutionTrace = this._buildExecutionTrace(text);
+        this._pausedExecutionTrace = this._buildExecutionTrace(text, traceDetails);
         return new Promise(async (resolve) => {
             await this._showHint(text, type, buttons);
             // setTimeout(() => {
@@ -1613,7 +1615,7 @@ export class QA {
         return description || this._shadowDescription;
     }
 
-    _buildExecutionTrace(reason = "Paused") {
+    _buildExecutionTrace(reason = "Paused", details = "") {
         const traceError = new Error(reason);
         if (typeof Error.captureStackTrace === "function") {
             Error.captureStackTrace(traceError, this._buildExecutionTrace);
@@ -1665,6 +1667,9 @@ export class QA {
             traceLines.push(...displayFrames);
         } else {
             traceLines.push(...stackLines.slice(0, 12));
+        }
+        if (details) {
+            traceLines.push(details);
         }
 
         return traceLines.join("\n");

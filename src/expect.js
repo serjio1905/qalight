@@ -1,5 +1,101 @@
 import { expect as chaiExpect } from "chai";
 
+const LONG_VALUE_LENGTH = 200;
+
+function stringifyValue(value) {
+    if (typeof value === "string") {
+        return value;
+    }
+    if (typeof value === "undefined") {
+        return "undefined";
+    }
+    try {
+        const serializedValue = JSON.stringify(value);
+        if (typeof serializedValue === "string") {
+            return serializedValue;
+        }
+    } catch (error) {}
+    return String(value);
+}
+
+export function buildEqualMismatchDetails(actualValue, expectedValue) {
+    const actualText = stringifyValue(actualValue);
+    const expectedText = stringifyValue(expectedValue);
+    if (actualText.length <= LONG_VALUE_LENGTH && expectedText.length <= LONG_VALUE_LENGTH) {
+        return {
+            message: `Failed to check if ${actualText} is equal to ${expectedText}`,
+            traceDetails: "",
+        };
+    }
+
+    const maxLength = Math.max(actualText.length, expectedText.length);
+    let mismatchCount = 0;
+    let firstMismatchIndex = -1;
+    for (let index = 0; index < maxLength; index++) {
+        if (actualText[index] !== expectedText[index]) {
+            mismatchCount++;
+            if (firstMismatchIndex === -1) {
+                firstMismatchIndex = index;
+            }
+        }
+    }
+
+    let commonPrefixLength = 0;
+    while (
+        commonPrefixLength < actualText.length &&
+        commonPrefixLength < expectedText.length &&
+        actualText[commonPrefixLength] === expectedText[commonPrefixLength]
+    ) {
+        commonPrefixLength++;
+    }
+
+    let commonSuffixLength = 0;
+    while (
+        commonSuffixLength < actualText.length - commonPrefixLength &&
+        commonSuffixLength < expectedText.length - commonPrefixLength &&
+        actualText[actualText.length - 1 - commonSuffixLength] ===
+            expectedText[expectedText.length - 1 - commonSuffixLength]
+    ) {
+        commonSuffixLength++;
+    }
+
+    const markMismatch = (value) => {
+        const prefix = value.slice(0, commonPrefixLength);
+        const mismatchEnd = value.length - commonSuffixLength;
+        const mismatch = value.slice(commonPrefixLength, mismatchEnd) || "(empty)";
+        const suffix = commonSuffixLength > 0 ? value.slice(value.length - commonSuffixLength) : "";
+        return `${prefix}<<<${mismatch}>>>${suffix}`;
+    };
+
+    const mismatchPercent = maxLength === 0 ? 0 : (mismatchCount / maxLength) * 100;
+    const summary = [
+        "Failed to check if actual value is equal to expected value.",
+        `Actual length: ${actualText.length} chars; expected length: ${expectedText.length} chars.`,
+        `Mismatch: ${mismatchCount} of ${maxLength} chars by position (${mismatchPercent.toFixed(1)}%).`,
+        `First mismatch at index ${firstMismatchIndex}.`,
+        'Use "Show trace in console" to view full values with mismatched sections marked.',
+    ].join(" ");
+
+    const traceDetails = [
+        "",
+        "Equal comparison details:",
+        `Actual length: ${actualText.length} chars`,
+        `Expected length: ${expectedText.length} chars`,
+        `Mismatching by position: ${mismatchCount} of ${maxLength} chars (${mismatchPercent.toFixed(1)}%)`,
+        `First mismatch index: ${firstMismatchIndex}`,
+        "Markers <<< >>> wrap the differing section.",
+        "Actual:",
+        markMismatch(actualText),
+        "Expected:",
+        markMismatch(expectedText),
+    ].join("\n");
+
+    return {
+        message: summary,
+        traceDetails,
+    };
+}
+
 export class ExpectFramework {
     /**
      * @typedef {import("./qa.js").QA} QA
@@ -24,10 +120,11 @@ export class ExpectFramework {
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
+                const mismatchDetails = buildEqualMismatchDetails(actualValue, expectedValue);
                 if (this.qa.safeMode) {
-                    await this.qa.pause(`Failed to check if ${actualValue} is equal to ${expectedValue}`);
+                    await this.qa.pause(mismatchDetails.message, undefined, undefined, mismatchDetails.traceDetails);
                 } else {
-                    this.qa.abort(error.message);
+                    this.qa.abort(mismatchDetails.message);
                 }
             }
             return false;
