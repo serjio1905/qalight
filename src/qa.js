@@ -1,5 +1,8 @@
 import { expect } from "@playwright/test";
 import { expect as chaiExpect } from "chai";
+import { tmpdir } from "os";
+import { join } from "path";
+import { randomUUID } from "crypto";
 import { API } from "./api.js";
 import { ExpectFramework } from "./expect.js";
 import { DEFAULT_WAIT_TIME, TAGS } from "./constants.js";
@@ -1078,6 +1081,18 @@ export class QA {
     }
 
     async abort(msg = "Aborted by user.") {
+        // Capture where in the *.spec file execution stopped, and a screenshot of this moment.
+        const trace = this._pausedExecutionTrace || this._buildExecutionTrace(msg);
+        console.log(trace);
+        if (QA.reporter) {
+            try {
+                await QA.reporter.log(trace, "error");
+            } catch (error) {}
+            try {
+                await QA.reporter.snapshot(`Aborted: ${msg}`);
+            } catch (error) {}
+        }
+
         this.continue();
         await this._showHint(msg, "error");
         await this.waitFor(2000, false);
@@ -1125,6 +1140,46 @@ export class QA {
             await this._hideHint();
         }
         return clipboardValue;
+    }
+
+    /**
+     * Trigger a file download and save it to a temp path. Use when a click/action
+     * causes the browser to download a file (report/export button, etc.).
+     * @param {string} hint - Description shown in the snapshot/log.
+     * @param {(page: import('playwright').Page) => Promise<void>} triggerAction - Performs the action that starts the download.
+     * @param {"info" | "success" | "warning" | "error"} [type="info"]
+     * @returns {Promise<{ filename: string, path: string, download: import('playwright').Download }>}
+     */
+    async download(hint, triggerAction, type = "info") {
+        await this._showHint(hint, type);
+        try {
+            const [dl] = await Promise.all([this.page.waitForEvent("download"), triggerAction(this.page)]);
+            const path = join(tmpdir(), `qalight_download_${randomUUID()}_${dl.suggestedFilename()}`);
+            await dl.saveAs(path);
+            return { filename: dl.suggestedFilename(), path, download: dl };
+        } catch (error) {
+            if (this.safeMode) {
+                await this.pause(`Failed to download after "${hint}". Perform manual action and continue.`);
+            } else {
+                await this.abort();
+            }
+        } finally {
+            await this._hideHint();
+        }
+    }
+
+    /**
+     * Same as `download`, but also parses the saved file with the given parser
+     * (e.g. `parseXlsx`/`parseCsv` from `qalight/src/files/*`).
+     * @param {string} hint
+     * @param {(page: import('playwright').Page) => Promise<void>} triggerAction
+     * @param {(path: string) => any} parser
+     * @param {"info" | "success" | "warning" | "error"} [type="info"]
+     * @returns {Promise<{ filename: string, path: string, rows: any }>}
+     */
+    async downloadAndParse(hint, triggerAction, parser, type = "info") {
+        const { filename, path } = await this.download(hint, triggerAction, type);
+        return { filename, path, rows: parser(path) };
     }
 
     async _goToParent(item) {
@@ -1625,7 +1680,9 @@ export class QA {
         const lines = rawStack.split("\n").map((line) => line.trimEnd());
         const stackLines = lines.slice(1).filter(Boolean);
         const cwd =
-            typeof process !== "undefined" && typeof process.cwd === "function" ? process.cwd().replace(/\\/g, "/") : "";
+            typeof process !== "undefined" && typeof process.cwd === "function"
+                ? process.cwd().replace(/\\/g, "/")
+                : "";
 
         const isWorkspaceFrame = (line) => cwd && line.replace(/\\/g, "/").includes(cwd);
         const isInternalQaFrame = (line) =>

@@ -32,6 +32,8 @@ await qa.get("h1").shouldHaveText("Dashboard");
 - `QAReporter`: optional Playwright test attachment logger.
 - `QAAPI`: the HTTP helper exposed as `qa.api`.
 - `ExpectFramework`: the value assertion helper exposed as `qa.expect`.
+- `parseXlsx`: reads the first worksheet of a downloaded `.xlsx` file into rows. Pair with `qa.downloadAndParse`.
+- `parseCsv`: reads a downloaded `.csv` file into rows. Pair with `qa.downloadAndParse`.
 
 `QAError` is an `Error` subclass. Its constructor is `new QAError(message)`;
 the message describes the invalid tag, missing element, or failed restriction.
@@ -699,6 +701,42 @@ Returns: `Promise<string | null>`.
 Reads browser clipboard text. It uses the modern Clipboard API first and a
 legacy `window.clipboardData` fallback. On failure it shows an error hint and
 returns `null`.
+
+#### `qa.download(hint, triggerAction, type = "info")`
+
+Parameters:
+
+- `hint` (`string`): description shown in the snapshot/log.
+- `triggerAction` (`(page: Page) => Promise<void>`): performs the action that
+  starts the download (e.g. clicking an export button).
+- `type` (`"info" | "success" | "warning" | "error"`): hint color/type.
+
+Returns: `Promise<{ filename: string, path: string, download: Download }>`.
+
+Races `page.waitForEvent("download")` against `triggerAction(page)`, then saves
+the download to a temp file. Use this instead of dropping into raw Playwright
+whenever an action causes a file download (report/export buttons, etc.).
+
+#### `qa.downloadAndParse(hint, triggerAction, parser, type = "info")`
+
+Parameters: same as `qa.download`, plus `parser` (`(path: string) => any`) — a
+function that reads the saved file, e.g. `parseXlsx`/`parseCsv` from
+`qalight/src/files/xlsx.js` / `qalight/src/files/csv.js` (also exported from
+the package root).
+
+Returns: `Promise<{ filename: string, path: string, rows: any }>`.
+
+Convenience wrapper around `qa.download` that also parses the result:
+
+```js
+import { parseXlsx } from "qalight";
+
+const { filename, rows } = await qa.downloadAndParse(
+    "Export report to Excel",
+    (page) => page.getByRole("button", { name: /Export/ }).click(),
+    parseXlsx
+);
+```
 
 ## `qa.expect`: value assertions
 
