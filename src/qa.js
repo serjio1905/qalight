@@ -10,6 +10,10 @@ import { QAReporter } from "./reporter.js";
 import { WeightPointCalculator } from "./points.js";
 import { ConsoleLogger } from "./console.js";
 
+// How long `_highlight` may wait for its locator to resolve before skipping the highlight.
+// Cosmetic only — see `_highlight` for why it must be bounded.
+const HIGHLIGHT_RESOLVE_TIMEOUT = 1000;
+
 export class QAError extends Error {
     constructor(message) {
         super(message);
@@ -1585,21 +1589,32 @@ export class QA {
 
     async _highlight(locator, { ms = 800 } = {}) {
         if (!this.withHighlight) return;
-        await locator.evaluate(async (el, ms) => {
-            const prevOutline = el.style.outline;
-            const prevOutlineOffset = el.style.outlineOffset;
-            const backgroundColor = el.style.backgroundColor;
+        // `locator.evaluate` auto-waits for the element to resolve. A caller can legitimately hand
+        // us a locator whose element is already gone (e.g. a hint shown right after a click that
+        // closed the dropdown containing the clicked <li>), and since consumers typically leave
+        // Playwright's `actionTimeout` unset, that wait is unbounded — it would hang until the
+        // whole test times out. Highlighting is purely cosmetic, so bound it and give up quietly.
+        try {
+            await locator.evaluate(
+                async (el, ms) => {
+                    const prevOutline = el.style.outline;
+                    const prevOutlineOffset = el.style.outlineOffset;
+                    const backgroundColor = el.style.backgroundColor;
 
-            el.style.outline = "3px solid #ff00ff";
-            el.style.outlineOffset = "2px";
-            el.style.backgroundColor = "#ff00ff";
+                    el.style.outline = "3px solid #ff00ff";
+                    el.style.outlineOffset = "2px";
+                    el.style.backgroundColor = "#ff00ff";
 
-            setTimeout(() => {
-                el.style.outline = prevOutline;
-                el.style.outlineOffset = prevOutlineOffset;
-                el.style.backgroundColor = backgroundColor;
-            }, ms);
-        }, ms);
+                    setTimeout(() => {
+                        el.style.outline = prevOutline;
+                        el.style.outlineOffset = prevOutlineOffset;
+                        el.style.backgroundColor = backgroundColor;
+                    }, ms);
+                },
+                ms,
+                { timeout: HIGHLIGHT_RESOLVE_TIMEOUT }
+            );
+        } catch (error) {}
     }
 
     _cleanText(val) {

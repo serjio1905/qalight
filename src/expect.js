@@ -1,6 +1,8 @@
 import { expect as chaiExpect } from "chai";
 
 const LONG_VALUE_LENGTH = 200;
+// Floor for how long a passing assertion's hint stays on screen, so it's actually readable.
+const MIN_HINT_DISPLAY_MS = 500;
 
 function stringifyValue(value) {
     if (typeof value === "string") {
@@ -104,6 +106,22 @@ export class ExpectFramework {
      */
     constructor(qa) {
         this.qa = qa;
+        // Inherit the QA instance's pacing. Without this, `this.timeout` was undefined and every
+        // `Math.max(this.timeout, 500)` below evaluated to NaN, which `page.waitForTimeout` coerces
+        // to ~1ms — so success hints flashed by instead of staying up for the intended minimum.
+        this.timeout = qa?.timeout;
+    }
+
+    /**
+     * Every assertion below compares plain values, so it has no element context of its own —
+     * `qa.currentElement` still points at whatever the *previous* action touched. Leaving it in
+     * place makes the hint highlight an unrelated element, and if that element is already detached
+     * (a dropdown <li> whose dropdown has since closed, say) `_highlight` would block on it. Clear
+     * it up front so both the success hint and the failure `pause()`/`abort()` hint stay element-free.
+     * @returns {void}
+     */
+    _clearElementContext() {
+        this.qa.currentElement = null;
     }
 
     /**
@@ -114,9 +132,10 @@ export class ExpectFramework {
      */
     async equal(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.equal(expectedValue);
             await this.qa._showHint(`${actualValue} is equal to ${expectedValue}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -140,9 +159,10 @@ export class ExpectFramework {
      */
     async notEqual(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.not.equal(expectedValue);
             await this.qa._showHint(`${actualValue} is not equal to ${expectedValue}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -165,9 +185,10 @@ export class ExpectFramework {
      */
     async contain(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.contain(expectedValue);
             await this.qa._showHint(`${actualValue} contains ${expectedValue}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -190,9 +211,10 @@ export class ExpectFramework {
      */
     async notContain(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.not.contain(expectedValue);
             await this.qa._showHint(`${actualValue} does not contain ${expectedValue}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -215,9 +237,10 @@ export class ExpectFramework {
      */
     async greaterThan(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.be.greaterThan(expectedValue);
             await this.qa._showHint(`${actualValue} is greater than ${expectedValue}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -240,9 +263,10 @@ export class ExpectFramework {
      */
     async lessThan(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.be.lessThan(expectedValue);
             await this.qa._showHint(`${actualValue} is less than ${expectedValue}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -265,9 +289,10 @@ export class ExpectFramework {
      */
     async greaterThanOrEqual(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.be.greaterThanOrEqual(expectedValue);
             await this.qa._showHint(`${actualValue} is greater than or equal to ${expectedValue}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -292,9 +317,10 @@ export class ExpectFramework {
      */
     async lessThanOrEqual(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.be.lessThanOrEqual(expectedValue);
             await this.qa._showHint(`${actualValue} is less than or equal to ${expectedValue}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -317,9 +343,10 @@ export class ExpectFramework {
      */
     async isBetween(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.be.between(expectedValue[0], expectedValue[1]);
             await this.qa._showHint(`${actualValue} is between ${expectedValue[0]} and ${expectedValue[1]}`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -344,12 +371,13 @@ export class ExpectFramework {
      */
     async isNotBetween(actualValue, expectedValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.not.be.between(expectedValue[0], expectedValue[1]);
             await this.qa._showHint(
                 `${actualValue} is not between ${expectedValue[0]} and ${expectedValue[1]}`,
                 "success"
             );
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -373,9 +401,10 @@ export class ExpectFramework {
      */
     async isNotEmpty(actualValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.not.be.empty;
             await this.qa._showHint(`${actualValue} is not empty`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -397,9 +426,10 @@ export class ExpectFramework {
      */
     async isEmpty(actualValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.be.empty;
             await this.qa._showHint(`${actualValue} is empty`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -421,9 +451,10 @@ export class ExpectFramework {
      */
     async isNull(actualValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.be.null;
             await this.qa._showHint(`${actualValue} is null`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -445,9 +476,10 @@ export class ExpectFramework {
      */
     async isNotUndefined(actualValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.not.be.undefined;
             await this.qa._showHint(`${actualValue} is not undefined`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -469,9 +501,10 @@ export class ExpectFramework {
      */
     async notNullOrEmpty(actualValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.not.be.null;
             await this.qa._showHint(`${actualValue} is not null or empty`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
@@ -493,9 +526,10 @@ export class ExpectFramework {
      */
     async nullOrEmpty(actualValue, throwError = true) {
         try {
+            this._clearElementContext();
             chaiExpect(actualValue).to.be.null;
             await this.qa._showHint(`${actualValue} is null or empty`, "success");
-            await this.qa.waitFor(Math.max(this.timeout, 500), false);
+            await this.qa.waitFor(Math.max(Number(this.timeout) || 0, MIN_HINT_DISPLAY_MS), false);
             await this.qa._hideHint();
         } catch (error) {
             if (throwError) {
