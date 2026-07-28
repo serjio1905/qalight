@@ -4,6 +4,7 @@ module.exports = {
     QAReporter: require("./src/reporter").QAReporter,
     QAAPI: require("./src/api").API,
     ExpectFramework: require("./src/expect").ExpectFramework,
+    UserActionRecorder: require("./src/user-actions").UserActionRecorder,
     parseXlsx: require("./src/files/xlsx").parseXlsx,
     parseCsv: require("./src/files/csv").parseCsv,
 };

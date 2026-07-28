@@ -4,6 +4,8 @@ export class QAReporter {
         success: "success",
         warning: "warning",
         error: "error",
+        // Something a human did by hand while the test was paused — never a scripted step.
+        action: "action",
     };
 
     constructor(page, testInfo) {
@@ -20,6 +22,7 @@ export class QAReporter {
                 [QAReporter.TYPES.success]: "✅",
                 [QAReporter.TYPES.warning]: "⚠️",
                 [QAReporter.TYPES.error]: "❌",
+                [QAReporter.TYPES.action]: "👤",
             }[type] || "ℹ️"
         );
     }
@@ -50,6 +53,16 @@ export class QAReporter {
 
     async error(message) {
         return await this.log(message, QAReporter.TYPES.error);
+    }
+
+    /**
+     * Logs an action a human performed manually (e.g. while `qa.pause()` held the run), as opposed
+     * to a step executed by the scenario.
+     * @param {string} message
+     * @param {boolean} [withSnapshot=false]
+     */
+    async userAction(message, withSnapshot = false) {
+        return await this.log(message, QAReporter.TYPES.action, withSnapshot);
     }
 
     async snapshot(name = "snapshot", opts = {}) {

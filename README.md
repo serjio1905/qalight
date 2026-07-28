@@ -32,6 +32,7 @@ await qa.get("h1").shouldHaveText("Dashboard");
 - `QAReporter`: optional Playwright test attachment logger.
 - `QAAPI`: the HTTP helper exposed as `qa.api`.
 - `ExpectFramework`: the value assertion helper exposed as `qa.expect`.
+- `UserActionRecorder`: records manual user actions performed in the page while `qa.pause()` holds the run.
 - `parseXlsx`: reads the first worksheet of a downloaded `.xlsx` file into rows. Pair with `qa.downloadAndParse`.
 - `parseCsv`: reads a downloaded `.csv` file into rows. Pair with `qa.downloadAndParse`.
 
@@ -96,6 +97,10 @@ Supported options:
   the constructor creates the static `QA.reporter` for this page/test.
 - `safeMode` (`boolean`): on an action/assertion failure, pause for manual
   recovery when true; abort the process when false.
+- `recordUserActionsOnPause` (`boolean`, default `true`): while `pause()` holds
+  the run, log where the pause happened and every action a human performs in
+  the page (click, key, typing, select, drag, scroll, clipboard, navigation).
+  See "Manual user actions during a pause".
 - `apiResponseCallback` (`Function | null`): callback for JSON API responses
   observed by `qa.api.network`.
 - `consoleLoggerOptions` (`object`): booleans for forwarding page console
@@ -651,6 +656,11 @@ Returns: `Promise<void>` that resolves when `continue()` is called.
 Captures a Node-side execution trace, shows the hint, and suspends execution.
 This is useful for safe/manual test runs. Custom buttons replace the defaults.
 
+Unless `recordUserActionsOnPause` is `false`, the pause also writes a
+`MANUAL PAUSE #n` entry to `QA.reporter` (trace, test file/line, spec location,
+page URL) and starts recording the manual actions performed while the run is
+held. See "Manual user actions during a pause".
+
 #### `qa.continue()`
 
 Parameters: none.
@@ -659,6 +669,15 @@ Returns: `void`.
 
 Resolves the currently active pause and hides the hint. It does nothing when no
 pause is active.
+
+Before resuming, it logs a release entry to `QA.reporter` that states which line
+of the test script was skipped: the pause reason, the `file:line:column` of the
+scenario step that did not complete (extracted from the pause trace), the manual
+actions performed instead of it, the full execution trace, and the AI-agent fix
+guidance. The entry is written even when `recordUserActionsOnPause` is `false`
+(in that case it notes that the manual actions were not captured). When the
+pause is released by `abort()`, the entry says the step never completed instead
+of reporting it as skipped-and-continued.
 
 #### `qa.showTrace()`
 
@@ -670,7 +689,7 @@ Prints the pause-time trace with regular `console.log`, mirrors it into the
 browser console, and records it through `QA.reporter` when configured. The
 trace includes the test file/line when `testInfo` was provided.
 
-#### `qa.abort(message = "Aborted by user.")`
+#### `qa.abort(message = "Aborted.")`
 
 Parameters:
 
@@ -681,6 +700,53 @@ browser-only fallback intentionally never resolves.
 
 Closes the active pause, shows an error hint briefly, then terminates the test
 process. Use `safeMode: false` for automatic failure termination.
+
+#### Manual user actions during a pause
+
+While `pause()` holds the process, the browser stays interactive and a human can
+click, type, or drag to move the run forward. Those steps are not part of the
+scenario, so QA records them separately (option `recordUserActionsOnPause`,
+default `true`). Three kinds of entries reach `QA.reporter`:
+
+1. `⚠️ MANUAL PAUSE #n` at the start of the pause: the pause reason, the
+   execution trace (test title, test file, spec location, page URL, relevant
+   stack frames) and the AI-agent fix guidance.
+2. `👤 USER ACTION #i during pause #n` for each captured action, marked
+   explicitly as performed manually by a human and not scripted in the scenario.
+   Snapshots are attached when `withSnapshots` is enabled.
+3. `⚠️ MANUAL PAUSE #n released (Continue) — SKIPPED SCENARIO STEP` when the
+   pause ends: the skipped test-script line (`file:line:column`), the numbered
+   list of manual actions performed instead of it (or a note that none were
+   captured), the execution trace, and the same fix guidance. Released by
+   `abort()`, the entry is an error stating the step never completed.
+
+Both the pause entry and every action entry state that an AI agent investigating
+the results should fix the test so the pause does not happen again, by scripting
+the manual actions in the test file.
+
+Captured actions: click / double-click / middle- and right-click (with
+modifiers and coordinates), context menu, non-printable keys and shortcuts,
+typed values (coalesced per field instead of one entry per keystroke), committed
+values of inputs, selects, checkboxes, radios and file inputs, form submit, text
+selection, HTML5 and mouse drags, copy/cut/paste, throttled scrolling,
+navigations, and popups opened during the pause.
+
+Details worth knowing:
+
+- Clicks on the QA hint controls (Continue / Stop / Show trace) are pause
+  controls, not application actions, and are never reported.
+- Values of password-like fields are masked as `***(n chars)`.
+- Listeners are reinstalled after navigations that happen during the pause and
+  are applied to every frame of the page.
+- A `change` event for a field the human never touched during the pause (a
+  scripted value committed on blur by the first manual click) is reported with
+  an explicit note instead of being presented as a manual edit.
+- Each element is described with tag, `id`, `data-testid`, `name`, `type`,
+  `role`, `aria-label`, `placeholder`, `title`, `href`, text, and a short CSS
+  path, so the step can be scripted from the log alone.
+- Nothing here can break a pause: recording failures are swallowed, and the
+  recording flag is cleared synchronously by `continue()` so no event fired
+  after the pause was released is attributed to a human.
 
 #### `qa.copy(text)`
 
@@ -858,6 +924,7 @@ Stores a timestamped message. When `withSnapshot` is true, also attaches a
 screenshot.
 
 ### `reporter.info(message)` / `reporter.success(message)` /
+
 `reporter.warning(message)` / `reporter.error(message)`
 
 Parameters:
@@ -867,6 +934,19 @@ Parameters:
 Returns: `Promise<void>`.
 
 Convenience wrappers around `log()` with the corresponding message type.
+
+### `reporter.userAction(message, withSnapshot = false)`
+
+Parameters:
+
+- `message` (`string`): message to store.
+- `withSnapshot` (`boolean`): also attach a screenshot.
+
+Returns: `Promise<void>`.
+
+Logs an action performed manually by a human (message type `action`, icon `👤`)
+instead of a step executed by the scenario. Used by the pause user-action
+recorder; see "Manual user actions during a pause".
 
 ### `reporter.snapshot(name = "snapshot", opts = {})`
 
@@ -953,6 +1033,10 @@ what they do and does not accidentally call them as normal test actions.
 - `_cleanText(value)`: converts a value to text and normalizes common HTML entities and whitespace.
 - `_describeLastElementInQueue()`: creates a human-readable description of the queued/last element.
 - `_buildExecutionTrace(reason, details)`: captures and formats the Node-side trace used by `pause()` and `showTrace()`.
+- `_startUserActionRecording(reason)`: logs the `MANUAL PAUSE #n` entry (trace plus AI-agent fix guidance) and starts the `UserActionRecorder`.
+- `_logPauseRelease()`: stops the recorder synchronously and logs the released pause — the skipped test-script line, the manual actions performed instead of it, and the trace.
+- `_extractSpecLocation(trace)`: pulls the `*.spec` `file:line:column` out of a trace built by `_buildExecutionTrace`.
+- `_reportUserAction(message)`: reporter sink for a single captured manual action.
 - `_checkIfVisible(target)`: checks viewport visibility of a locator.
 - `_scrollCurrentElementIntoViewport()`: scrolls the selected element and its scrollable ancestors into view.
 - `_scrollContairnerUntilTargetVisible(container, target, options)`: incrementally scrolls a container vertically or horizontally until a target is visible.

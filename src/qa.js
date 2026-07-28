@@ -9,6 +9,7 @@ import { DEFAULT_WAIT_TIME, TAGS } from "./constants.js";
 import { QAReporter } from "./reporter.js";
 import { WeightPointCalculator } from "./points.js";
 import { ConsoleLogger } from "./console.js";
+import { UserActionRecorder, AI_AGENT_PAUSE_GUIDANCE } from "./user-actions.js";
 
 // How long `_highlight` may wait for its locator to resolve before skipping the highlight.
 // Cosmetic only — see `_highlight` for why it must be bounded.
@@ -41,6 +42,7 @@ export class QA {
      * @param {Object} options.restrictionMapping
      * @param {import('@playwright/test').TestInfo} options.testInfo
      * @param {boolean} options.safeMode
+     * @param {boolean} options.recordUserActionsOnPause - log manual user actions performed while `pause()` holds the run (default true)
      * @param {Function} options.apiResponseCallback
      * @param {Object} options.consoleLoggerOptions
      * @param {boolean} options.consoleLoggerOptions.warn
@@ -109,6 +111,14 @@ export class QA {
 
         this._pauseResolver = null;
         this._pausedExecutionTrace = null;
+        this._pausedReason = null;
+        this._aborting = false;
+        /** @type {boolean} */
+        this.recordUserActionsOnPause = options.recordUserActionsOnPause !== false;
+        /** @type {UserActionRecorder} */
+        this._userActionRecorder = new UserActionRecorder(page, {
+            onAction: (message) => this._reportUserAction(message),
+        });
         this.consoleLogger = new ConsoleLogger(page, options.consoleLoggerOptions);
         this.consoleLogger.startLogging();
         return this;
@@ -1051,8 +1061,10 @@ export class QA {
         type = "warning",
         traceDetails = ""
     ) {
+        this._pausedReason = text;
         this._pausedExecutionTrace = this._buildExecutionTrace(text, traceDetails);
         return new Promise(async (resolve) => {
+            await this._startUserActionRecording(text);
             await this._showHint(text, type, buttons);
             // setTimeout(() => {
             //     if (this._pauseResolver) {
@@ -1065,10 +1077,120 @@ export class QA {
 
     continue() {
         if (this._pauseResolver) {
+            this._logPauseRelease();
             this._hideHint();
             this._pauseResolver();
             this._pauseResolver = null;
         }
+    }
+
+    /**
+     * Logs where the run was suspended and starts capturing the manual actions performed while the
+     * pause holds the process. Never throws: a diagnostic must not break the pause itself.
+     * @param {string} reason
+     * @returns {Promise<void>}
+     */
+    async _startUserActionRecording(reason) {
+        if (!this.recordUserActionsOnPause) return;
+        try {
+            await this._userActionRecorder.start();
+        } catch (error) {}
+        const pauseNumber = this._userActionRecorder.pauseNumber;
+        const message = [
+            `MANUAL PAUSE #${pauseNumber} — the scenario stopped here and waits for a human: "${reason}"`,
+            "Every action performed from now until Continue/Stop is a manual user action, not a scripted step.",
+            this._pausedExecutionTrace || this._buildExecutionTrace(reason),
+            AI_AGENT_PAUSE_GUIDANCE,
+        ].join("\n");
+        if (QA.reporter) {
+            try {
+                await QA.reporter.log(message, "warning", this.withSnapshots);
+            } catch (error) {}
+        }
+    }
+
+    /**
+     * Stops the recorder and logs what the released pause means for the scenario: which test-script
+     * line did not complete (was skipped and replaced by the human), the trace of that line, and the
+     * manual actions performed instead of it.
+     * Synchronous on purpose: `continue()` resolves the pause immediately, so the recording flag and
+     * the log line must be registered before the scenario resumes.
+     * @returns {void}
+     */
+    _logPauseRelease() {
+        let captured = [];
+        if (this.recordUserActionsOnPause) {
+            try {
+                captured = this._userActionRecorder.stop();
+            } catch (error) {}
+        }
+        if (!QA.reporter) return;
+
+        const reason = this._pausedReason || "Paused";
+        const trace = this._pausedExecutionTrace || this._buildExecutionTrace(reason);
+        const specLocation = this._extractSpecLocation(trace);
+        const pauseNumber = this._userActionRecorder.pauseNumber;
+        const aborted = !!this._aborting;
+
+        const lines = aborted
+            ? [
+                  `MANUAL PAUSE #${pauseNumber} released by Stop/abort — the scenario step never completed: "${reason}"`,
+                  `Test-script line that did not complete: ${specLocation}`,
+              ]
+            : [
+                  `MANUAL PAUSE #${pauseNumber} released (Continue) — SKIPPED SCENARIO STEP: "${reason}"`,
+                  `Skipped test-script line: ${specLocation}`,
+                  "This line of the test script did not do its job: the run was resumed by a human instead of by the scenario, so treat this step as skipped/unverified.",
+              ];
+
+        if (!this.recordUserActionsOnPause) {
+            lines.push(
+                "Manual user action logging is disabled (recordUserActionsOnPause: false), so what the human did during this pause was not captured."
+            );
+        } else if (captured.length) {
+            lines.push(
+                `${captured.length} manual user action(s) were performed instead of the skipped step, none of them scripted in the scenario:`,
+                ...captured.map((action) => `   ${action.index}. ${action.description}`)
+            );
+        } else {
+            lines.push(
+                "No user action was captured in the page — the pause was released without interacting with the application."
+            );
+        }
+
+        lines.push(trace, AI_AGENT_PAUSE_GUIDANCE);
+
+        try {
+            // Not awaited: `QAReporter.log` records the line synchronously before its first await.
+            Promise.resolve(QA.reporter.log(lines.join("\n"), aborted ? "error" : "warning")).catch(() => {});
+        } catch (error) {}
+    }
+
+    /**
+     * Pulls the `*.spec` file location out of a trace produced by `_buildExecutionTrace`.
+     * @param {string} trace
+     * @returns {string} the `file:line:column` of the paused step, or a hint to read the trace.
+     */
+    _extractSpecLocation(trace) {
+        const prefix = "Spec location: ";
+        const line = String(trace || "")
+            .split("\n")
+            .find((candidate) => candidate.startsWith(prefix));
+        return line ? line.slice(prefix.length) : "unknown — see the stack frames in the trace below";
+    }
+
+    /**
+     * Reporter sink for a single manual action captured by `UserActionRecorder`.
+     * @param {string} message
+     * @returns {void}
+     */
+    _reportUserAction(message) {
+        if (!QA.reporter) return;
+        try {
+            // Not awaited: the human keeps interacting with the page while this resolves, and the log
+            // line itself is recorded synchronously.
+            Promise.resolve(QA.reporter.userAction(message, this.withSnapshots)).catch(() => {});
+        } catch (error) {}
     }
 
     async showTrace() {
@@ -1084,7 +1206,10 @@ export class QA {
         }
     }
 
-    async abort(msg = "Aborted by user.") {
+    async abort(msg = "Aborted.") {
+        // The pause released below ends the run, so nothing is "skipped and continued" — the release
+        // log must say the step never completed instead.
+        this._aborting = true;
         // Capture where in the *.spec file execution stopped, and a screenshot of this moment.
         const trace = this._pausedExecutionTrace || this._buildExecutionTrace(msg);
         console.log(trace);
