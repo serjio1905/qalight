@@ -101,6 +101,10 @@ Supported options:
   the run, log where the pause happened and every action a human performs in
   the page (click, key, typing, select, drag, scroll, clipboard, navigation).
   See "Manual user actions during a pause".
+- `captureContextVariables` (`boolean`, default `true`): at every step, read the
+  live variables of the test script (locals at the line that called QA and the
+  file-level variables of the spec) so `showTrace()` can print them. Costs about
+  2 ms per step; set it to `false` to switch the capture off.
 - `apiResponseCallback` (`Function | null`): callback for JSON API responses
   observed by `qa.api.network`.
 - `consoleLoggerOptions` (`object`): booleans for forwarding page console
@@ -689,6 +693,33 @@ Prints the pause-time trace with regular `console.log`, mirrors it into the
 browser console, and records it through `QA.reporter` when configured. The
 trace includes the test file/line when `testInfo` was provided.
 
+After the trace it prints the test context variables — the data the scenario was
+working with when it reached this point:
+
+```text
+Test context variables (values live at the test-script line that started this step):
+  <anonymous> (tests/checkout.spec.js:16:14)  <- spec file
+    local (variables at the call site):
+      orderId = 42
+      customer = {name: "olha", roles: ["admin", "qa"]}
+      page = [Page]
+  File-level variables of tests/checkout.spec.js (spec file):
+      BASE_URL = "https://shop.example.com"
+```
+
+Values are rendered short: strings are cut at 200 characters, objects and arrays
+are expanded two levels deep, and class instances are shown as their type
+(`[Page]`, `[QA]`) instead of being dumped. Functions and imported modules are
+left out.
+
+The variables are read at the start of every step, because a `*.spec.js` frame
+is only readable while it is on the stack — once QA awaits the browser, the
+scenario frame is suspended and its values can no longer be reached. `showTrace`
+therefore reports the variables of the step the pause happened in. If a capture
+finds no test-script frame at all (a pause raised before any step ran), the
+section says so instead of printing values. With `captureContextVariables: false`
+the section states that the capture is switched off.
+
 #### `qa.abort(message = "Aborted.")`
 
 Parameters:
@@ -1036,6 +1067,7 @@ what they do and does not accidentally call them as normal test actions.
 - `_startUserActionRecording(reason)`: logs the `MANUAL PAUSE #n` entry (trace plus AI-agent fix guidance) and starts the `UserActionRecorder`.
 - `_logPauseRelease()`: stops the recorder synchronously and logs the released pause — the skipped test-script line, the manual actions performed instead of it, and the trace.
 - `_extractSpecLocation(trace)`: pulls the `*.spec` `file:line:column` out of a trace built by `_buildExecutionTrace`.
+- `_captureStepContext()`: reads the live variables of the test script at the start of a step (from `_executeQueue`, the `expect` getter and `pause()`) and keeps them for `showTrace()`.
 - `_reportUserAction(message)`: reporter sink for a single captured manual action.
 - `_checkIfVisible(target)`: checks viewport visibility of a locator.
 - `_scrollCurrentElementIntoViewport()`: scrolls the selected element and its scrollable ancestors into view.

@@ -10,6 +10,7 @@ import { QAReporter } from "./reporter.js";
 import { WeightPointCalculator } from "./points.js";
 import { ConsoleLogger } from "./console.js";
 import { UserActionRecorder, AI_AGENT_PAUSE_GUIDANCE } from "./user-actions.js";
+import { captureContextVariables, formatContextVariables } from "./context-variables.js";
 
 // How long `_highlight` may wait for its locator to resolve before skipping the highlight.
 // Cosmetic only — see `_highlight` for why it must be bounded.
@@ -43,6 +44,7 @@ export class QA {
      * @param {import('@playwright/test').TestInfo} options.testInfo
      * @param {boolean} options.safeMode
      * @param {boolean} options.recordUserActionsOnPause - log manual user actions performed while `pause()` holds the run (default true)
+     * @param {boolean} options.captureContextVariables - read the live variables of the test script at every step, so `showTrace()` can print them (default true)
      * @param {Function} options.apiResponseCallback
      * @param {Object} options.consoleLoggerOptions
      * @param {boolean} options.consoleLoggerOptions.warn
@@ -115,6 +117,16 @@ export class QA {
         this._aborting = false;
         /** @type {boolean} */
         this.recordUserActionsOnPause = options.recordUserActionsOnPause !== false;
+        /** @type {boolean} */
+        this.captureContextVariables = options.captureContextVariables !== false;
+        /**
+         * Variables of the test script around the step being executed, refreshed at every step
+         * entry — see `_captureStepContext`.
+         * @type {import("./context-variables.js").ContextVariables | null}
+         */
+        this._lastStepContext = null;
+        /** @type {import("./context-variables.js").ContextVariables | null} */
+        this._pausedStepContext = null;
         /** @type {UserActionRecorder} */
         this._userActionRecorder = new UserActionRecorder(page, {
             onAction: (message) => this._reportUserAction(message),
@@ -1034,6 +1046,9 @@ export class QA {
      * @type {import("./expect.js").ExpectFramework}
      */
     get expect() {
+        // Only the spec reads this getter (`await qa.expect.equal(...)`), and it reads it before the
+        // assertion awaits anything — the one moment its variables can be captured.
+        this._captureStepContext();
         return this._expect;
     }
 
@@ -1062,6 +1077,11 @@ export class QA {
         traceDetails = ""
     ) {
         this._pausedReason = text;
+        // A `qa.pause(...)` written directly in the spec is still synchronous with it, so this can
+        // read the variables of the paused line itself; a pause raised from inside the framework
+        // captures nothing new and keeps the context of the step that failed.
+        this._captureStepContext();
+        this._pausedStepContext = this._lastStepContext;
         this._pausedExecutionTrace = this._buildExecutionTrace(text, traceDetails);
         return new Promise(async (resolve) => {
             await this._startUserActionRecording(text);
@@ -1193,16 +1213,43 @@ export class QA {
         } catch (error) {}
     }
 
+    /**
+     * Reads the variables the test script holds right now and keeps them as the context of the
+     * current step. Best effort by design: the variables of a `*.spec.js` frame only exist while
+     * that frame is on the stack, so callers must invoke this before awaiting anything, and a
+     * capture that finds no test-script frame leaves the previous one in place.
+     * @returns {void}
+     */
+    _captureStepContext() {
+        if (!this.captureContextVariables) return;
+        try {
+            const context = captureContextVariables();
+            // A capture without test-script frames is kept only while there is nothing better: it
+            // still carries the reason no variables could be read.
+            if (context?.frames?.length || !this._lastStepContext) this._lastStepContext = context;
+        } catch (error) {}
+    }
+
+    /**
+     * Prints the execution trace of the paused step together with the values the test script was
+     * working with: the locals at the line that called into the framework, the variables of the
+     * frames above it and the file-level variables of the `*.spec.js` file.
+     * @returns {Promise<void>}
+     */
     async showTrace() {
         const trace = this._pausedExecutionTrace || this._buildExecutionTrace("Trace requested outside pause()");
-        console.log(trace);
+        const context = this._pausedStepContext || this._lastStepContext;
+        const report = this.captureContextVariables
+            ? `${trace}\n${formatContextVariables(context)}`
+            : `${trace}\nTest context variables: not captured (captureContextVariables: false).`;
+        console.log(report);
         try {
             await this.page.evaluate((traceText) => {
                 console.log(traceText);
-            }, trace);
+            }, report);
         } catch (error) {}
         if (QA.reporter) {
-            await QA.reporter.log(trace, "info");
+            await QA.reporter.log(report, "info");
         }
     }
 
@@ -1319,6 +1366,10 @@ export class QA {
     }
 
     async _executeQueue(tries = 0, checking = false) {
+        // First statement of the step and still synchronous with the spec call, which is the only
+        // moment the test-script frame is readable. Retries (`tries > 0`) run after an await, when
+        // that frame is already gone, so they must not overwrite what the entry captured.
+        if (tries === 0) this._captureStepContext();
         if (this.queue.length === 0) return this;
         await this.waitFor(this.timeout, false);
         await this.api.waitForIdle();
