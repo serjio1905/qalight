@@ -17,7 +17,7 @@
  * Nothing here may throw: a diagnostic must never break the run it is diagnosing.
  */
 
-import { Session } from "node:inspector";
+import { Session, url as inspectorUrl } from "node:inspector";
 import { dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -142,6 +142,15 @@ const SCOPE_SERIALIZER = `function () {
  * @returns {ContextVariables}
  */
 export function captureContextVariables({ cwd = safeCwd(), maxFrames = MAX_FRAMES } = {}) {
+    // `Debugger.pause` below stops the one V8 debugger the whole process shares, so under
+    // `--inspect` the attached client (VS Code, Chrome DevTools) reports every capture as a stop
+    // with no breakpoint, on the `noop()` statement this module pauses on. A debugging session is
+    // worth more than the variables, so the capture stands down while one can be attached —
+    // `inspector.url()` is only defined once the inspector has been opened.
+    if (inspectorUrl() !== undefined) {
+        return { frames: [], files: [], unavailable: "an external debugger is attached (running under --inspect)" };
+    }
+
     // The inspector reports positions in the code V8 actually runs, which for a transpiled spec is
     // not the code the user wrote. An `Error` stack taken here covers the same frames in the same
     // order and is source-mapped by the test runner, so it supplies the readable positions.
